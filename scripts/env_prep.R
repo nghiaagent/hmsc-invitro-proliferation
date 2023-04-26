@@ -1,4 +1,4 @@
-# ------------------------------------------------LOAD PACKAGES----------------------------------------------------
+#### Load packages
 ### Install pacman, a package manager to install and load multiple packages at once
 
 if (!requireNamespace("pacman")) {
@@ -49,3 +49,18 @@ BiocManager::install(
 
 invisible(lapply(list_Bioc_Pkg, function(x)
   library(x, character.only = TRUE)))
+
+#### Create folders for input and outputs, if not already present
+# Code below means "if test for directory presence returns FALSE, create the directory"
+
+### Check and create ./output/ folder
+
+if (!dir.exists("./output")) {
+  dir.create("./output")
+}
+
+### Check and create ./input/  folder
+
+if (!dir.exists("./input")) {
+  dir.create("./input")
+}
