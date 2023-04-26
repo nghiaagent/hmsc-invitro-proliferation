@@ -3,10 +3,10 @@
 
 source(file = "./scripts/pkg_load.R")
 
-# ------------------------------------------------------------------------------------------------------------------
-setwd(
-  "U:/Research/Projects/ihbi/grc/grc_general/Stem Cell Group/Sofia/Transcriptomics"
-)
+### Import transcript quantification estimates for downstream analysis
+### I changed some folders around. Input data now in ./input and excluded from
+### git repo inside .gitignore
+
 tx2gene <- read.csv("2-Input/Homo_sapiens.GRCh38.91_tx2gene.csv")
 head(tx2gene, 5)
 folder <- c("2-Input/cell_quants")
