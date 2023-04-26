@@ -35,7 +35,7 @@ all(file.exists(files_tx_quant)) # Make sure that all transcript files exist
 
 # Import quantification results
 
-matrix_tx_quant <-
+matrix_gene_quant <-
   tximport(
     files_tx_quant,
     type = "salmon",
@@ -44,8 +44,8 @@ matrix_tx_quant <-
     countsFromAbundance = "lengthScaledTPM"
   )  ### NOTE : 4545 transcripts missing ####
 
-names(matrix_tx_quant) # Check format
+names(matrix_gene_quant) # Check format. abundance: TPM, counts: estimated gene counts, length: gene lengths
 
 # Export quantification results
 
-write.csv(matrix_tx_quant, file = "./output/matrix_transcript_quantification.csv")
+write.csv(matrix_gene_quant, file = "./output/matrix_gene_quantification.csv")

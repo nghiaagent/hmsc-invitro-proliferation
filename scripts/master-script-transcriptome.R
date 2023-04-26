@@ -5,7 +5,7 @@ source(file = "./scripts/env_prep.R")
 
 ### Import transcript quantification estimates for downstream analysis
 # Code now calls tx_quant_import.R script
-# Output is matrix_tx_quant, written to ./output/matrix_transcript_quantification.csv
+# Output is matrix_gene_quant, written to ./output/matrix_gene_quantification.csv
 
 source(file = "./scripts/tx_quant_import.R")
 
