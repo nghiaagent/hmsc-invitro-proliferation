@@ -50,3 +50,6 @@ rsconnect/
 
 # Files in output folders that are not meant to be seen outside
 output*/
+
+# Files in data folders that are not meant to be seen outside
+input/
