@@ -1,7 +1,7 @@
-### Load all packages using script under ./scripts/pkg_load.R
-# If more packages are needed, please add them to pkg_load.R
+### Load all packages using script under ./scripts/env_prep.R
+# If more packages are needed, please add them to env_prep.R
 
-source(file = "./scripts/pkg_load.R")
+source(file = "./scripts/env_prep.R")
 
 ### Import transcript quantification estimates for downstream analysis
 # Code now calls tx_quant_import.R script
