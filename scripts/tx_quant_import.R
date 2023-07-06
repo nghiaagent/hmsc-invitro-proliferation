@@ -11,6 +11,12 @@ table_samples <- read_csv("./input/annotation/Cell_sample_table.csv") %>%
   mutate(ID = str_replace(ID, "hMSC_", "hMSC-")) %>%
   mutate(ID = str_replace(ID, "(?<=0)_(?=[:digit:])", "-"))
 
+# Grab data from ENSEMBL109
+
+ensembl109 <- useMart(host="https://oct2022.archive.ensembl.org",
+                      biomart="ENSEMBL_MART_ENSEMBL",
+                      dataset="hsapiens_gene_ensembl") 
+
 # Construct transcriptome dataset for limma-voom
 
 ## Construct this for cDNA data only
@@ -68,6 +74,19 @@ quant_cDNA_DGE <- DGEList(assays(quant_cDNA_gene)[["counts"]])
 quant_cDNA_DGE$samples$ID <- rownames(quant_cDNA_DGE$samples)
   
 quant_cDNA_DGE$samples <- left_join(quant_cDNA_DGE$samples, table_samples)
+
+## Add annotation data
+
+geneid <- rownames(quant_cDNA_DGE)
+
+genes <- select(ensembl109,
+                keys=geneid,
+                keytype="ensembl_gene_id", 
+                columns=c("ensembl_gene_id", "external_gene_name", "description","chromosome_name","gene_biotype")) 
+
+colnames(genes) <- c("ENSEMBL","SYMBOL","GENENAME","TXCHROM", "BIOTYPE")
+
+quant_cDNA_DGE$genes <- genes
 
 # Export quantification results
 
@@ -132,6 +151,20 @@ quant_cDNA_ncRNA_ENSEMBL_DGE <- DGEList(assays(quant_cDNA_ncRNA_ENSEMBL_gene)[["
 quant_cDNA_ncRNA_ENSEMBL_DGE$samples$ID <- rownames(quant_cDNA_ncRNA_ENSEMBL_DGE$samples)
 
 quant_cDNA_ncRNA_ENSEMBL_DGE$samples <- left_join(quant_cDNA_ncRNA_ENSEMBL_DGE$samples, table_samples)
+
+
+## Add annotation data
+
+geneid <- rownames(quant_cDNA_ncRNA_ENSEMBL_DGE)
+
+genes <- select(ensembl109,
+                keys=geneid,
+                keytype="ensembl_gene_id", 
+                columns=c("ensembl_gene_id", "external_gene_name", "description","chromosome_name","gene_biotype")) 
+
+colnames(genes) <- c("ENSEMBL","SYMBOL","GENENAME","TXCHROM", "BIOTYPE")
+
+quant_cDNA_ncRNA_ENSEMBL_DGE$genes <- genes
 
 # Export quantification results
 
