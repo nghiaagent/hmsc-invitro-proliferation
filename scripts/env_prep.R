@@ -15,7 +15,7 @@ library(BiocManager)
 
 ### Load all packages with pacman
 
-p_load(readr, dplyr, tidyr, tibble)
+p_load(tibble, tidyverse)
 
 ### List Bioconductor packages to be required
 
@@ -33,7 +33,9 @@ list_Bioc_Pkg <- c(
   "clusterProfiler",
   "EnsDb.Hsapiens.v75",
   "fgsea",
-  "ComplexHeatmap"
+  "ComplexHeatmap",
+  "tximeta",
+  "SummarizedExperiment"
 )
 
 ### Install Bioconductor packages, if they are not yet installed and/or not up-to-date
