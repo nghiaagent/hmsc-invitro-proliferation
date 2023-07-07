@@ -15,7 +15,7 @@ library(BiocManager)
 
 ### Load all packages with pacman
 
-p_load(tibble, tidyverse)
+p_load(tibble, tidyverse, ggrepel)
 
 ### List Bioconductor packages to be required
 
