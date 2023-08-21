@@ -15,11 +15,13 @@ library(BiocManager)
 
 ### Load all packages with pacman
 
-p_load(tibble, tidyverse, ggrepel)
+p_load(tibble, tidyverse, ggrepel, ggpubr, rstatix)
 
 ### List Bioconductor packages to be required
 
 list_Bioc_Pkg <- c(
+  "BiocHubsShiny",
+  "AnnotationHub",
   "tximport",
   "edgeR",
   "Homo.sapiens",
@@ -61,8 +63,14 @@ if (!dir.exists("./output")) {
   dir.create("./output")
 }
 
-### Check and create ./input/  folder
+if (!dir.exists("./output/plots_QC")) {
+  dir.create("./output/plots_QC")
+}
+
+### Check and create ./input/  folder and subfolders
 
 if (!dir.exists("./input")) {
   dir.create("./input")
 }
+
+
