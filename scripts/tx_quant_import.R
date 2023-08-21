@@ -1,10 +1,11 @@
 ### Don't source this file by itself; call in from another file after running env_prep.R
-### Source 
+### Source
 ### Import salmon transcript quantification results to a single matrix, export that matrix.
 
 # Construct sample table
 
-table_samples <- read_csv("./input/annotation/Cell_sample_table.csv") %>%
+table_samples <-
+  read_csv("./input/annotation/Cell_sample_table.csv") %>%
   mutate(ID = name,
          .keep = "unused") %>%
   dplyr::select(!c(name1)) %>%
@@ -13,36 +14,36 @@ table_samples <- read_csv("./input/annotation/Cell_sample_table.csv") %>%
 
 # Grab data from ENSEMBL109
 
-ensembl109 <- useMart(host="https://oct2022.archive.ensembl.org",
-                      biomart="ENSEMBL_MART_ENSEMBL",
-                      dataset="hsapiens_gene_ensembl") 
+ah <- AnnotationHub()
+ensembl109 <- ah[["AH109606"]]
 
 # Construct transcriptome dataset for limma-voom
 
 ## Construct this for cDNA data only
 
 files_tx_quant <-
-  list.files(path = "./input/cDNA",
-             pattern = "*.sf",
-             recursive = TRUE,
-             full.names = T)
+  list.files(
+    path = "./input/cDNA",
+    pattern = "*.sf",
+    recursive = TRUE,
+    full.names = T
+  )
 
-names_tx_quant <- str_replace(files_tx_quant, pattern = "IonXpress.*$", "") %>% 
-  str_replace(pattern = "./input/cDNA/", "") %>% 
+names_tx_quant <-
+  str_replace(files_tx_quant, pattern = "IonXpress.*$", "") %>%
+  str_replace(pattern = "./input/cDNA/", "") %>%
   str_replace(pattern = "_$", "")
 
 list_files <- tibble(files = files_tx_quant,
-                         names = names_tx_quant)
+                     names = names_tx_quant)
 
 all(file.exists(list_files$files)) # Make sure that all transcript files exist
 
 # Import quantification results
 
 quant_cDNA_tx <-
-  tximeta(
-    list_files,
-    type = "salmon"
-  ) 
+  tximeta(list_files,
+          type = "salmon")
 
 # No issues
 
@@ -72,19 +73,29 @@ quant_cDNA_gene <- summarizeToGene(quant_cDNA_tx,
 quant_cDNA_DGE <- DGEList(assays(quant_cDNA_gene)[["counts"]])
 
 quant_cDNA_DGE$samples$ID <- rownames(quant_cDNA_DGE$samples)
-  
-quant_cDNA_DGE$samples <- left_join(quant_cDNA_DGE$samples, table_samples)
+
+quant_cDNA_DGE$samples <-
+  left_join(quant_cDNA_DGE$samples, table_samples)
 
 ## Add annotation data
 
 geneid <- rownames(quant_cDNA_DGE)
 
-genes <- select(ensembl109,
-                keys=geneid,
-                keytype="ensembl_gene_id", 
-                columns=c("ensembl_gene_id", "external_gene_name", "description","chromosome_name","gene_biotype")) 
-
-colnames(genes) <- c("ENSEMBL","SYMBOL","GENENAME","TXCHROM", "BIOTYPE")
+genes <-
+  AnnotationDbi::select(
+    ensembl109,
+    keys = geneid,
+    keytype = "GENEID",
+    columns = c(
+      "ENTREZID",
+      "GENENAME",
+      "DESCRIPTION",
+      "GENEBIOTYPE",
+      "SEQNAME"
+    )
+  ) %>%
+  dplyr::distinct(GENEID,
+                  .keep_all = TRUE)
 
 quant_cDNA_DGE$genes <- genes
 
@@ -99,13 +110,16 @@ saveRDS(quant_cDNA_gene, file = "./output/quant_cDNA_gene.RDS")
 ## Construct this for cDNA + ncRNA data from ENSEMBL
 
 files_tx_quant <-
-  list.files(path = "./input/cDNA_ncRNA_ENSEMBL/",
-             pattern = "*.sf",
-             recursive = TRUE,
-             full.names = T)
+  list.files(
+    path = "./input/cDNA_ncRNA_ENSEMBL/",
+    pattern = "*.sf",
+    recursive = TRUE,
+    full.names = T
+  )
 
-names_tx_quant <- str_replace(files_tx_quant, pattern = "IonXpress.*$", "") %>% 
-  str_replace(pattern = "./input/cDNA_ncRNA_ENSEMBL/", "") %>% 
+names_tx_quant <-
+  str_replace(files_tx_quant, pattern = "IonXpress.*$", "") %>%
+  str_replace(pattern = "./input/cDNA_ncRNA_ENSEMBL/", "") %>%
   str_replace(pattern = "_$", "")
 
 list_files <- tibble(files = files_tx_quant,
@@ -116,10 +130,8 @@ all(file.exists(list_files$files)) # Make sure that all transcript files exist
 # Import quantification results
 
 quant_cDNA_ncRNA_ENSEMBL_tx <-
-  tximeta(
-    list_files,
-    type = "salmon"
-  ) 
+  tximeta(list_files,
+          type = "salmon")
 
 # No issues
 
@@ -140,29 +152,42 @@ retrieveDb(quant_cDNA_ncRNA_ENSEMBL_tx) %>% class()
 
 # Summarise transcripts quantification to genes
 
-quant_cDNA_ncRNA_ENSEMBL_gene <- summarizeToGene(quant_cDNA_ncRNA_ENSEMBL_tx,
-                                                 countsFromAbundance = "lengthScaledTPM")
+quant_cDNA_ncRNA_ENSEMBL_gene <-
+  summarizeToGene(quant_cDNA_ncRNA_ENSEMBL_tx,
+                  countsFromAbundance = "lengthScaledTPM")
 
 # Create object for DGE with edgeR
 ## Add sample data
 
-quant_cDNA_ncRNA_ENSEMBL_DGE <- DGEList(assays(quant_cDNA_ncRNA_ENSEMBL_gene)[["counts"]])
+quant_cDNA_ncRNA_ENSEMBL_DGE <-
+  DGEList(assays(quant_cDNA_ncRNA_ENSEMBL_gene)[["counts"]])
 
-quant_cDNA_ncRNA_ENSEMBL_DGE$samples$ID <- rownames(quant_cDNA_ncRNA_ENSEMBL_DGE$samples)
+quant_cDNA_ncRNA_ENSEMBL_DGE$samples$ID <-
+  rownames(quant_cDNA_ncRNA_ENSEMBL_DGE$samples)
 
-quant_cDNA_ncRNA_ENSEMBL_DGE$samples <- left_join(quant_cDNA_ncRNA_ENSEMBL_DGE$samples, table_samples)
+quant_cDNA_ncRNA_ENSEMBL_DGE$samples <-
+  left_join(quant_cDNA_ncRNA_ENSEMBL_DGE$samples, table_samples)
 
 
 ## Add annotation data
 
 geneid <- rownames(quant_cDNA_ncRNA_ENSEMBL_DGE)
 
-genes <- select(ensembl109,
-                keys=geneid,
-                keytype="ensembl_gene_id", 
-                columns=c("ensembl_gene_id", "external_gene_name", "description","chromosome_name","gene_biotype")) 
-
-colnames(genes) <- c("ENSEMBL","SYMBOL","GENENAME","TXCHROM", "BIOTYPE")
+genes <-
+  AnnotationDbi::select(
+    ensembl109,
+    keys = geneid,
+    keytype = "GENEID",
+    columns = c(
+      "ENTREZID",
+      "GENENAME",
+      "DESCRIPTION",
+      "GENEBIOTYPE",
+      "SEQNAME"
+    )
+  ) %>%
+  dplyr::distinct(GENEID,
+                  .keep_all = TRUE)
 
 quant_cDNA_ncRNA_ENSEMBL_DGE$genes <- genes
 
@@ -173,4 +198,3 @@ saveRDS(quant_cDNA_ncRNA_ENSEMBL_DGE, file = "./output/quant_cDNA_ncRNA_ENSEMBL_
 saveRDS(quant_cDNA_ncRNA_ENSEMBL_tx, file = "./output/quant_cDNA_ncRNA_ENSEMBL_tx.RDS")
 
 saveRDS(quant_cDNA_ncRNA_ENSEMBL_gene, file = "./output/quant_cDNA_ncRNA_ENSEMBL_gene.RDS")
-
