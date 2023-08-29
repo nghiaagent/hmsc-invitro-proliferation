@@ -44,7 +44,6 @@ list_Bioc_Pkg <- c(
 
 BiocManager::install(
   pkgs = list_Bioc_Pkg,
-  update = TRUE,
   ask = FALSE,
   force = FALSE
 )
@@ -65,6 +64,10 @@ if (!dir.exists("./output")) {
 
 if (!dir.exists("./output/plots_QC")) {
   dir.create("./output/plots_QC")
+}
+
+if (!dir.exists("./output/QC")) {
+  dir.create("./output/QC")
 }
 
 ### Check and create ./input/  folder and subfolders
