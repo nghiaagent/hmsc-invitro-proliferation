@@ -42,7 +42,7 @@ plot_libsize <- ggplot(quant_libsize_plot,
   scale_x_discrete(guide = guide_axis(angle = 90)) +
   labs(x = "",
        y = "Library size (million)",
-       title = "Size of libraries mapped to different transcriptomes",
+       title = "Size of libraries mapped to mRNA only vs mRNA + ncRNA transcriptomes",
        fill = "Transcriptome type")
 
 ggsave("./output/plots_QC/Library size.png",
@@ -57,7 +57,7 @@ t.test(quant_libsize$lib.size_cDNA,
 
 ## They are significantly different. More counts (95% CI 201143-304042) in the cDNA-ncRNA transcriptome. 
 
-# Get average count for each gene in all samples
+# Get average count for each gene in all samples, sorted from highest to lowest
 
 df_stats_cDNA <- rowMeans(quant_cDNA_DGE$counts) %>%
   as_tibble() %>%
@@ -65,8 +65,118 @@ df_stats_cDNA <- rowMeans(quant_cDNA_DGE$counts) %>%
   relocate(ENSEMBL) %>%
   dplyr::rename("average_counts" = "value") %>%
   mutate(ratio_total_counts = average_counts/sum(average_counts)) %>%
-  left_join(quant_cDNA_DGE$genes, by = join_by(ENSEMBL == ENSEMBL))
+  left_join(quant_cDNA_DGE$genes, by = join_by(ENSEMBL == GENEID)) %>%
+  arrange(desc(ratio_total_counts))
+
+df_stats_cDNA_ncRNA_ENSEMBL <- rowMeans(quant_cDNA_ncRNA_ENSEMBL_DGE$counts) %>%
+  as_tibble() %>%
+  mutate(ENSEMBL = rownames(quant_cDNA_ncRNA_ENSEMBL_DGE$counts)) %>%
+  relocate(ENSEMBL) %>%
+  dplyr::rename("average_counts" = "value") %>%
+  mutate(ratio_total_counts = average_counts/sum(average_counts)) %>%
+  left_join(quant_cDNA_ncRNA_ENSEMBL_DGE$genes, by = join_by(ENSEMBL == GENEID)) %>%
+  arrange(desc(ratio_total_counts))
+
+## Write list of top 50 genes
+
+head(df_stats_cDNA, 50) %>%
+  write_csv("./output/QC/Top_20_Expressed_Genes_cDNA.csv")
 
 
-df_avg_counts <- tibble(quant_cDNA_DGE$genes$SYMBOL,
-                        quant_cDNA_DGE$genes$GENENAME)
+head(df_stats_cDNA_ncRNA_ENSEMBL, 50) %>%
+  write_csv("./output/QC/Top_20_Expressed_Genes_cDNA_ncRNA_ENSEMBL.csv")
+
+## Filter genes with low expression using edgeR function
+
+keep_cDNA_edgeRfiter <- filterByExpr(quant_cDNA_DGE,
+                                      group = "condition_ID")
+
+quant_cDNA_DGE_edgeRfilter <- quant_cDNA_DGE[keep_cDNA_edgeRfiter, , keep.lib.sizes=FALSE]
+
+keep_cDNA_ncRNA_ENSEMBL_edgeRfiter <- filterByExpr(quant_cDNA_ncRNA_ENSEMBL_DGE,
+                                     group = "condition_ID")
+
+quant_cDNA_ncRNA_ENSEMBL_DGE_edgeRfilter <- quant_cDNA_ncRNA_ENSEMBL_DGE[keep_cDNA_ncRNA_ENSEMBL_edgeRfiter, , keep.lib.sizes=FALSE]
+
+## cDNA only: from 38254 genes to 13780 genes (out of 18k genes targeted by AmpliSeq)
+## cDNA + ncRNA from ENSEMBL: from 64541 to 14457 genes (out of 18k + 2k genes targeted by AmpliSeq)
+
+## Filter genes with low expression like how Mike Harvey did it
+## Remove genes with median CPM (across all samples) < 0.5 
+
+expr_cutoff <- 0.5 # in cpm sum(median_cpm > expr_cutoff)
+
+quant_cDNA_median_cpm <- apply(cpm(quant_cDNA_DGE), 1, median)
+
+quant_cDNA_DGE_Nickfilter <- quant_cDNA_DGE[quant_cDNA_median_cpm > expr_cutoff, , keep.lib.sizes=FALSE]
+
+quant_cDNA_ncRNA_ENSEMBL_median_cpm <- apply(cpm(quant_cDNA_ncRNA_ENSEMBL_DGE), 1, median)
+
+quant_cDNA_ncRNA_ENSEMBL_DGE_Nickfilter <- quant_cDNA_ncRNA_ENSEMBL_DGE[quant_cDNA_ncRNA_ENSEMBL_median_cpm > expr_cutoff, , keep.lib.sizes=FALSE]
+
+## cDNA only: from 38254 genes to 11995 genes (out of 18k genes targeted by AmpliSeq)
+## cDNA + ncRNA from ENSEMBL: from 64541 to 12455 genes (out of 18k + 2k genes targeted by AmpliSeq)
+## keep.lib.size = FALSE recalculates lib.size
+
+# Heatmap and density plots - copied from Sofia's pipeline
+
+log.cutoff <- log2(expr_cutoff)
+
+## cDNA only
+
+png("./output/plots_QC/Density of count values - cDNA only.png", width = 10, height = 30, units = 'cm', res = 600) 
+nsamples <- ncol(quant_cDNA_DGE) 
+col <- rainbow(nsamples) 
+par(mfrow=c(3,1)) 
+lcpm.Raw <- cpm(quant_cDNA_DGE$counts, log=TRUE) 
+plot(density(lcpm.Raw[,1]), col=col[1], 
+     xlim=c(-10,20), ylim=c(0,0.3), main="", xlab="") 
+for (i in 2:nsamples){ den <-density(lcpm.Raw[,i]) 
+lines(den$x, den$y, col=col[i]) } 
+abline(v=log.cutoff, col="red", lwd=1, lty=2, main="") 
+title("Raw data",xlab="log2-CPM")
+
+lcpm.Filt1 <- cpm(quant_cDNA_DGE_edgeRfilter$counts, log=TRUE) 
+plot(density(lcpm.Filt1[,1]), col=col[1], xlim=c(-10,20), ylim=c(0,0.3), main="", xlab="") 
+for (i in 2:nsamples){ den <-density(lcpm.Filt1[,i]) 
+lines(den$x, den$y, col=col[i]) } 
+abline(v=log.cutoff, col="red", lwd=1, lty=2, main="") 
+title("Filtered data (edgeR FilterByExpr())",xlab="log2-CPM") 
+
+lcpm.Filt2 <- cpm(quant_cDNA_DGE_Nickfilter$counts, log=TRUE) 
+plot(density(lcpm.Filt2[,1]), col=col[1], xlim=c(-10,20), ylim=c(0,0.3), main="", xlab="") 
+for (i in 2:nsamples){ den <-density(lcpm.Filt2[,i]) 
+lines(den$x, den$y, col=col[i]) } 
+abline(v=log.cutoff, col="red", lwd=1, lty=2, main="") 
+title("Filtered data (median logCPM > 0.5)",xlab="log2-CPM") 
+dev.off()
+
+## cDNA and ncRNA
+
+png("./output/plots_QC/Density of count values - cDNA and ncRNA.png", width = 10, height = 30, units = 'cm', res = 600) 
+nsamples <- ncol(quant_cDNA_ncRNA_ENSEMBL_DGE) 
+col <- rainbow(nsamples) 
+par(mfrow=c(3,1)) 
+lcpm.Raw <- cpm(quant_cDNA_ncRNA_ENSEMBL_DGE$counts, log=TRUE) 
+plot(density(lcpm.Raw[,1]), col=col[1], 
+     xlim=c(-10,20), ylim=c(0,0.3), main="", xlab="") 
+for (i in 2:nsamples){ den <-density(lcpm.Raw[,i]) 
+lines(den$x, den$y, col=col[i]) } 
+abline(v=log.cutoff, col="red", lwd=1, lty=2, main="") 
+title("Raw data",xlab="log2-CPM")
+
+lcpm.Filt1 <- cpm(quant_cDNA_ncRNA_ENSEMBL_DGE_edgeRfilter$counts, log=TRUE) 
+plot(density(lcpm.Filt1[,1]), col=col[1], xlim=c(-10,20), ylim=c(0,0.3), main="", xlab="") 
+for (i in 2:nsamples){ den <-density(lcpm.Filt1[,i]) 
+lines(den$x, den$y, col=col[i]) } 
+abline(v=log.cutoff, col="red", lwd=1, lty=2, main="") 
+title("Filtered data (edgeR FilterByExpr())",xlab="log2-CPM") 
+
+lcpm.Filt2 <- cpm(quant_cDNA_ncRNA_ENSEMBL_DGE_Nickfilter$counts, log=TRUE) 
+plot(density(lcpm.Filt2[,1]), col=col[1], xlim=c(-10,20), ylim=c(0,0.3), main="", xlab="") 
+for (i in 2:nsamples){ den <-density(lcpm.Filt2[,i]) 
+lines(den$x, den$y, col=col[i]) } 
+abline(v=log.cutoff, col="red", lwd=1, lty=2, main="") 
+title("Filtered data (median logCPM > 0.5)",xlab="log2-CPM") 
+dev.off()
+
