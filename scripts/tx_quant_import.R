@@ -10,7 +10,8 @@ table_samples <-
          .keep = "unused") %>%
   dplyr::select(!c(name1)) %>%
   mutate(ID = str_replace(ID, "hMSC_", "hMSC-")) %>%
-  mutate(ID = str_replace(ID, "(?<=0)_(?=[:digit:])", "-"))
+  mutate(ID = str_replace(ID, "(?<=0)_(?=[:digit:])", "-")) %>%
+  mutate(condition_ID = str_c(Passage, Day, Treatment, sep = ""))
 
 # Grab data from ENSEMBL109
 
