@@ -91,28 +91,32 @@ head(df_stats_cDNA_ncRNA_ENSEMBL, 50) %>%
 keep_cDNA_edgeRfiter <- filterByExpr(quant_cDNA_DGE,
                                       group = "condition_ID")
 
-quant_cDNA_DGE_edgeRfilter <- quant_cDNA_DGE[keep_cDNA_edgeRfiter, , keep.lib.sizes=FALSE]
+quant_cDNA_DGE_edgeRfilter <- quant_cDNA_DGE[keep_cDNA_edgeRfiter, , keep.lib.sizes=FALSE] %>%
+  calcNormFactors()
 
 keep_cDNA_ncRNA_ENSEMBL_edgeRfiter <- filterByExpr(quant_cDNA_ncRNA_ENSEMBL_DGE,
                                      group = "condition_ID")
 
-quant_cDNA_ncRNA_ENSEMBL_DGE_edgeRfilter <- quant_cDNA_ncRNA_ENSEMBL_DGE[keep_cDNA_ncRNA_ENSEMBL_edgeRfiter, , keep.lib.sizes=FALSE]
+quant_cDNA_ncRNA_ENSEMBL_DGE_edgeRfilter <- quant_cDNA_ncRNA_ENSEMBL_DGE[keep_cDNA_ncRNA_ENSEMBL_edgeRfiter, , keep.lib.sizes=FALSE] %>%
+  calcNormFactors()
 
 ## cDNA only: from 38254 genes to 13780 genes (out of 18k genes targeted by AmpliSeq)
 ## cDNA + ncRNA from ENSEMBL: from 64541 to 14457 genes (out of 18k + 2k genes targeted by AmpliSeq)
 
-## Filter genes with low expression like how Mike Harvey did it
+## Filter genes with low expression like how Nick Harvey did it
 ## Remove genes with median CPM (across all samples) < 0.5 
 
 expr_cutoff <- 0.5 # in cpm sum(median_cpm > expr_cutoff)
 
 quant_cDNA_median_cpm <- apply(cpm(quant_cDNA_DGE), 1, median)
 
-quant_cDNA_DGE_Nickfilter <- quant_cDNA_DGE[quant_cDNA_median_cpm > expr_cutoff, , keep.lib.sizes=FALSE]
+quant_cDNA_DGE_Nickfilter <- quant_cDNA_DGE[quant_cDNA_median_cpm > expr_cutoff, , keep.lib.sizes=FALSE] %>%
+  calcNormFactors()
 
 quant_cDNA_ncRNA_ENSEMBL_median_cpm <- apply(cpm(quant_cDNA_ncRNA_ENSEMBL_DGE), 1, median)
 
-quant_cDNA_ncRNA_ENSEMBL_DGE_Nickfilter <- quant_cDNA_ncRNA_ENSEMBL_DGE[quant_cDNA_ncRNA_ENSEMBL_median_cpm > expr_cutoff, , keep.lib.sizes=FALSE]
+quant_cDNA_ncRNA_ENSEMBL_DGE_Nickfilter <- quant_cDNA_ncRNA_ENSEMBL_DGE[quant_cDNA_ncRNA_ENSEMBL_median_cpm > expr_cutoff, , keep.lib.sizes=FALSE] %>%
+  calcNormFactors()
 
 ## cDNA only: from 38254 genes to 11995 genes (out of 18k genes targeted by AmpliSeq)
 ## cDNA + ncRNA from ENSEMBL: from 64541 to 12455 genes (out of 18k + 2k genes targeted by AmpliSeq)
@@ -180,3 +184,8 @@ abline(v=log.cutoff, col="red", lwd=1, lty=2, main="")
 title("Filtered data (median logCPM > 0.5)",xlab="log2-CPM") 
 dev.off()
 
+# Save files 
+
+saveRDS(quant_cDNA_DGE_edgeRfilter, file = "./output/quant_cDNA_DGE_edgeRfilter.RDS")
+
+saveRDS(quant_cDNA_ncRNA_ENSEMBL_DGE_edgeRfilter, file = "./output/quant_cDNA_ncRNA_ENSEMBL_DGE_edgeRfilter.RDS")
