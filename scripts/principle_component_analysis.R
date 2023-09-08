@@ -36,45 +36,46 @@ PCAtools::biplot(pca,
 
 ## Batch effect - captured by PC1; PC2
 
-PCAtools::pairsplot(pca,
+plot_PCApair_batch <- PCAtools::pairsplot(pca,
                     components = PCAtools::getComponents(pca, 1:6),
                     triangle = TRUE,
                     colby = "run_date",
                     gridlines.minor = FALSE, 
                     hline = 0, vline = 0,
-                    title = 'Pairs plot - grouped by batch',
+                    title = 'Paired PCA biplots - grouped by batch',
                     plotaxes = FALSE)
+
 
 ## Difference between cell pops - captured by PC3
 
-PCAtools::pairsplot(pca,
+plot_PCApair_cell_pop <- PCAtools::pairsplot(pca,
                     components = PCAtools::getComponents(pca, 1:6),
                     triangle = TRUE,
                     colby = "cell_line",
                     gridlines.minor = FALSE, 
                     hline = 0, vline = 0,
-                    title = 'Pairs plot - grouped by cell population',
+                    title = 'Paired PCA biplots - grouped by cell population',
                     plotaxes = FALSE)
 
 ## Difference between passages - captured by PC5, 6; although very low variance.
 
-PCAtools::pairsplot(pca,
+plot_PCApair_Passage <- PCAtools::pairsplot(pca,
                     components = PCAtools::getComponents(pca, 1:6),
                     triangle = TRUE,
                     colby = "Passage",
                     gridlines.minor = FALSE, 
                     hline = 0, vline = 0,
-                    title = 'Pairs plot - grouped by growth phase (A vs. C)',
+                    title = 'Paired PCA biplots - grouped by growth phase (A vs. C)',
                     plotaxes = FALSE)
 
 ## Difference between treatments - not captured by these PCs
 
-PCAtools::pairsplot(pca,
+plot_PCApair_Treatment <- PCAtools::pairsplot(pca,
                     components = PCAtools::getComponents(pca, 1:6),
                     triangle = TRUE,
                     colby = "Treatment",
                     gridlines.minor = FALSE, 
-                    title = 'Pairs plot - grouped by treatment',
+                    title = 'Paired PCA biplots - grouped by treatment',
                     plotaxes = FALSE)
 
 ## TL;DR:
@@ -123,7 +124,7 @@ plot_pcacor <- PCAtools::eigencorplot(pca,
 
 # More biplots based on the correlation results
 
-PCAtools::biplot(pca,
+plot_PCA1_3 <- PCAtools::biplot(pca,
                  x = "PC3",
                  y = "PC1",
                  lab = NULL,
@@ -134,7 +135,7 @@ PCAtools::biplot(pca,
                  title = 'Batch effect captured by PC 1 and 3',
                  legendPosition = "bottom")
 
-PCAtools::biplot(pca,
+plot_PCA2_3 <- PCAtools::biplot(pca,
                  x = "PC3",
                  y = "PC2",
                  lab = NULL,
@@ -145,7 +146,7 @@ PCAtools::biplot(pca,
                  title = 'Differences between cell populations captured by PC 2 and 3',
                  legendPosition = "bottom")
 
-PCAtools::biplot(pca,
+plot_PCA4_6 <- PCAtools::biplot(pca,
                  x = "PC6",
                  y = "PC4",
                  lab = NULL,
@@ -156,4 +157,48 @@ PCAtools::biplot(pca,
                  title = 'Difference between growth phases captured by PC 4 and 6',
                  legendPosition = "bottom")
 
-# Ex
+# Export plots
+
+## PCA biplots
+ggsave(filename = "./output/plots_PCA_prebatchcorrection/batchPCA.png",
+       plot = plot_PCA1_3,
+       scale = 1.5)
+
+ggsave(filename = "./output/plots_PCA_prebatchcorrection/cell_linePCA.png",
+       plot = plot_PCA2_3,
+       scale = 1.5)
+
+ggsave(filename = "./output/plots_PCA_prebatchcorrection/passagePCA.png",
+       plot = plot_PCA4_6,
+       scale = 1.5)
+
+## PCA correlation
+
+ggsave(filename = "./output/plots_PCA_prebatchcorrection/PCAcorrelation.png",
+       plot = as.grob(plot_pcacor),
+       scale = 1.2)
+
+## PCA loadings
+
+ggsave(filename = "./output/plots_PCA_prebatchcorrection/PCAloadings.png",
+       plot = as.grob(plot_loadings),
+       scale = 1.7)
+
+## PCA paired biplots
+
+ggsave(filename = "./output/plots_PCA_prebatchcorrection/PCApairs_batch.png",
+       plot = plot_PCApair_batch,
+       scale = 1.7)
+
+ggsave(filename = "./output/plots_PCA_prebatchcorrection/PCApairs_cell_pop.png",
+       plot = plot_PCApair_cell_pop,
+       scale = 1.7)
+
+ggsave(filename = "./output/plots_PCA_prebatchcorrection/PCApairs_Passage.png",
+       plot = plot_PCApair_Passage,
+       scale = 1.7)
+
+ggsave(filename = "./output/plots_PCA_prebatchcorrection/PCApairs_Treatment.png",
+       plot = plot_PCApair_Treatment,
+       scale = 1.7)
+
