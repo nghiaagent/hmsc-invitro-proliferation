@@ -15,7 +15,7 @@ library(BiocManager)
 
 ### Load all packages with pacman
 
-p_load(tibble, tidyverse, ggrepel, ggpubr, rstatix)
+p_load(tibble, tidyverse, ggrepel, ggpubr, rstatix, ggalt)
 
 ### List Bioconductor packages to be required
 
@@ -37,15 +37,14 @@ list_Bioc_Pkg <- c(
   "fgsea",
   "ComplexHeatmap",
   "tximeta",
-  "SummarizedExperiment"
+  "SummarizedExperiment",
+  "PCAtools"
 )
 
 ### Install Bioconductor packages, if they are not yet installed and/or not up-to-date
 
 BiocManager::install(
-  pkgs = list_Bioc_Pkg,
-  ask = FALSE,
-  force = FALSE
+  pkgs = list_Bioc_Pkg
 )
 
 ### Load Bioconductor packages with pacman
