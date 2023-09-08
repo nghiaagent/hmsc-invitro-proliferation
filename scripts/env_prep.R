@@ -15,7 +15,8 @@ library(BiocManager)
 
 ### Load all packages with pacman
 
-p_load(tibble, tidyverse, ggrepel, ggpubr, rstatix, ggalt)
+p_load(tibble, tidyverse, ggrepel, ggpubr, rstatix, ggalt,
+       ggplotify, cowplot)
 
 ### List Bioconductor packages to be required
 
