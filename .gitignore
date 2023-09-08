@@ -53,3 +53,6 @@ output*/
 
 # Files in data folders that are not meant to be seen outside
 input/
+
+glimma-plots/
+
