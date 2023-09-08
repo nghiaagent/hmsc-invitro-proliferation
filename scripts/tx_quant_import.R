@@ -33,7 +33,7 @@ table_samples <-
       "P13D3Untreated",
       "P13D3Treated",
       "P13D5Untreated",
-      "P13D5Treated",
+      "P13D5Treated"
     )
   )) %>%
   mutate(run_date = as_factor(run_date))
