@@ -16,7 +16,7 @@ library(BiocManager)
 ### Load all packages with pacman
 
 p_load(tibble, tidyverse, ggrepel, ggpubr, rstatix, ggalt,
-       ggplotify, cowplot)
+       ggplotify, cowplot, gridExtra)
 
 ### List Bioconductor packages to be required
 
@@ -39,7 +39,8 @@ list_Bioc_Pkg <- c(
   "ComplexHeatmap",
   "tximeta",
   "SummarizedExperiment",
-  "PCAtools"
+  "PCAtools",
+  "sva"
 )
 
 ### Install Bioconductor packages, if they are not yet installed and/or not up-to-date
@@ -65,6 +66,11 @@ if (!dir.exists("./output")) {
 if (!dir.exists("./output/plots_QC")) {
   dir.create("./output/plots_QC")
 }
+
+if (!dir.exists("./output/plots_PCA_prebatchcorrection")) {
+  dir.create("./output/plots_PCA_prebatchcorrection")
+}
+
 
 if (!dir.exists("./output/QC")) {
   dir.create("./output/QC")
