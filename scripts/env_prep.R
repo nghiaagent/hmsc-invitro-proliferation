@@ -13,11 +13,6 @@ if (!require("BiocManager", quietly = TRUE))
 
 library(BiocManager)
 
-### Load all packages with pacman
-
-p_load(tibble, tidyverse, ggrepel, ggpubr, rstatix, ggalt,
-       ggplotify, cowplot, gridExtra)
-
 ### List Bioconductor packages to be required
 
 list_Bioc_Pkg <- c(
@@ -27,13 +22,11 @@ list_Bioc_Pkg <- c(
   "edgeR",
   "Homo.sapiens",
   "limma",
-  "ChAMP",
   "biomaRt",
   "goseq",
   "qusage",
   "maditr",
   "Glimma",
-  "clusterProfiler",
   "EnsDb.Hsapiens.v75",
   "fgsea",
   "ComplexHeatmap",
@@ -54,6 +47,11 @@ BiocManager::install(
 invisible(lapply(list_Bioc_Pkg, function(x)
   library(x, character.only = TRUE)))
 
+### Load all CRAN packages with pacman
+
+p_load(tibble, tidyverse, ggrepel, ggpubr, rstatix, ggalt,
+       ggplotify, cowplot, gridExtra)
+
 #### Create folders for input and outputs, if not already present
 # Code below means "if test for directory presence returns FALSE, create the directory"
 
@@ -71,6 +69,10 @@ if (!dir.exists("./output/plots_PCA_prebatchcorrection")) {
   dir.create("./output/plots_PCA_prebatchcorrection")
 }
 
+
+if (!dir.exists("./output/plots_PCA_postbatchcorrection")) {
+  dir.create("./output/plots_PCA_postbatchcorrection")
+}
 
 if (!dir.exists("./output/QC")) {
   dir.create("./output/QC")
