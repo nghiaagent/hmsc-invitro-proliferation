@@ -19,6 +19,9 @@ table_samples <-
                       levels = c("D3", "D5"))) %>%
   mutate(Treatment = factor(Treatment,
                             levels = c("Untreated", "Treated"))) %>%
+  mutate(run_date = str_replace_all(run_date,
+                                    "_", "")) %>%
+  mutate(run_date = as.numeric(run_date)) %>%
   mutate(condition_ID = factor(
     str_c(Passage, Day, Treatment, sep = ""),
     levels = c(
@@ -35,8 +38,7 @@ table_samples <-
       "P13D5Untreated",
       "P13D5Treated"
     )
-  )) %>%
-  mutate(run_date = as_factor(run_date))
+  ))
 
 # Grab data from ENSEMBL109
 
