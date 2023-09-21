@@ -124,26 +124,26 @@ plot_pcacor <- PCAtools::eigencorplot(pca,
 
 # More biplots based on the correlation results
 
-plot_PCA1_3 <- PCAtools::biplot(pca,
-                 x = "PC3",
+plot_PCA1_2 <- PCAtools::biplot(pca,
+                 x = "PC2",
                  y = "PC1",
                  lab = NULL,
                  showLoadings = TRUE,
                  colby = "run_date",
                  encircle = TRUE,
                  encircleFill = TRUE,
-                 title = 'Batch effect captured by PC 1 and 3',
+                 title = 'Batch effect captured by PC 1 and 2',
                  legendPosition = "bottom")
 
-plot_PCA2_3 <- PCAtools::biplot(pca,
-                 x = "PC3",
-                 y = "PC2",
+plot_PCA4_5 <- PCAtools::biplot(pca,
+                 x = "PC5",
+                 y = "PC4",
                  lab = NULL,
                  showLoadings = TRUE,
                  colby = "cell_line",
                  encircle = TRUE,
                  encircleFill = TRUE,
-                 title = 'Differences between cell populations captured by PC 2 and 3',
+                 title = 'Differences between cell populations captured by PC 4 and 5',
                  legendPosition = "bottom")
 
 plot_PCA4_6 <- PCAtools::biplot(pca,
@@ -161,11 +161,11 @@ plot_PCA4_6 <- PCAtools::biplot(pca,
 
 ## PCA biplots
 ggsave(filename = "./output/plots_PCA_prebatchcorrection/batchPCA.png",
-       plot = plot_PCA1_3,
+       plot = plot_PCA1_2,
        scale = 1.5)
 
 ggsave(filename = "./output/plots_PCA_prebatchcorrection/cell_linePCA.png",
-       plot = plot_PCA2_3,
+       plot = plot_PCA4_5,
        scale = 1.5)
 
 ggsave(filename = "./output/plots_PCA_prebatchcorrection/passagePCA.png",
