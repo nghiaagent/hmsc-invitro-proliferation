@@ -89,13 +89,17 @@ head(df_stats_cDNA_ncRNA_ENSEMBL, 50) %>%
 ## Filter genes with low expression using edgeR function
 
 keep_cDNA_edgeRfiter <- filterByExpr(quant_cDNA_DGE,
-                                      group = "condition_ID")
+                                      group = "condition_ID",
+                                     min.count = 40,
+                                     min.total.count = 60)
 
 quant_cDNA_DGE_edgeRfilter <- quant_cDNA_DGE[keep_cDNA_edgeRfiter, , keep.lib.sizes=FALSE] %>%
   calcNormFactors()
 
 keep_cDNA_ncRNA_ENSEMBL_edgeRfiter <- filterByExpr(quant_cDNA_ncRNA_ENSEMBL_DGE,
-                                     group = "condition_ID")
+                                     group = "condition_ID",
+                                     min.count = 40,
+                                     min.total.count = 60)
 
 quant_cDNA_ncRNA_ENSEMBL_DGE_edgeRfilter <- quant_cDNA_ncRNA_ENSEMBL_DGE[keep_cDNA_ncRNA_ENSEMBL_edgeRfiter, , keep.lib.sizes=FALSE] %>%
   calcNormFactors()
