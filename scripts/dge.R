@@ -51,3 +51,18 @@ design <- model.matrix(~Passage*Treatment + cell_line,
 quant_DGE_voom <- voom(quant_DGE_clean_batchcor_subset,
                             design,
                             plot = TRUE)
+
+## Duplicate correlation not necessary because cell_line is treated as a fixed (additive) effect
+
+fit <- lmFit(quant_DGE_voom,
+             design) %>%
+  eBayes()
+
+summary(decideTests(fit))
+
+## Draw interactive Volcano plot
+## coef shows column of design matrix (factor) that the plot shows
+
+Glimma::glimmaVolcano(fit,
+                      quant_DGE_voom,
+                      coef = 4)
