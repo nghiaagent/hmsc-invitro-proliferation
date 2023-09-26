@@ -1,14 +1,19 @@
 ### Don't source this file by itself; call in from another file after running env_prep.R
-### Load dataset 
-### Dataset has both mRNA and ncRNA
+# Load dataset 
+## Dataset has both mRNA and ncRNA
 
 quant_DGE_clean <- readRDS(file = "./output/quant_cDNA_ncRNA_ENSEMBL_DGE_edgeRfilter.RDS")
 
+## MDS / PCA plot
+
+Glimma::glMDSPlot(quant_DGE_clean,
+                  labels = quant_DGE_clean$samples$Sample_ID,
+                  groups = quant_DGE_clean$samples)
+
 ### Make design matrix 
 
-## Treat cell line as an additive factor (to use with duplicateCorrelation)
+## Treat cell line as an additive factor
 ## Treat passage and treatment as fixed effects
-## Treat batch effect as random intercept...?
 
 table_design <- quant_DGE_clean$samples %>%
   mutate(Passage = factor(Passage,
@@ -16,7 +21,7 @@ table_design <- quant_DGE_clean$samples %>%
   mutate(Treatment = factor(Treatment, 
                                levels = c("Untreated", "Treated")))
 
-design <- model.matrix(~Passage*Treatment + cell_line,
+design <- model.matrix(~Passage*Treatment + Passage*Treatment:cell_line,
                        data = table_design)
 
 # Use ComBat-seq to correct for batch fx
@@ -43,14 +48,20 @@ table_design <- quant_DGE_clean_batchcor_subset$samples %>%
   mutate(Treatment = factor(Treatment, 
                             levels = c("Untreated", "Treated")))
 
-design <- model.matrix(~Passage*Treatment + cell_line,
+design <- model.matrix(~Passage*Treatment + Passage*Treatment:cell_line,
                        data = table_design)
 
 ## Apply voom transformation
+### And output mean-variance trend plot
+
+png("./output/plots_QC/voom mean-variance trend.png", width = 20, height = 20, units = 'cm', res = 600) 
 
 quant_DGE_voom <- voom(quant_DGE_clean_batchcor_subset,
                             design,
                             plot = TRUE)
+
+dev.off()
+
 
 ## Duplicate correlation not necessary because cell_line is treated as a fixed (additive) effect
 
@@ -61,8 +72,11 @@ fit <- lmFit(quant_DGE_voom,
 summary(decideTests(fit))
 
 ## Draw interactive Volcano plot
-## coef shows column of design matrix (factor) that the plot shows
+## coef chooses column of design matrix (factor) that the plot shows
 
 Glimma::glimmaVolcano(fit,
                       quant_DGE_voom,
-                      coef = 4)
+                      coef = 3)
+
+# Define posthoc tests
+## Between treatments, at each passage, at each cell population
