@@ -5,6 +5,20 @@ quant_cDNA_DGE <- readRDS(file = "./output/quant_cDNA_DGE.RDS")
 
 quant_cDNA_ncRNA_ENSEMBL_DGE <- readRDS(file = "./output/quant_cDNA_ncRNA_ENSEMBL_DGE.RDS")
 
+# Remove samples that are extreme outliers
+
+list_remove <- c("hMSC-20176_P13_D5_0-3",
+                 "hMSC-21558_P5_D3_0-2",
+                 "hMSC-21558_P5_D3_10-3")
+
+quant_cDNA_DGE <- quant_cDNA_DGE[,which(
+  !quant_cDNA_DGE$samples$ID %in% list_remove
+)]
+
+quant_cDNA_ncRNA_ENSEMBL_DGE <- quant_cDNA_ncRNA_ENSEMBL_DGE[,which(
+  !quant_cDNA_ncRNA_ENSEMBL_DGE$samples$ID %in% list_remove
+)]
+
 # Library size barplot. Library size is the total number of counts across all genes per sample
 
 ## Generate table for this purpose
@@ -88,9 +102,11 @@ head(df_stats_cDNA_ncRNA_ENSEMBL, 50) %>%
 
 ## Filter genes with low expression using edgeR function
 
+expr_cutoff <- 40
+
 keep_cDNA_edgeRfiter <- filterByExpr(quant_cDNA_DGE,
                                       group = "condition_ID",
-                                     min.count = 40,
+                                     min.count = expr_cutoff,
                                      min.total.count = 60)
 
 quant_cDNA_DGE_edgeRfilter <- quant_cDNA_DGE[keep_cDNA_edgeRfiter, , keep.lib.sizes=FALSE] %>%
@@ -98,7 +114,7 @@ quant_cDNA_DGE_edgeRfilter <- quant_cDNA_DGE[keep_cDNA_edgeRfiter, , keep.lib.si
 
 keep_cDNA_ncRNA_ENSEMBL_edgeRfiter <- filterByExpr(quant_cDNA_ncRNA_ENSEMBL_DGE,
                                      group = "condition_ID",
-                                     min.count = 40,
+                                     min.count = expr_cutoff,
                                      min.total.count = 60)
 
 quant_cDNA_ncRNA_ENSEMBL_DGE_edgeRfilter <- quant_cDNA_ncRNA_ENSEMBL_DGE[keep_cDNA_ncRNA_ENSEMBL_edgeRfiter, , keep.lib.sizes=FALSE] %>%
@@ -107,24 +123,23 @@ quant_cDNA_ncRNA_ENSEMBL_DGE_edgeRfilter <- quant_cDNA_ncRNA_ENSEMBL_DGE[keep_cD
 ## cDNA only: from 38254 genes to 13780 genes (out of 18k genes targeted by AmpliSeq)
 ## cDNA + ncRNA from ENSEMBL: from 64541 to 14457 genes (out of 18k + 2k genes targeted by AmpliSeq)
 
-## Filter genes with low expression like how Nick Harvey did it
-## Remove genes with median CPM (across all samples) < 0.5 
+# Per sample distribution; before and after adding TMM scaling factor
 
-expr_cutoff <- 0.5 # in cpm sum(median_cpm > expr_cutoff)
 
-quant_cDNA_median_cpm <- apply(cpm(quant_cDNA_DGE), 1, median)
+png("./output/plots_QC/Per sample counts distribution.png", width = 40, height = 60, units = 'cm', res = 600) 
+par(mfrow=c(2,1))
 
-quant_cDNA_DGE_Nickfilter <- quant_cDNA_DGE[quant_cDNA_median_cpm > expr_cutoff, , keep.lib.sizes=FALSE] %>%
-  calcNormFactors()
+lcpm <- cpm(quant_cDNA_ncRNA_ENSEMBL_DGE[keep_cDNA_ncRNA_ENSEMBL_edgeRfiter, , keep.lib.sizes=FALSE],
+            log=TRUE)
+boxplot(lcpm, las=2, col=col, main="")
+title(main="A. Example: Unnormalised data",ylab="Log-cpm")
 
-quant_cDNA_ncRNA_ENSEMBL_median_cpm <- apply(cpm(quant_cDNA_ncRNA_ENSEMBL_DGE), 1, median)
+lcpm <- cpm(quant_cDNA_ncRNA_ENSEMBL_DGE_edgeRfilter,
+            log=TRUE)
+boxplot(lcpm, las=2, col=col, main="")
+title(main="B. Example: Normalised data",ylab="Log-cpm")
 
-quant_cDNA_ncRNA_ENSEMBL_DGE_Nickfilter <- quant_cDNA_ncRNA_ENSEMBL_DGE[quant_cDNA_ncRNA_ENSEMBL_median_cpm > expr_cutoff, , keep.lib.sizes=FALSE] %>%
-  calcNormFactors()
-
-## cDNA only: from 38254 genes to 11995 genes (out of 18k genes targeted by AmpliSeq)
-## cDNA + ncRNA from ENSEMBL: from 64541 to 12455 genes (out of 18k + 2k genes targeted by AmpliSeq)
-## keep.lib.size = FALSE recalculates lib.size
+dev.off()
 
 # Heatmap and density plots - copied from Sofia's pipeline
 
@@ -135,7 +150,7 @@ log.cutoff <- log2(expr_cutoff)
 png("./output/plots_QC/Density of count values - cDNA only.png", width = 10, height = 30, units = 'cm', res = 600) 
 nsamples <- ncol(quant_cDNA_DGE) 
 col <- rainbow(nsamples) 
-par(mfrow=c(3,1)) 
+par(mfrow=c(2,1)) 
 lcpm.Raw <- cpm(quant_cDNA_DGE$counts, log=TRUE) 
 plot(density(lcpm.Raw[,1]), col=col[1], 
      xlim=c(-10,20), ylim=c(0,0.3), main="", xlab="") 
@@ -151,12 +166,6 @@ lines(den$x, den$y, col=col[i]) }
 abline(v=log.cutoff, col="red", lwd=1, lty=2, main="") 
 title("Filtered data (edgeR FilterByExpr())",xlab="log2-CPM") 
 
-lcpm.Filt2 <- cpm(quant_cDNA_DGE_Nickfilter$counts, log=TRUE) 
-plot(density(lcpm.Filt2[,1]), col=col[1], xlim=c(-10,20), ylim=c(0,0.3), main="", xlab="") 
-for (i in 2:nsamples){ den <-density(lcpm.Filt2[,i]) 
-lines(den$x, den$y, col=col[i]) } 
-abline(v=log.cutoff, col="red", lwd=1, lty=2, main="") 
-title("Filtered data (median logCPM > 0.5)",xlab="log2-CPM") 
 dev.off()
 
 ## cDNA and ncRNA
@@ -164,7 +173,7 @@ dev.off()
 png("./output/plots_QC/Density of count values - cDNA and ncRNA.png", width = 10, height = 30, units = 'cm', res = 600) 
 nsamples <- ncol(quant_cDNA_ncRNA_ENSEMBL_DGE) 
 col <- rainbow(nsamples) 
-par(mfrow=c(3,1)) 
+par(mfrow=c(2,1)) 
 lcpm.Raw <- cpm(quant_cDNA_ncRNA_ENSEMBL_DGE$counts, log=TRUE) 
 plot(density(lcpm.Raw[,1]), col=col[1], 
      xlim=c(-10,20), ylim=c(0,0.3), main="", xlab="") 
@@ -180,12 +189,6 @@ lines(den$x, den$y, col=col[i]) }
 abline(v=log.cutoff, col="red", lwd=1, lty=2, main="") 
 title("Filtered data (edgeR FilterByExpr())",xlab="log2-CPM") 
 
-lcpm.Filt2 <- cpm(quant_cDNA_ncRNA_ENSEMBL_DGE_Nickfilter$counts, log=TRUE) 
-plot(density(lcpm.Filt2[,1]), col=col[1], xlim=c(-10,20), ylim=c(0,0.3), main="", xlab="") 
-for (i in 2:nsamples){ den <-density(lcpm.Filt2[,i]) 
-lines(den$x, den$y, col=col[i]) } 
-abline(v=log.cutoff, col="red", lwd=1, lty=2, main="") 
-title("Filtered data (median logCPM > 0.5)",xlab="log2-CPM") 
 dev.off()
 
 # Save files 
