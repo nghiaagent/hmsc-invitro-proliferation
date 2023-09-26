@@ -1,7 +1,8 @@
 # Looking closer into PC1 and PC2 of our data, which explains most of batch effect
+# Load dataset 
+## Dataset has both mRNA and ncRNA
 
-source("./scripts/dge.R")
-
+quant_DGE_clean <- readRDS(file = "./output/quant_cDNA_ncRNA_ENSEMBL_DGE_edgeRfilter.RDS")
 
 # Run PCA on top 90% variable genes
 
@@ -12,7 +13,7 @@ rownames(quant_DGE_clean$samples) <- quant_DGE_clean$samples$ID
 
 pca <- PCAtools::pca(mat = quant_DGE_clean$counts,
                      metadata = quant_DGE_clean$samples,
-                     removeVar = 0.1)
+                     scale = TRUE)
 
 pca_optimisePCs <- PCAtools::parallelPCA(quant_DGE_clean$counts)
 
@@ -124,81 +125,99 @@ plot_pcacor <- PCAtools::eigencorplot(pca,
 
 # More biplots based on the correlation results
 
-plot_PCA1_2 <- PCAtools::biplot(pca,
-                 x = "PC2",
-                 y = "PC1",
-                 lab = NULL,
-                 showLoadings = TRUE,
-                 colby = "run_date",
-                 encircle = TRUE,
-                 encircleFill = TRUE,
-                 title = 'Batch effect captured by PC 1 and 2',
-                 legendPosition = "bottom")
+plot_PCA3_8 <- PCAtools::biplot(pca,
+                                x = "PC8",
+                                y = "PC3",
+                                lab = NULL,
+                                showLoadings = TRUE,
+                                colby = "run_date",
+                                encircle = TRUE,
+                                encircleFill = TRUE,
+                                title = 'Batch effect captured by PC 3 and 8',
+                                legendPosition = "bottom")
 
-plot_PCA4_5 <- PCAtools::biplot(pca,
-                 x = "PC5",
-                 y = "PC4",
-                 lab = NULL,
-                 showLoadings = TRUE,
-                 colby = "cell_line",
-                 encircle = TRUE,
-                 encircleFill = TRUE,
-                 title = 'Differences between cell populations captured by PC 4 and 5',
-                 legendPosition = "bottom")
+plot_PCA2_3 <- PCAtools::biplot(pca,
+                                x = "PC3",
+                                y = "PC2",
+                                lab = NULL,
+                                showLoadings = TRUE,
+                                colby = "cell_line",
+                                encircle = TRUE,
+                                encircleFill = TRUE,
+                                title = 'Differences between cell populations captured by PC 2 and 3',
+                                legendPosition = "bottom")
 
-plot_PCA4_6 <- PCAtools::biplot(pca,
-                 x = "PC6",
-                 y = "PC4",
-                 lab = NULL,
-                 showLoadings = TRUE,
-                 colby = "Passage",
-                 encircle = TRUE,
-                 encircleFill = TRUE,
-                 title = 'Difference between growth phases captured by PC 4 and 6',
-                 legendPosition = "bottom")
+plot_PCA4_7 <- PCAtools::biplot(pca,
+                                x = "PC7",
+                                y = "PC4",
+                                lab = NULL,
+                                showLoadings = TRUE,
+                                colby = "Passage",
+                                encircle = TRUE,
+                                encircleFill = TRUE,
+                                title = 'Difference between growth phases captured by PC 4 and 7',
+                                legendPosition = "bottom")
 
 # Export plots
 
 ## PCA biplots
 ggsave(filename = "./output/plots_PCA_prebatchcorrection/batchPCA.png",
-       plot = plot_PCA1_2,
-       scale = 1.5)
+       plot = plot_PCA3_8,
+       width = 8,
+       height = 8,
+       scale = 1.7)
 
 ggsave(filename = "./output/plots_PCA_prebatchcorrection/cell_linePCA.png",
-       plot = plot_PCA4_5,
-       scale = 1.5)
+       plot = plot_PCA2_3,
+       width = 8,
+       height = 8,
+       scale = 1.7)
 
 ggsave(filename = "./output/plots_PCA_prebatchcorrection/passagePCA.png",
-       plot = plot_PCA4_6,
-       scale = 1.5)
+       plot = plot_PCA4_7,
+       width = 8,
+       height = 8,
+       scale = 1.7)
 
 ## PCA correlation
 
 ggsave(filename = "./output/plots_PCA_prebatchcorrection/PCAcorrelation.png",
        plot = as.grob(plot_pcacor),
+       width = 8,
+       height = 8,
        scale = 1.2)
 
 ## PCA loadings
 
 ggsave(filename = "./output/plots_PCA_prebatchcorrection/PCAloadings.png",
        plot = as.grob(plot_loadings),
+       width = 8,
+       height = 8,
        scale = 1.7)
 
 ## PCA paired biplots
 
 ggsave(filename = "./output/plots_PCA_prebatchcorrection/PCApairs_batch.png",
        plot = plot_PCApair_batch,
+       width = 8,
+       height = 8,
        scale = 1.7)
 
 ggsave(filename = "./output/plots_PCA_prebatchcorrection/PCApairs_cell_pop.png",
        plot = plot_PCApair_cell_pop,
+       width = 8,
+       height = 8,
        scale = 1.7)
 
 ggsave(filename = "./output/plots_PCA_prebatchcorrection/PCApairs_Passage.png",
        plot = plot_PCApair_Passage,
+       width = 8,
+       height = 8,
        scale = 1.7)
 
 ggsave(filename = "./output/plots_PCA_prebatchcorrection/PCApairs_Treatment.png",
        plot = plot_PCApair_Treatment,
+       width = 8,
+       height = 8,
        scale = 1.7)
 
