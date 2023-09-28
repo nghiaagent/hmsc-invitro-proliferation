@@ -123,24 +123,6 @@ quant_cDNA_ncRNA_ENSEMBL_DGE_edgeRfilter <- quant_cDNA_ncRNA_ENSEMBL_DGE[keep_cD
 ## cDNA only: from 38254 genes to 13780 genes (out of 18k genes targeted by AmpliSeq)
 ## cDNA + ncRNA from ENSEMBL: from 64541 to 14457 genes (out of 18k + 2k genes targeted by AmpliSeq)
 
-# Per sample distribution; before and after adding TMM scaling factor
-
-
-png("./output/plots_QC/Per sample counts distribution.png", width = 40, height = 60, units = 'cm', res = 600) 
-par(mfrow=c(2,1))
-
-lcpm <- cpm(quant_cDNA_ncRNA_ENSEMBL_DGE[keep_cDNA_ncRNA_ENSEMBL_edgeRfiter, , keep.lib.sizes=FALSE],
-            log=TRUE)
-boxplot(lcpm, las=2, col=col, main="")
-title(main="A. Example: Unnormalised data",ylab="Log-cpm")
-
-lcpm <- cpm(quant_cDNA_ncRNA_ENSEMBL_DGE_edgeRfilter,
-            log=TRUE)
-boxplot(lcpm, las=2, col=col, main="")
-title(main="B. Example: Normalised data",ylab="Log-cpm")
-
-dev.off()
-
 # Heatmap and density plots - copied from Sofia's pipeline
 
 log.cutoff <- log2(expr_cutoff)
