@@ -102,6 +102,10 @@ if (!dir.exists("./output/QC")) {
   dir.create("./output/QC")
 }
 
+if (!dir.exists("./output/GSEA")) {
+  dir.create("./output/GSEA")
+}
+
 ### Check and create ./input/  folder and subfolders
 
 if (!dir.exists("./input")) {
