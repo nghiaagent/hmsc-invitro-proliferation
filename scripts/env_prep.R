@@ -33,13 +33,25 @@ list_Bioc_Pkg <- c(
   "maditr",
   "Glimma",
   "EnsDb.Hsapiens.v75",
-  "fgsea",
   "ComplexHeatmap",
   "tximeta",
   "SummarizedExperiment",
   "PCAtools",
   "sva",
-  "ensembldb"
+  "ensembldb",
+  "EGSEA",
+  "PADOG",
+  "GSVA",
+  "AnnotationDbi",
+  "topGO",
+  "pathview",
+  "gage",
+  "globaltest",
+  "safe",
+  "org.Hs.eg.db",
+  "org.Mm.eg.db",
+  "org.Rn.eg.db",
+  "EGSEAdata"
 )
 
 ### Install Bioconductor packages, if they are not yet installed and/or not up-to-date
@@ -47,6 +59,17 @@ list_Bioc_Pkg <- c(
 BiocManager::install(
   pkgs = list_Bioc_Pkg
 )
+
+### Install packages specifically for EGSEA
+
+p_load(
+  HTMLUtils,
+  hwriter,
+  ggplot2,
+  gplots,
+  stringi,
+  metap,
+  devtools)
 
 ### Load Bioconductor packages with pacman
 
@@ -77,6 +100,10 @@ if (!dir.exists("./output/plots_PCA_postbatchcorrection")) {
 
 if (!dir.exists("./output/QC")) {
   dir.create("./output/QC")
+}
+
+if (!dir.exists("./output/GSEA")) {
+  dir.create("./output/GSEA")
 }
 
 ### Check and create ./input/  folder and subfolders
