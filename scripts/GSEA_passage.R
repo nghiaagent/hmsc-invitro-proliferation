@@ -15,13 +15,49 @@ rownames(quant_DGE_EGSEA$E) <- quant_DGE_EGSEA$genes$ENTREZID
 # Prepare gene sets
 
 gs_annotations <- EGSEA::buildIdx(entrezIDs = quant_DGE_EGSEA$genes$ENTREZID,
-                                  species = "human")
+                                  species = "human",
+                                  msigdb.gsets = "none")
+
+## Remove problematic KEGG pathways
+
+problematic_pathways <- c("Retrograde endocannabinoid signaling",
+                          "Apoptosis - multiple species",
+                          "MicroRNAs in cancer",
+                          "Mucin type O-Glycan biosynthesis",
+                          "Glycosphingolipid biosynthesis - lacto and neolacto series",
+                          "Other glycan degradation")
+
+sel <- which(names(gs_annotations[["kegg"]]@original) %in% problematic_pathways)
+
+gs_annotations[["kegg"]]@original <- gs_annotations[["kegg"]]@original[-sel] 
+gs_annotations[["kegg"]]@idx <- gs_annotations[["kegg"]]@idx[-sel] 
+gs_annotations[["kegg"]]@anno <- gs_annotations[["kegg"]]@anno[-sel, ]
 
 # Run EGSEA
+# 
+# egsea_passage <- egsea(
+#   voom.results = quant_DGE_EGSEA,
+#   contrasts = matrix_contrasts_passage,
+#   gs.annots = gs_annotations,
+#   symbolsMap = quant_DGE_EGSEA$genes[,c(2,3)],
+#   baseGSEAs = c("camera",
+#                 "roast",
+#                 "plage",
+#                 "zscore",
+#                 "gsva",
+#                 "ssgsea",
+#                 "ora",
+#                 "fry"),
+#   report.dir = "./output/GSEA",
+#   sort.by = "avg.rank",
+#   report = TRUE
+# )
 
-egsea_passage <- egsea(
+# run EGSEA, KEGG only
+
+egsea_passage_KEGG <- egsea(
   voom.results = quant_DGE_EGSEA,
-  contrasts = matrix_contrasts_passage,
+  contrasts = matrix_contrasts_passage[,c(3,6,9,12,15,18)],
   gs.annots = gs_annotations,
   symbolsMap = quant_DGE_EGSEA$genes[,c(2,3)],
   baseGSEAs = c("camera",
@@ -32,7 +68,7 @@ egsea_passage <- egsea(
                 "ssgsea",
                 "ora",
                 "fry"),
-  report.dir = "./output/GSEA",
   sort.by = "avg.rank",
+  report.dir = "./",
   report = TRUE
 )
