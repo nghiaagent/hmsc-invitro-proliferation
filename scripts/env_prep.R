@@ -6,17 +6,18 @@ if (!requireNamespace("pacman")) {
 }
 library(pacman)
 
+
+### Load all CRAN packages with pacman
+
+p_load(tibble, tidyverse, ggrepel, ggpubr, rstatix, ggalt,
+       ggplotify, cowplot, gridExtra)
+
 ### Some packages below use Bioconductor
 
 if (!require("BiocManager", quietly = TRUE))
   install.packages("BiocManager")
 
 library(BiocManager)
-
-### Load all CRAN packages with pacman
-
-p_load(tibble, tidyverse, ggrepel, ggpubr, rstatix, ggalt,
-       ggplotify, cowplot, gridExtra)
 
 ### List Bioconductor packages to be required
 
