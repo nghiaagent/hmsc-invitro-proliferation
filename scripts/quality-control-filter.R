@@ -5,11 +5,12 @@ quant_cDNA_DGE <- readRDS(file = "./output/quant_cDNA_DGE.RDS")
 
 quant_cDNA_ncRNA_ENSEMBL_DGE <- readRDS(file = "./output/quant_cDNA_ncRNA_ENSEMBL_DGE.RDS")
 
-# Remove samples that are extreme outliers
+# # Remove samples that are extreme outliers
 
-list_remove <- c("hMSC-20176_P13_D5_0-3",
-                 "hMSC-21558_P5_D3_0-2",
-                 "hMSC-21558_P5_D3_10-3")
+ list_remove <- c("hMSC-21558_P13_D5_0-2",
+                  "hMSC-20176_P13_D5_0-3",
+                  "hMSC-21558_P5_D3_0-2",
+                  "hMSC-21558_P5_D3_10-3")
 
 quant_cDNA_DGE <- quant_cDNA_DGE[,which(
   !quant_cDNA_DGE$samples$ID %in% list_remove
@@ -122,6 +123,31 @@ quant_cDNA_ncRNA_ENSEMBL_DGE_edgeRfilter <- quant_cDNA_ncRNA_ENSEMBL_DGE[keep_cD
 
 ## cDNA only: from 38254 genes to 13780 genes (out of 18k genes targeted by AmpliSeq)
 ## cDNA + ncRNA from ENSEMBL: from 64541 to 14457 genes (out of 18k + 2k genes targeted by AmpliSeq)
+
+# Per sample distribution; before and after adding TMM scaling factor
+
+png("./output/plots_QC/Per sample counts distribution.png", width = 40, height = 60, units = 'cm', res = 600) 
+par(mfrow=c(2,1))
+
+lcpm <- cpm(quant_cDNA_ncRNA_ENSEMBL_DGE[keep_cDNA_ncRNA_ENSEMBL_edgeRfiter, , keep.lib.sizes=FALSE],
+            log=TRUE)
+
+boxplot(lcpm, 
+        las=2, 
+        main="")
+
+title(main="A. Example: Unnormalised data",ylab="Log-cpm")
+
+lcpm <- cpm(quant_cDNA_ncRNA_ENSEMBL_DGE_edgeRfilter,
+            log=TRUE)
+
+boxplot(lcpm, 
+        las=2,
+        main="")
+
+title(main="B. Example: Normalised data",ylab="Log-cpm")
+
+dev.off()
 
 # Heatmap and density plots - copied from Sofia's pipeline
 
