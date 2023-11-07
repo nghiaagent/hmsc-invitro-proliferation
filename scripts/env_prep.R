@@ -6,12 +6,6 @@ if (!requireNamespace("pacman")) {
 }
 library(pacman)
 
-
-### Load all CRAN packages with pacman
-
-p_load(tibble, tidyverse, ggrepel, ggpubr, rstatix, ggalt,
-       ggplotify, cowplot, gridExtra)
-
 ### Some packages below use Bioconductor
 
 if (!require("BiocManager", quietly = TRUE))
@@ -52,7 +46,8 @@ list_Bioc_Pkg <- c(
   "org.Hs.eg.db",
   "org.Mm.eg.db",
   "org.Rn.eg.db",
-  "EGSEAdata"
+  "EGSEAdata",
+  "variancePartition"
 )
 
 ### Install Bioconductor packages, if they are not yet installed and/or not up-to-date
@@ -76,6 +71,12 @@ p_load(
 
 invisible(lapply(list_Bioc_Pkg, function(x)
   library(x, character.only = TRUE)))
+
+
+### Load all CRAN packages with pacman
+
+p_load(tibble, tidyverse, ggrepel, ggpubr, rstatix, ggalt,
+       ggplotify, cowplot, gridExtra, statmod, volcano3D)
 
 #### Create folders for input and outputs, if not already present
 # Code below means "if test for directory presence returns FALSE, create the directory"
