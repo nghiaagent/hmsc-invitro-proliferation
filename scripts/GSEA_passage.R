@@ -1,6 +1,6 @@
 ### Don't source this file by itself; call in from another file after running env_prep.R
 
-source("./scripts/dge.R")
+source("./scripts/dge_cellpops_as_fixed.R")
 
 
 # Prepare dataset
@@ -16,7 +16,9 @@ rownames(quant_DGE_EGSEA$E) <- quant_DGE_EGSEA$genes$ENTREZID
 
 gs_annotations <- EGSEA::buildIdx(entrezIDs = quant_DGE_EGSEA$genes$ENTREZID,
                                   species = "human",
-                                  msigdb.gsets = "none")
+                                  msigdb.gsets = c("h",
+                                                   "c2",
+                                                   "c5"))
 
 ## Remove problematic KEGG pathways
 
@@ -25,7 +27,12 @@ problematic_pathways <- c("Retrograde endocannabinoid signaling",
                           "MicroRNAs in cancer",
                           "Mucin type O-Glycan biosynthesis",
                           "Glycosphingolipid biosynthesis - lacto and neolacto series",
-                          "Other glycan degradation")
+                          "Other glycan degradation",
+                          "Biosynthesis of amino acids",
+                          "Other types of O-glycan biosynthesis",
+                          "Carbon metabolism",
+                          "2-Oxocarboxylic acid metabolism",
+                          "Biosynthesis of unsaturated fatty acids")
 
 sel <- which(names(gs_annotations[["kegg"]]@original) %in% problematic_pathways)
 
@@ -34,30 +41,10 @@ gs_annotations[["kegg"]]@idx <- gs_annotations[["kegg"]]@idx[-sel]
 gs_annotations[["kegg"]]@anno <- gs_annotations[["kegg"]]@anno[-sel, ]
 
 # Run EGSEA
-# 
-# egsea_passage <- egsea(
-#   voom.results = quant_DGE_EGSEA,
-#   contrasts = matrix_contrasts_passage,
-#   gs.annots = gs_annotations,
-#   symbolsMap = quant_DGE_EGSEA$genes[,c(2,3)],
-#   baseGSEAs = c("camera",
-#                 "roast",
-#                 "plage",
-#                 "zscore",
-#                 "gsva",
-#                 "ssgsea",
-#                 "ora",
-#                 "fry"),
-#   report.dir = "./output/GSEA",
-#   sort.by = "avg.rank",
-#   report = TRUE
-# )
 
-# run EGSEA, KEGG only
-
-egsea_passage_KEGG <- egsea(
+egsea_treatment <- egsea(
   voom.results = quant_DGE_EGSEA,
-  contrasts = matrix_contrasts_passage[,c(3,6,9,12,15,18)],
+  contrasts = matrix_contrasts,
   gs.annots = gs_annotations,
   symbolsMap = quant_DGE_EGSEA$genes[,c(2,3)],
   baseGSEAs = c("camera",
@@ -69,6 +56,6 @@ egsea_passage_KEGG <- egsea(
                 "ora",
                 "fry"),
   sort.by = "avg.rank",
-  report.dir = "./",
+  report.dir = "./egsea_treatment",
   report = TRUE
 )
