@@ -37,6 +37,9 @@ rsconnect/
 output*/
 # Files in data folders that are not meant to be seen outside
 input/
+egsea/
+**egsea/
+egsea/*
 glimma-plots/
 hm-top-gs-kegg
 index.html
@@ -45,3 +48,16 @@ summary
 ranked-gene-sets-base
 pv-top-gs-kegg
 kegg-dir
+egsea_treatment
+gsea
+hsa00532.P13vsP5andP7.multi.png
+hsa00532.P13vsP5andP7_graphviz.multi.pdf
+hsa00532.png
+hsa00532.xml
+hsa00534.P13vsP5andP7.multi.png
+hsa00534.P13vsP5andP7_graphviz.multi.pdf
+hsa00534.png
+hsa00534.xml
+hsa04010.P13vsP5andP7.multi.png
+hsa04010.png
+hsa04010.xml
