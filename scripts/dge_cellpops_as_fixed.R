@@ -36,6 +36,8 @@ quant_DGE_batchcor_withcovariates <-
 quant_DGE_clean_batchcor <- quant_DGE_clean
 quant_DGE_clean_batchcor$counts <- quant_DGE_batchcor_withcovariates
 
+# Select timepoints / conditions here
+
 quant_DGE_clean_batchcor_subset <- quant_DGE_clean_batchcor
   
 table_design <- quant_DGE_clean_batchcor_subset$samples %>%
