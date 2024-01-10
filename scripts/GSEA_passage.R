@@ -32,7 +32,16 @@ problematic_pathways <- c("Retrograde endocannabinoid signaling",
                           "Other types of O-glycan biosynthesis",
                           "Carbon metabolism",
                           "2-Oxocarboxylic acid metabolism",
-                          "Biosynthesis of unsaturated fatty acids")
+                          "Biosynthesis of unsaturated fatty acids",
+                          "Fatty acid metabolism",
+                          "Glycosphingolipid biosynthesis - globo and isoglobo series",
+                          "Glycosphingolipid biosynthesis - ganglio series",
+                          "Glycosphingolipid biosynthesis - globo and isoglobo series",
+                          "Glycosphingolipid biosynthesis - globo and isoglobo series",
+                          "Glycosphingolipid biosynthesis - globo and isoglobo series",
+                          "Glycosphingolipid biosynthesis - globo and isoglobo series",
+                          "Glycosphingolipid biosynthesis - globo and isoglobo series",
+                          "Metabolic pathways")
 
 sel <- which(names(gs_annotations[["kegg"]]@original) %in% problematic_pathways)
 
@@ -56,6 +65,6 @@ egsea_treatment <- egsea(
                 "ora",
                 "fry"),
   sort.by = "avg.rank",
-  report.dir = "./egsea_treatment",
+  report.dir = "./egsea",
   report = TRUE
 )
