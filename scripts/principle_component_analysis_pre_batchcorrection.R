@@ -2,7 +2,7 @@
 # Load dataset 
 ## Dataset has both mRNA and ncRNA
 
-quant_DGE_clean <- readRDS(file = "./output/quant_cDNA_ncRNA_ENSEMBL_DGE_edgeRfilter.RDS")
+quant_DGE_clean <- readRDS(file = "./output/quant_cDNA_ncRNA_ENSEMBL_DGE_filter.RDS")
 
 # Run PCA on top 90% variable genes
 
@@ -31,11 +31,9 @@ PCAtools::biplot(pca,
                  title = 'Strong batch effect',
                  legendPosition = "bottom")
 
-## Top PC1 contributors are ACTB, VIM, TMSB10. That's bad news.
-
 # Draw paired biplot of first 6 PCs
 
-## Batch effect - captured by PC1; PC2
+## Batch effect - captured by PC1
 
 plot_PCApair_batch <- PCAtools::pairsplot(pca,
                     components = PCAtools::getComponents(pca, 1:6),
@@ -47,7 +45,7 @@ plot_PCApair_batch <- PCAtools::pairsplot(pca,
                     plotaxes = FALSE)
 
 
-## Difference between cell pops - captured by PC3
+## Difference between cell pops - captured by PC2; 4
 
 plot_PCApair_cell_pop <- PCAtools::pairsplot(pca,
                     components = PCAtools::getComponents(pca, 1:6),
