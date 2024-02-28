@@ -1,0 +1,118 @@
+---
+title: "3D Volcano plots"
+author: "Mitch"
+date: "2024-01-17"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r Setup, include=FALSE}
+# Load data
+source("./scripts/env_prep.R")
+source("./scripts/dge_cellpops_as_fixed.R")
+
+```
+
+
+# Between passages, Day 3
+
+```{r echo=FALSE, warning=FALSE}
+
+design_D3 <- table_design
+
+design_D3$condition_ID <- factor(design_D3$condition_ID,
+          levels = c("P5D3Untreated",
+                     "P7D3Untreated",
+                     "P13D3Untreated"),
+          labels = c("A",
+                     "B",
+                     "C"))
+
+polar_pvals <- cbind(
+  topTable(fit_contrasts,           number = Inf, sort.by = "none")$P.Value,
+  topTable(fit_contrasts, coef = 4, number = Inf, sort.by = "none")$P.Value,
+  topTable(fit_contrasts, coef = 5, number = Inf, sort.by = "none")$P.Value,
+  topTable(fit_contrasts, coef = 6, number = Inf, sort.by = "none")$P.Value
+)
+
+polar_padj <- cbind(
+  topTable(fit_contrasts,           number = Inf, sort.by = "none")$adj.P.Val,
+  topTable(fit_contrasts, coef = 4, number = Inf, sort.by = "none")$adj.P.Val,
+  topTable(fit_contrasts, coef = 5, number = Inf, sort.by = "none")$adj.P.Val,
+  topTable(fit_contrasts, coef = 6, number = Inf, sort.by = "none")$adj.P.Val
+)
+
+## Construct volcano3d object
+
+rownames(quant_DGE_voom$E) <- quant_DGE_voom$genes$GENENAME
+
+polar_manual <- polar_coords(
+  outcome = design_D3$condition_ID,
+  data = t(quant_DGE_voom$E),
+  pvals = polar_pvals,
+  padj = polar_padj
+)
+
+
+## Plot
+
+volcano3D(polar_manual,
+              axis_angle = 3/6,
+              label_size = 20,
+              axis_label_size = 18,
+          axis_title_size = 28)
+
+```
+
+# Between passages, Day 5
+
+```{r echo=FALSE, warning=FALSE}
+
+design_D5 <- table_design
+
+design_D5$condition_ID <- factor(design_D5$condition_ID,
+          levels = c("P5D5Untreated",
+                     "P7D5Untreated",
+                     "P13D5Untreated"),
+          labels = c("A",
+                     "B",
+                     "C"))
+
+polar_pvals <- cbind(
+  topTable(fit_contrasts,           number = Inf, sort.by = "none")$P.Value,
+  topTable(fit_contrasts, coef = 13, number = Inf, sort.by = "none")$P.Value,
+  topTable(fit_contrasts, coef = 14, number = Inf, sort.by = "none")$P.Value,
+  topTable(fit_contrasts, coef = 15, number = Inf, sort.by = "none")$P.Value
+)
+
+polar_padj <- cbind(
+  topTable(fit_contrasts,           number = Inf, sort.by = "none")$adj.P.Val,
+  topTable(fit_contrasts, coef = 13, number = Inf, sort.by = "none")$adj.P.Val,
+  topTable(fit_contrasts, coef = 14, number = Inf, sort.by = "none")$adj.P.Val,
+  topTable(fit_contrasts, coef = 15, number = Inf, sort.by = "none")$adj.P.Val
+)
+
+## Construct volcano3d object
+
+rownames(quant_DGE_voom$E) <- quant_DGE_voom$genes$GENENAME
+
+polar_manual <- polar_coords(
+  outcome = design_D5$condition_ID,
+  data = t(quant_DGE_voom$E),
+  pvals = polar_pvals,
+  padj = polar_padj
+)
+
+
+## Plot
+
+volcano3D(polar_manual,
+              axis_angle = 3/6,
+              label_size = 20,
+              axis_label_size = 18,
+          axis_title_size = 28)
+
+```
