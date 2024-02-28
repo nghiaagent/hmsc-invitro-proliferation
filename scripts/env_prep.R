@@ -47,13 +47,15 @@ list_Bioc_Pkg <- c(
   "org.Mm.eg.db",
   "org.Rn.eg.db",
   "EGSEAdata",
-  "variancePartition"
+  "variancePartition",
+  "clusterProfiler"
 )
 
 ### Install Bioconductor packages, if they are not yet installed and/or not up-to-date
 
 BiocManager::install(
-  pkgs = list_Bioc_Pkg
+  pkgs = list_Bioc_Pkg,
+  update = F
 )
 
 ### Install packages specifically for EGSEA
@@ -75,8 +77,21 @@ invisible(lapply(list_Bioc_Pkg, function(x)
 
 ### Load all CRAN packages with pacman
 
-p_load(tibble, tidyverse, ggrepel, ggpubr, rstatix, ggalt,
-       ggplotify, cowplot, gridExtra, statmod, volcano3D)
+
+p_load(
+  tibble,
+  tidyverse,
+  ggrepel,
+  ggpubr,
+  rstatix,
+  ggalt,
+  ggplotify,
+  cowplot,
+  gridExtra,
+  statmod,
+  volcano3D,
+  writexl
+)
 
 #### Create folders for input and outputs, if not already present
 # Code below means "if test for directory presence returns FALSE, create the directory"
