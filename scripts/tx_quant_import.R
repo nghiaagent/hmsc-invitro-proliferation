@@ -20,6 +20,17 @@ table_samples <-
                             levels = c("Untreated", "Treated"))) %>%
   mutate(run_date = str_replace_all(run_date,
                                     "_", "")) %>%
+  mutate(timepoint_ID = factor(
+    str_c(Passage, Day, sep = ""),
+    levels = c(
+      "P5D3",
+      "P5D5",
+      "P7D3",
+      "P7D5",
+      "P13D3",
+      "P13D5"
+    )
+  )) %>%
   mutate(condition_ID = factor(
     str_c(Passage, Day, Treatment, sep = ""),
     levels = c(
