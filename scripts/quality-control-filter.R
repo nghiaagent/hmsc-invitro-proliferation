@@ -7,26 +7,45 @@ quant_cDNA_ncRNA_ENSEMBL_DGE <- readRDS(file = "./output/quant_cDNA_ncRNA_ENSEMB
 
 ## Generate table for this purpose
 
-quant_libsize <- dplyr::select(quant_cDNA_ncRNA_ENSEMBL_DGE$samples,
-                                    c("lib.size", "ID")) %>%
-  relocate(ID)
-
-summary(quant_libsize$lib.size)
+quant_libsize <- quant_cDNA_ncRNA_ENSEMBL_DGE$samples %>%
+  dplyr::arrange(condition_ID) %>%
+  dplyr::select(c("lib.size", "ID", "timepoint_ID", "condition_ID")) %>%
+  relocate(ID) %>%
+  mutate(ID = factor(ID)) %>%
+  mutate(ID = fct_inorder(ID))
 
 ## Barplot
 
 plot_libsize <- ggplot(quant_libsize,
-       aes(x = ID,
-           y = lib.size/1e6)
-       ) +
-  geom_bar(stat = "identity") +
-  scale_x_discrete(guide = guide_axis(angle = 90)) +
+                       aes(
+                         x = ID,
+                         y = lib.size / 1e6,
+                         colour = condition_ID,
+                         fill = condition_ID
+                       )) +
+  geom_bar(stat = "identity",
+           alpha = 0.6) +
   labs(x = "",
        y = "Library size (million)",
-       title = "Size of libraries")
+       colour = "Condition",
+       fill = "Condition") +
+  scale_y_continuous(breaks = seq(0, 40, 5)) +
+  theme_bw() +
+  theme(
+    legend.position = "bottom",
+    axis.text.x = element_blank(),
+    axis.ticks.x=element_blank(),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.y = element_blank()
+  )
 
-ggsave("./output/plots_QC/Library size.png",
-       plot = plot_libsize)
+ggsave(
+  "./output/plots_QC/Library size.png",
+  plot = plot_libsize,
+  width = 12,
+  height = 6,
+  scale = 0.8
+)
 
 # Get average count for each gene in all samples, sorted from highest to lowest
 
@@ -61,6 +80,7 @@ head(df_stats_cDNA_ncRNA_ENSEMBL, 50) %>%
 expr_cutoff <- 0.5 # in cpm sum(median_cpm > expr_cutoff)
 
 median_cpm <- apply(cpm(quant_cDNA_ncRNA_ENSEMBL_DGE), 1, median)
+
 quant_cDNA_ncRNA_ENSEMBL_DGE_filter <- quant_cDNA_ncRNA_ENSEMBL_DGE[median_cpm > expr_cutoff, ] %>%
   calcNormFactors()
 
