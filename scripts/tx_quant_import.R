@@ -49,7 +49,9 @@ table_samples <-
     )
   )) %>%
   subset(included_in_dataset == TRUE) %>%
-  arrange(ID, cell_line, Passage, Day, Treatment)
+  arrange(ID, cell_line, Passage, Day, Treatment) %>%
+  mutate(ID = factor(ID)) %>%
+  mutate(ID = fct_inorder(ID))
 
 # Grab data from ENSEMBL109
 
