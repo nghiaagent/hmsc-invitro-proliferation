@@ -69,8 +69,8 @@ design <- model.matrix( ~ condition_ID + run_date,
 
 png(
   "./output/plots_QC/voom mean-variance trend.png",
-  width = 60,
-  height = 20,
+  width = 18,
+  height = 12,
   units = 'cm',
   res = 400
 )
