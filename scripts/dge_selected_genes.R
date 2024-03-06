@@ -54,19 +54,30 @@ genes_inhouse <- c(
   "SOX1"
 )
 
-genes_kegg <- getGeneKEGGLinks(species="hsa")
+genes_E2F <- c(
+  "E2F1",
+  "E2F2",
+  "E2F3",
+  "E2F4",
+  "E2F5",
+  "E2F6",
+  "E2F7",
+  "E2F8"
+)
+# 
+# genes_kegg <- getGeneKEGGLinks(species="hsa")
+# 
+# genes_kegg <- filter(genes_kegg,
+#                      PathwayID %in% list_KEGG_pathways)
+# 
+# genes_fit_small <- intersect(fit_contrasts$genes$ENTREZID,
+#                              genes_kegg$GeneID)
 
-genes_kegg <- filter(genes_kegg,
-                     PathwayID %in% list_KEGG_pathways)
+entrezid_inhouse <- fit_contrasts$genes[fit_contrasts$genes$GENENAME %in% genes_E2F,]$ENTREZID
+# 
+# entrezid_kegg <- fit_contrasts$genes[fit_contrasts$genes$ENTREZID %in% genes_fit_small,]$ENTREZID
 
-genes_fit_small <- intersect(fit_contrasts$genes$ENTREZID,
-                             genes_kegg$GeneID)
-
-entrezid_inhouse <- fit_contrasts$genes[fit_contrasts$genes$GENENAME %in% genes_inhouse,]$ENTREZID
-
-entrezid_kegg <- fit_contrasts$genes[fit_contrasts$genes$ENTREZID %in% genes_fit_small,]$ENTREZID
-
-entrezid_small <- union(entrezid_inhouse, entrezid_kegg)
+entrezid_small <- entrezid_inhouse
 
 # Filter fit_contrasts for GOIs. There are 701 GOIs.
 
