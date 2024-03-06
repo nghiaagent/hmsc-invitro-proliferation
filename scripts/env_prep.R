@@ -18,12 +18,10 @@ library(BiocManager)
 list_Bioc_Pkg <- c(
   "BiocHubsShiny",
   "AnnotationHub",
-  "tximport",
   "edgeR",
   "Homo.sapiens",
   "limma",
   "biomaRt",
-  "goseq",
   "qusage",
   "maditr",
   "Glimma",
@@ -44,11 +42,10 @@ list_Bioc_Pkg <- c(
   "globaltest",
   "safe",
   "org.Hs.eg.db",
-  "org.Mm.eg.db",
-  "org.Rn.eg.db",
   "EGSEAdata",
   "variancePartition",
-  "clusterProfiler"
+  "clusterProfiler",
+  "ReactomePA"
 )
 
 ### Install Bioconductor packages, if they are not yet installed and/or not up-to-date
@@ -77,7 +74,6 @@ invisible(lapply(list_Bioc_Pkg, function(x)
 
 ### Load all CRAN packages with pacman
 
-
 p_load(
   tibble,
   tidyverse,
@@ -90,7 +86,9 @@ p_load(
   gridExtra,
   statmod,
   volcano3D,
-  writexl
+  writexl,
+  msigdbr,
+  cowplot
 )
 
 #### Create folders for input and outputs, if not already present
@@ -129,4 +127,8 @@ if (!dir.exists("./input")) {
   dir.create("./input")
 }
 
+# Limit number of cores used for multicore processing due to memory issues on laptops.
 
+BiocParallel::register(SnowParam(workers = 8),
+                       default = T)
+bpparam()
