@@ -10,25 +10,25 @@ source("./scripts/dge_cellpops_as_fixed.R")
 ## 4: B vs C (P7 vs P13)
 
 table_design$condition_ID <- factor(table_design$condition_ID,
-          levels = c("P5D5Untreated",
-                     "P7D5Untreated",
-                     "P13D5Untreated"),
-          labels = c("A",
-                     "B",
-                     "C"))
+          levels = c("P5D3Untreated",
+                     "P7D3Untreated",
+                     "P13D3Untreated"),
+          labels = c("P+5",
+                     "P+7",
+                     "P+13"))
 
 polar_pvals <- cbind(
   topTable(fit_contrasts,           number = Inf, sort.by = "none")$P.Value,
-  topTable(fit_contrasts, coef = 13, number = Inf, sort.by = "none")$P.Value,
-  topTable(fit_contrasts, coef = 14, number = Inf, sort.by = "none")$P.Value,
-  topTable(fit_contrasts, coef = 15, number = Inf, sort.by = "none")$P.Value
+  topTable(fit_contrasts, coef = 4, number = Inf, sort.by = "none")$P.Value,
+  topTable(fit_contrasts, coef = 5, number = Inf, sort.by = "none")$P.Value,
+  topTable(fit_contrasts, coef = 6, number = Inf, sort.by = "none")$P.Value
 )
 
 polar_padj <- cbind(
   topTable(fit_contrasts,           number = Inf, sort.by = "none")$adj.P.Val,
-  topTable(fit_contrasts, coef = 13, number = Inf, sort.by = "none")$adj.P.Val,
-  topTable(fit_contrasts, coef = 14, number = Inf, sort.by = "none")$adj.P.Val,
-  topTable(fit_contrasts, coef = 15, number = Inf, sort.by = "none")$adj.P.Val
+  topTable(fit_contrasts, coef = 4, number = Inf, sort.by = "none")$adj.P.Val,
+  topTable(fit_contrasts, coef = 5, number = Inf, sort.by = "none")$adj.P.Val,
+  topTable(fit_contrasts, coef = 6, number = Inf, sort.by = "none")$adj.P.Val
 )
 
 ## Construct volcano3d object
@@ -41,6 +41,11 @@ polar_manual <- polar_coords(
   pvals = polar_pvals,
   padj = polar_padj
 )
+
+rownames(polar_manual@pvals) <- quant_DGE_voom$genes$GENENAME
+colnames(polar_manual@pvals) <- c("ANOVA", "P7vsP5", "P13vsP5", "P13vsP7")
+rownames(polar_manual@padj) <- quant_DGE_voom$genes$GENENAME
+colnames(polar_manual@padj) <- c("ANOVA", "P7vsP5", "P13vsP5", "P13vsP7")
 
 ## Plot
 
