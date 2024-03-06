@@ -10,9 +10,7 @@ quant_cDNA_ncRNA_ENSEMBL_DGE <- readRDS(file = "./output/quant_cDNA_ncRNA_ENSEMB
 quant_libsize <- quant_cDNA_ncRNA_ENSEMBL_DGE$samples %>%
   dplyr::arrange(condition_ID) %>%
   dplyr::select(c("lib.size", "ID", "timepoint_ID", "condition_ID")) %>%
-  relocate(ID) %>%
-  mutate(ID = factor(ID)) %>%
-  mutate(ID = fct_inorder(ID))
+  relocate(ID)
 
 ## Barplot
 
@@ -32,7 +30,7 @@ plot_libsize <- ggplot(quant_libsize,
   scale_y_continuous(breaks = seq(0, 40, 5)) +
   theme_bw() +
   theme(
-    legend.position = "bottom",
+    legend.position = "none",
     axis.text.x = element_blank(),
     axis.ticks.x=element_blank(),
     panel.grid.major.x = element_blank(),
@@ -44,7 +42,7 @@ ggsave(
   plot = plot_libsize,
   width = 12,
   height = 6,
-  scale = 0.8
+  scale = 0.7
 )
 
 # Get average count for each gene in all samples, sorted from highest to lowest
@@ -86,28 +84,67 @@ quant_cDNA_ncRNA_ENSEMBL_DGE_filter <- quant_cDNA_ncRNA_ENSEMBL_DGE[median_cpm >
 
 # Per sample distribution; before and after adding TMM scaling factor
 
-png("./output/plots_QC/Per sample counts distribution.png", width = 40, height = 60, units = 'cm', res = 600) 
-par(mfrow=c(2,1))
+lcpm_pre_TMM <-
+  cpm(quant_cDNA_ncRNA_ENSEMBL_DGE[apply(cpm(quant_cDNA_ncRNA_ENSEMBL_DGE), 1, median) > expr_cutoff,],
+      log = TRUE) %>%
+  as_tibble() %>%
+  mutate(GENEID = rownames(quant_cDNA_ncRNA_ENSEMBL_DGE_filter)) %>%
+  pivot_longer(cols = !GENEID,
+               names_to = "ID",
+               values_to = "lcpm") %>%
+  mutate(type = "Before normalisation")
 
-lcpm <- cpm(quant_cDNA_ncRNA_ENSEMBL_DGE[apply(cpm(quant_cDNA_ncRNA_ENSEMBL_DGE), 1, median) > expr_cutoff, ],
-            log=TRUE)
+lcpm_post_TMM <- cpm(quant_cDNA_ncRNA_ENSEMBL_DGE_filter,
+                     log = TRUE) %>%
+  as_tibble() %>%
+  mutate(GENEID = rownames(quant_cDNA_ncRNA_ENSEMBL_DGE_filter)) %>%
+  pivot_longer(cols = !GENEID,
+               names_to = "ID",
+               values_to = "lcpm") %>%
+  mutate(type = "After normalisation")
 
-boxplot(lcpm, 
-        las=2, 
-        main="")
+lcpm <- rbind(lcpm_pre_TMM, lcpm_post_TMM) %>%
+  mutate(type = factor(type,
+                       levels = c(
+                         "Before normalisation",
+                         "After normalisation"
+                       ))) %>%
+  left_join(y = select(quant_cDNA_ncRNA_ENSEMBL_DGE_filter$samples,
+                       c("ID", "condition_ID")),
+            by = join_by(ID == ID)) %>%
+  mutate(ID = factor(ID,
+                     levels = levels(quant_cDNA_ncRNA_ENSEMBL_DGE$samples$ID)))
 
-title(main="Unnormalised data",ylab="Log-cpm")
+plot_distribution_preTMM <- ggplot(lcpm,
+                                   aes(x = ID,
+                                       y = lcpm,
+                                       colour = condition_ID,
+                                       fill = condition_ID)) +
+  geom_boxplot(alpha = 0.6) +
+  labs(x = "",
+       y = "log-counts per million",
+       colour = "Condition",
+       fill = "Condition") +
+  scale_y_continuous(breaks = seq(0, 40, 5)) +
+  theme_bw() +
+  theme(
+    legend.position = "right",
+    axis.text.x = element_blank(),
+    axis.ticks.x=element_blank(),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.y = element_blank()
+  ) +
+  facet_wrap( ~ type,
+              nrow = 2)
 
-lcpm <- cpm(quant_cDNA_ncRNA_ENSEMBL_DGE_filter,
-            log=TRUE)
+ggsave(
+  "./output/plots_QC/distribution.png",
+  plot = plot_distribution_preTMM,
+  width = 12,
+  height = 6,
+  scale = 0.7
+)
 
-boxplot(lcpm, 
-        las=2,
-        main="")
-
-title(main="TMM-Normalised data",ylab="Log-cpm")
-
-dev.off()
 
 # Density plots - copied from Sofia's pipeline
 
