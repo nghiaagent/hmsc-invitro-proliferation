@@ -10,25 +10,25 @@ source("./scripts/dge_selected_genes.R")
 ## 4: B vs C (P7 vs P13)
 
 table_design$condition_ID <- factor(table_design$condition_ID,
-          levels = c("P5D3Untreated",
-                     "P7D3Untreated",
-                     "P13D3Untreated"),
-          labels = c("P5",
-                     "P7",
-                     "P13"))
+                                    levels = c("P5D3Untreated",
+                                               "P7D3Untreated",
+                                               "P13D3Untreated"),
+                                    labels = c("A",
+                                               "B",
+                                               "C"))
 
 polar_pvals <- cbind(
   topTable(fit_small,           number = Inf, sort.by = "none")$P.Value,
-  topTable(fit_small, coef = 1, number = Inf, sort.by = "none")$P.Value,
-  topTable(fit_small, coef = 2, number = Inf, sort.by = "none")$P.Value,
-  topTable(fit_small, coef = 3, number = Inf, sort.by = "none")$P.Value
+  topTable(fit_small, coef = 13, number = Inf, sort.by = "none")$P.Value,
+  topTable(fit_small, coef = 14, number = Inf, sort.by = "none")$P.Value,
+  topTable(fit_small, coef = 15, number = Inf, sort.by = "none")$P.Value
 )
 
 polar_padj <- cbind(
   topTable(fit_small,           number = Inf, sort.by = "none")$adj.P.Val,
-  topTable(fit_small, coef = 1, number = Inf, sort.by = "none")$adj.P.Val,
-  topTable(fit_small, coef = 2, number = Inf, sort.by = "none")$adj.P.Val,
-  topTable(fit_small, coef = 3, number = Inf, sort.by = "none")$adj.P.Val
+  topTable(fit_small, coef = 13, number = Inf, sort.by = "none")$adj.P.Val,
+  topTable(fit_small, coef = 14, number = Inf, sort.by = "none")$adj.P.Val,
+  topTable(fit_small, coef = 15, number = Inf, sort.by = "none")$adj.P.Val
 )
 
 ## Construct volcano3d object
@@ -53,11 +53,16 @@ colnames(polar_manual@padj) <- c("ANOVA", "P7vsP5", "P13vsP5", "P13vsP7")
 
 radial_plotly(polar_manual,
               axis_angle = 0.8,
-              label_rows = c("GPC1",
-                             "GPC4",
-                             "SDC1",
-                             "SDC4"
-                             ),
+              label_rows = c(
+  "E2F1",
+  "E2F2",
+  "E2F3",
+  "E2F4",
+  "E2F5",
+  "E2F6",
+  "E2F7",
+  "E2F8"
+),
               label_size = 28,
               arrow_length = 120)
 
@@ -65,4 +70,4 @@ radial_plotly(polar_manual,
 ## Trio boxplot of GOIs
 
 boxplot_trio(polar = polar_manual,
-             value = "NES")
+             value = "GPC3")
