@@ -113,11 +113,8 @@ quant_cDNA_ncRNA_ENSEMBL_gene <-
 quant_cDNA_ncRNA_ENSEMBL_DGE <-
   DGEList(assays(quant_cDNA_ncRNA_ENSEMBL_gene)[["counts"]])
 
-quant_cDNA_ncRNA_ENSEMBL_DGE$samples$ID <-
-  rownames(quant_cDNA_ncRNA_ENSEMBL_DGE$samples)
-
 quant_cDNA_ncRNA_ENSEMBL_DGE$samples <-
-  left_join(quant_cDNA_ncRNA_ENSEMBL_DGE$samples, table_samples)
+  cbind(quant_cDNA_ncRNA_ENSEMBL_DGE$samples, table_samples)
 
 
 ## Add annotation data
