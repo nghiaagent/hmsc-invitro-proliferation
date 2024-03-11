@@ -1,0 +1,314 @@
+---
+title: "3D Volcano plots"
+author: "Mitch"
+date: "2024-01-17"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(dpi=300,fig.width=18, fig.height = 12)
+```
+
+```{r Setup, include=FALSE}
+# Load data
+source("./scripts/env_prep.R")
+source("./scripts/post_GSEA_with_ClusterProfiler.R")
+
+```
+
+Includes all GSEA plots for:
+
+-   GO
+
+    -   Biological Processes
+
+    -   Cellular Component
+
+    -   Molecular Function
+
+-   MSigDB
+
+    -   h: Hallmark
+
+    -   c2: Curated
+
+    -   c3: Regulatory targets
+
+    -   c5: GO
+
+-   ReactomePA
+
+-   WikiPathways
+
+-   KEGG
+
+# GO
+
+## BP
+
+```{r}
+
+results <- GSEA_GOBP_P13vsP5_UT_D3
+title <-
+  "GO Biological Process \nPhase C - Phase A, Untreated, Day 3"
+
+dotplot(results, showCategory = 30) + ggtitle(title)
+
+cnetplot(results, showCategory = 8) + ggtitle(title)
+
+heatplot(results,
+         showCategory = 8,
+         foldChange = list_gene_P13vsP5_UT_D3) + ggtitle(title)
+
+emapplot(results) + ggtitle(title)
+
+enrichplot::upsetplot(results) + ggtitle(title)
+
+ridgeplot(results, showCategory = 30) + ggtitle(title)
+
+goplot(results) + ggtitle(title)
+
+enrichplot::ssplot(results,
+                   show_category = Inf)
+```
+
+## CC
+
+```{r}
+
+results <- GSEA_GOCC_P13vsP5_UT_D3
+title <-
+  "GO Cellular Component \nPhase C - Phase A, Untreated, Day 3"
+
+dotplot(results, showCategory = 30) + ggtitle(title)
+
+cnetplot(results, showCategory = 8) + ggtitle(title)
+
+heatplot(results,
+         showCategory = 8,
+         foldChange = list_gene_P13vsP5_UT_D3) + ggtitle(title)
+
+emapplot(results) + ggtitle(title)
+
+enrichplot::upsetplot(results) + ggtitle(title)
+
+ridgeplot(results, showCategory = 30) + ggtitle(title)
+
+goplot(results) + ggtitle(title)
+
+enrichplot::ssplot(results,
+                   show_category = Inf)
+```
+
+## MF
+
+```{r}
+
+results <- GSEA_GOMF_P13vsP5_UT_D3
+title <-
+  "GO Molecular Function \nPhase C - Phase A, Untreated, Day 3"
+
+dotplot(results, showCategory = 30) + ggtitle(title)
+
+cnetplot(results, showCategory = 8) + ggtitle(title)
+
+heatplot(results,
+         showCategory = 8,
+         foldChange = list_gene_P13vsP5_UT_D3) + ggtitle(title)
+
+emapplot(results) + ggtitle(title)
+
+enrichplot::upsetplot(results) + ggtitle(title)
+
+ridgeplot(results, showCategory = 30) + ggtitle(title)
+
+goplot(results) + ggtitle(title)
+
+enrichplot::ssplot(results,
+                   show_category = Inf)
+```
+
+# MSigDB
+
+## h
+
+```{r}
+
+results <- GSEA_MSigDB_h_P13vsP5_UT_D3
+title <-
+  "MSigDB Hallmark \nPhase C - Phase A, Untreated, Day 3"
+
+dotplot(results, showCategory = 30) + ggtitle(title)
+
+cnetplot(results, showCategory = 8) + ggtitle(title)
+
+heatplot(results,
+         showCategory = 8,
+         foldChange = list_gene_P13vsP5_UT_D3) + ggtitle(title)
+
+emapplot(results) + ggtitle(title)
+
+enrichplot::upsetplot(results) + ggtitle(title)
+
+ridgeplot(results, showCategory = 30) + ggtitle(title)
+
+enrichplot::ssplot(results,
+                   show_category = Inf)
+```
+
+## c2
+
+```{r}
+
+results <- GSEA_MSigDB_c2_P13vsP5_UT_D3
+title <-
+  "MSigDB Curated \nPhase C - Phase A, Untreated, Day 3"
+
+dotplot(results, showCategory = 30) + ggtitle(title)
+
+cnetplot(results, showCategory = 8) + ggtitle(title)
+
+heatplot(results,
+         showCategory = 8,
+         foldChange = list_gene_P13vsP5_UT_D3) + ggtitle(title)
+
+emapplot(results) + ggtitle(title)
+
+enrichplot::upsetplot(results) + ggtitle(title)
+
+ridgeplot(results, showCategory = 30) + ggtitle(title)
+
+enrichplot::ssplot(results,
+                   show_category = Inf)
+```
+
+## c3
+
+```{r}
+
+results <- GSEA_MSigDB_c3_P13vsP5_UT_D3
+title <-
+  "MSigDB Regulatory Targets \nPhase C - Phase A, Untreated, Day 3"
+
+dotplot(results, showCategory = 30) + ggtitle(title)
+
+cnetplot(results, showCategory = 8) + ggtitle(title)
+
+heatplot(results,
+         showCategory = 8,
+         foldChange = list_gene_P13vsP5_UT_D3) + ggtitle(title)
+
+emapplot(results) + ggtitle(title)
+
+enrichplot::upsetplot(results) + ggtitle(title)
+
+ridgeplot(results, showCategory = 30) + ggtitle(title)
+
+enrichplot::ssplot(results,
+                   show_category = Inf)
+```
+
+## c5
+
+```{r}
+
+results <- GSEA_MSigDB_c5_P13vsP5_UT_D3
+title <-
+  "MSigDB Ontology \nPhase C - Phase A, Untreated, Day 3"
+
+dotplot(results, showCategory = 30) + ggtitle(title)
+
+cnetplot(results, showCategory = 8) + ggtitle(title)
+
+heatplot(results,
+         showCategory = 8,
+         foldChange = list_gene_P13vsP5_UT_D3) + ggtitle(title)
+
+emapplot(results) + ggtitle(title)
+
+enrichplot::upsetplot(results) + ggtitle(title)
+
+ridgeplot(results, showCategory = 30) + ggtitle(title)
+
+enrichplot::ssplot(results,
+                   show_category = Inf)
+```
+
+# ReactomePA
+
+```{r}
+
+results <- GSEA_ReactomePA_P13vsP5_UT_D3
+title <-
+  "ReactomePA \nPhase C - Phase A, Untreated, Day 3"
+
+dotplot(results, showCategory = 30) + ggtitle(title)
+
+cnetplot(results, showCategory = 8) + ggtitle(title)
+
+heatplot(results,
+         showCategory = 8,
+         foldChange = list_gene_P13vsP5_UT_D3_ENTREZ) + ggtitle(title)
+
+emapplot(results) + ggtitle(title)
+
+enrichplot::upsetplot(results) + ggtitle(title)
+
+ridgeplot(results, showCategory = 30) + ggtitle(title)
+
+enrichplot::ssplot(results,
+                   show_category = Inf)
+```
+
+# WikiPathways
+
+```{r}
+
+results <- GSEA_WikiPathways_P13vsP5_UT_D3
+title <-
+  "WikiPathways \nPhase C - Phase A, Untreated, Day 3"
+
+dotplot(results, showCategory = 30) + ggtitle(title)
+
+cnetplot(results, showCategory = 8) + ggtitle(title)
+
+heatplot(results,
+         showCategory = 8,
+         foldChange = list_gene_P13vsP5_UT_D3_ENTREZ) + ggtitle(title)
+
+emapplot(results) + ggtitle(title)
+
+enrichplot::upsetplot(results) + ggtitle(title)
+
+ridgeplot(results, showCategory = 30) + ggtitle(title)
+
+enrichplot::ssplot(results,
+                   show_category = Inf)
+```
+
+# KEGG
+
+```{r}
+
+results <- GSEA_KEGG_P13vsP5_UT_D3
+title <-
+  "KEGG \nPhase C - Phase A, Untreated, Day 3"
+
+dotplot(results, showCategory = 30) + ggtitle(title)
+
+cnetplot(results, showCategory = 8) + ggtitle(title)
+
+heatplot(results,
+         showCategory = 8,
+         foldChange = list_gene_P13vsP5_UT_D3_ENTREZ) + ggtitle(title)
+
+emapplot(results) + ggtitle(title)
+
+enrichplot::upsetplot(results) + ggtitle(title)
+
+ridgeplot(results, showCategory = 30) + ggtitle(title)
+
+enrichplot::ssplot(results,
+                   show_category = Inf)
+```
