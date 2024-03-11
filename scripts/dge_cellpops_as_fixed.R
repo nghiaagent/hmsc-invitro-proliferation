@@ -1,17 +1,10 @@
 ### Don't source this file by itself; call in from another file after running env_prep.R
 # Load dataset
-## Dataset has both mRNA and ncRNA
 
 quant_DGE_clean <-
   readRDS(file = "./output/quant_cDNA_ncRNA_ENSEMBL_DGE_filter.RDS")
 
-## MDS / PCA plot
-
-Glimma::glMDSPlot(quant_DGE_clean,
-                  labels = quant_DGE_clean$samples$Sample_ID,
-                  groups = quant_DGE_clean$samples)
-
-### Make design matrix
+# Make design matrix
 
 ## Treat cell line as an additive factor
 ## Treat time points and treatments as fixed effects
@@ -37,7 +30,7 @@ quant_DGE_clean_batchcor <- quant_DGE_clean
 quant_DGE_clean_batchcor$counts <- quant_DGE_batchcor_withcovariates
 rm(quant_DGE_batchcor_withcovariates)
 
-# Select timepoints / conditions here
+# Define factors for design matrix 
 
 quant_DGE_clean_batchcor_subset <- quant_DGE_clean_batchcor
   
@@ -62,13 +55,15 @@ table_design <- quant_DGE_clean_batchcor_subset$samples %>%
                                           "P13D5Untreated",
                                           "P13D5Treated")))
 
+# Define design matrix
+
 design <- model.matrix( ~ condition_ID + run_date + cell_line,
                         data = table_design)
 
 colnames(design) <- make.names(colnames(design))
 
-## Apply voom transformation
-### And output mean-variance trend plot
+# Apply voom transformation
+# Output mean-variance trend plot
 
 png(
   "./output/plots_QC/voom mean-variance trend.png",
@@ -86,7 +81,7 @@ quant_DGE_voom <-
 
 dev.off()
 
-## Apply limma model fit
+# Apply limma model fit
 
 fit <- lmFit(quant_DGE_voom,
              design) %>%
@@ -94,8 +89,7 @@ fit <- lmFit(quant_DGE_voom,
 
 summary(decideTests(fit))
 
-# Define posthoc tests
-## Between treatments, at each passage
+# Define contrasts
 ## Each coefficient calculates the difference between that condition and the baseline (P5D3Untreated)
 ## coefs 1 - 3: Effect of treatment at D3
 ## coefs 4 - 6: Effect of passage at UT, D3
@@ -133,7 +127,6 @@ matrix_contrasts <- makeContrasts(
   P13vsP7_TvsUT_D5 = (condition_IDP13D5Treated - condition_IDP13D5Untreated) - (condition_IDP7D5Treated - condition_IDP7D5Untreated),
   levels = design
 )
-
 
 # Test for desired contrasts
 
