@@ -5,13 +5,14 @@
 # Choose optimal number of PCs to retain
 # Optimal number of PCs is between 1 - 4; very large PC1 due to batch fx
 
-rownames(quant_DGE_clean_batchcor$samples) <- quant_DGE_clean_batchcor$samples$ID
+rownames(quant_DGE_batchcor_withcellpop$samples) <- quant_DGE_batchcor_withcellpop$samples$ID
 
-pca <- PCAtools::pca(mat = quant_DGE_clean_batchcor$counts,
-                     metadata = quant_DGE_clean_batchcor$samples,
-                     scale = TRUE)
+pca <- PCAtools::pca(mat = quant_DGE_batchcor_withcellpop$counts,
+                     metadata = quant_DGE_batchcor_withcellpop$samples,
+                     scale = TRUE,
+                     removeVar = 0.9)
 
-pca_optimisePCs <- PCAtools::parallelPCA(quant_DGE_clean_batchcor$counts)
+pca_optimisePCs <- PCAtools::parallelPCA(quant_DGE_batchcor_withcellpop$counts)
 
 PCAtools::screeplot(pca,
           components = PCAtools::getComponents(pca, 1:30))
@@ -124,15 +125,12 @@ plot_pcacor <- PCAtools::eigencorplot(pca,
 
 # More biplots based on the correlation results
 
-plot_PCA2_3 <- PCAtools::biplot(pca,
-                 x = "PC3",
-                 y = "PC2",
+plot_PCA1_2 <- PCAtools::biplot(pca,
+                 x = "PC2",
+                 y = "PC1",
                  lab = NULL,
-                 showLoadings = TRUE,
-                 colby = "run_date",
-                 encircle = TRUE,
-                 encircleFill = TRUE,
-                 title = 'Batch effect captured by PC 2 and 3',
+                 showLoadings = FALSE,
+                 colby = "Passage",
                  legendPosition = "bottom")
 
 plot_PCA2_4 <- PCAtools::biplot(pca,
@@ -171,11 +169,12 @@ plot_PCA7_10 <- PCAtools::biplot(pca,
 # Export plots
 
 ## PCA biplots
-ggsave(filename = "./output/plots_PCA_postbatchcorrection/batchPCA.png",
-       plot = plot_PCA2_3,
+
+ggsave(filename = "./output/plots_PCA_postbatchcorrection/conditionPCA.png",
+       plot = plot_PCA1_2,
        width = 8,
-       height = 8,
-       scale = 1.7)
+       height = 12,
+       scale = 0.7)
 
 ggsave(filename = "./output/plots_PCA_postbatchcorrection/cell_linePCA.png",
        plot = plot_PCA2_4,
@@ -200,8 +199,8 @@ ggsave(filename = "./output/plots_PCA_postbatchcorrection/TreatmentPCA.png",
 ggsave(filename = "./output/plots_PCA_postbatchcorrection/PCAcorrelation.png",
        plot = as.grob(plot_pcacor),
        width = 8,
-       height = 8,
-       scale = 1.2)
+       height = 12,
+       scale = 0.8)
 
 ## PCA loadings
 

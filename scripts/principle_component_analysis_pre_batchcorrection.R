@@ -13,7 +13,8 @@ rownames(quant_DGE_clean$samples) <- quant_DGE_clean$samples$ID
 
 pca <- PCAtools::pca(mat = quant_DGE_clean$counts,
                      metadata = quant_DGE_clean$samples,
-                     scale = TRUE)
+                     scale = TRUE,
+                     removeVar = 0.9)
 
 pca_optimisePCs <- PCAtools::parallelPCA(quant_DGE_clean$counts)
 
@@ -123,6 +124,14 @@ plot_pcacor <- PCAtools::eigencorplot(pca,
 
 # More biplots based on the correlation results
 
+plot_PCA1_2 <- PCAtools::biplot(pca,
+                                x = "PC2",
+                                y = "PC1",
+                                lab = NULL,
+                                showLoadings = FALSE,
+                                colby = "Passage",
+                                legendPosition = "bottom")
+
 plot_PCA3_8 <- PCAtools::biplot(pca,
                                 x = "PC8",
                                 y = "PC3",
@@ -159,6 +168,13 @@ plot_PCA4_7 <- PCAtools::biplot(pca,
 # Export plots
 
 ## PCA biplots
+
+ggsave(filename = "./output/plots_PCA_prebatchcorrection/conditionPCA.png",
+       plot = plot_PCA1_2,
+       width = 8,
+       height = 12,
+       scale = 0.7)
+
 ggsave(filename = "./output/plots_PCA_prebatchcorrection/batchPCA.png",
        plot = plot_PCA3_8,
        width = 8,
@@ -182,8 +198,8 @@ ggsave(filename = "./output/plots_PCA_prebatchcorrection/passagePCA.png",
 ggsave(filename = "./output/plots_PCA_prebatchcorrection/PCAcorrelation.png",
        plot = as.grob(plot_pcacor),
        width = 8,
-       height = 8,
-       scale = 1.2)
+       height = 12,
+       scale = 0.8)
 
 ## PCA loadings
 
