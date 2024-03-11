@@ -22,7 +22,7 @@ table_design <- quant_DGE_clean$samples %>%
   mutate(Treatment = factor(Treatment,
                             levels = c("Untreated", "Treated")))
 
-design <- model.matrix( ~ condition_ID,
+design <- model.matrix( ~ condition_ID + cell_line,
                         data = table_design)
 
 # Use ComBat-seq to correct for batch fx
@@ -35,6 +35,7 @@ quant_DGE_batchcor_withcovariates <-
 
 quant_DGE_clean_batchcor <- quant_DGE_clean
 quant_DGE_clean_batchcor$counts <- quant_DGE_batchcor_withcovariates
+rm(quant_DGE_batchcor_withcovariates)
 
 # Select timepoints / conditions here
 
@@ -61,8 +62,10 @@ table_design <- quant_DGE_clean_batchcor_subset$samples %>%
                                           "P13D5Untreated",
                                           "P13D5Treated")))
 
-design <- model.matrix( ~ condition_ID + run_date,
+design <- model.matrix( ~ condition_ID + run_date + cell_line,
                         data = table_design)
+
+colnames(design) <- make.names(colnames(design))
 
 ## Apply voom transformation
 ### And output mean-variance trend plot
@@ -94,6 +97,14 @@ summary(decideTests(fit))
 # Define posthoc tests
 ## Between treatments, at each passage
 ## Each coefficient calculates the difference between that condition and the baseline (P5D3Untreated)
+## coefs 1 - 3: Effect of treatment at D3
+## coefs 4 - 6: Effect of passage at UT, D3
+## coefs 7 - 9: Effect of passage at T, D3
+## coefs 10 - 12: Effect of treatment at D5
+## coefs 13 - 15: Effect of passage at UT, D5
+## coefs 16 - 18: Effect of passage at T, D5
+## coefs 19 - 21: Interaction between treatment & passage, D3
+## coefs 22 - 24: Interaction between treatment & passage, D5
 
 matrix_contrasts <- makeContrasts(
   Trt_P5_D3 = condition_IDP5D3Treated - 0,
@@ -114,6 +125,12 @@ matrix_contrasts <- makeContrasts(
   P7vsP5_T_D5 = condition_IDP7D5Treated - condition_IDP5D5Treated,
   P13vsP5_T_D5 = condition_IDP13D5Treated - condition_IDP5D5Treated,
   P13vsP7_T_D5 = condition_IDP13D5Treated - condition_IDP7D5Treated,
+  P7vsP5_TvsUT_D3 = (condition_IDP7D3Treated - condition_IDP7D3Untreated) - (condition_IDP5D3Treated - 0),
+  P13vsP5_TvsUT_D3 = (condition_IDP13D3Treated - condition_IDP13D3Untreated) - (condition_IDP5D3Treated - 0),
+  P13vsP7_TvsUT_D3 = (condition_IDP13D3Treated - condition_IDP13D3Untreated) - (condition_IDP7D3Treated - condition_IDP7D3Untreated),
+  P7vsP5_TvsUT_D5 = (condition_IDP7D5Treated - condition_IDP7D5Untreated) - (condition_IDP5D5Treated - condition_IDP5D5Untreated),
+  P13vsP5_TvsUT_D5 = (condition_IDP13D5Treated - condition_IDP13D5Untreated) - (condition_IDP5D5Treated - condition_IDP5D5Untreated),
+  P13vsP7_TvsUT_D5 = (condition_IDP13D5Treated - condition_IDP13D5Untreated) - (condition_IDP7D5Treated - condition_IDP7D5Untreated),
   levels = design
 )
 
