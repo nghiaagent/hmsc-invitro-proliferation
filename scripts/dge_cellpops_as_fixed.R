@@ -31,10 +31,8 @@ quant_DGE_clean_batchcor$counts <- quant_DGE_batchcor_withcovariates
 rm(quant_DGE_batchcor_withcovariates)
 
 # Define factors for design matrix 
-
-quant_DGE_clean_batchcor_subset <- quant_DGE_clean_batchcor
   
-table_design <- quant_DGE_clean_batchcor_subset$samples %>%
+table_design <- quant_DGE_clean_batchcor$samples %>%
   mutate(Day = factor(Day,
                       levels = c("D3", "D5"))) %>%
   mutate(Passage = factor(Passage,
@@ -75,7 +73,7 @@ png(
 
 
 quant_DGE_voom <-
-  voom(quant_DGE_clean_batchcor_subset,
+  voom(quant_DGE_clean_batchcor,
                          design,
                          plot = TRUE)
 
@@ -90,45 +88,72 @@ fit <- lmFit(quant_DGE_voom,
 summary(decideTests(fit))
 
 # Define contrasts
-## Each coefficient calculates the difference between that condition and the baseline (P5D3Untreated)
-## coefs 1 - 3: Effect of treatment at D3
-## coefs 4 - 6: Effect of passage at UT, D3
-## coefs 7 - 9: Effect of passage at T, D3
-## coefs 10 - 12: Effect of treatment at D5
-## coefs 13 - 15: Effect of passage at UT, D5
-## coefs 16 - 18: Effect of passage at T, D5
-## coefs 19 - 21: Interaction between treatment & passage, D3
-## coefs 22 - 24: Interaction between treatment & passage, D5
+## Coefs 1 - 6: Treatment at each timepoint
+## Coefs 7 - 12: Day at each timepoint x treatment
+## Coefs 13 - 24: Passage at each day x treatment
+## Coefs 25 - 30: Passage x Treatment at each day
+## Coefs 31 - 36: Passage x Day at treatment
+## Coefs 37 - 39: Day x Treatment at Passage
+
 
 matrix_contrasts <- makeContrasts(
+  
+  ## Coefs 1 - 6: Treatment at each timepoint
   Trt_P5_D3 = condition_IDP5D3Treated - 0,
-  Trt_P7_D3 = condition_IDP7D3Treated - condition_IDP7D3Untreated,
-  Trt_P13_D3 = condition_IDP13D3Treated - condition_IDP13D3Untreated,
-  P7vsP5_UT_D3 = condition_IDP7D3Untreated - 0,
-  P13vsP5_UT_D3 = condition_IDP13D3Untreated - 0,
-  P13vsP7_UT_D3 = condition_IDP13D3Untreated - condition_IDP7D3Untreated,
-  P7vsP5_T_D3 = condition_IDP7D3Treated - condition_IDP5D3Treated,
-  P13vsP5_T_D3 = condition_IDP13D3Treated - condition_IDP5D3Treated,
-  P13vsP7_T_D3 = condition_IDP13D3Treated - condition_IDP7D3Treated,
   Trt_P5_D5 = condition_IDP5D5Treated - condition_IDP5D5Untreated,
+  Trt_P7_D3 = condition_IDP7D3Treated - condition_IDP7D3Untreated,
   Trt_P7_D5 = condition_IDP7D5Treated - condition_IDP7D5Untreated,
+  Trt_P13_D3 = condition_IDP13D3Treated - condition_IDP13D3Untreated,
   Trt_P13_D5 = condition_IDP13D5Treated - condition_IDP13D5Untreated,
+  
+  
+  ## Coefs 7 - 12: Day at each timepoint x treatment
+  D5vsD3_UT_P5 = condition_IDP5D5Untreated - 0,
+  D5vsD3_UT_P7 = condition_IDP7D5Untreated - condition_IDP7D3Untreated,
+  D5vsD3_UT_P13 = condition_IDP13D5Untreated - condition_IDP13D3Untreated,
+  D5vsD3_T_P5 = condition_IDP5D5Treated - condition_IDP5D3Treated,
+  D5vsD3_T_P7 = condition_IDP7D5Treated - condition_IDP7D3Treated,
+  D5vsD3_T_P13 = condition_IDP13D5Treated - condition_IDP13D3Treated,
+  
+  ## Coefs 13 - 24: Passage at each day x treatment
+  P7vsP5_UT_D3 = condition_IDP7D3Untreated - 0,
+  P13vsP7_UT_D3 = condition_IDP13D3Untreated - condition_IDP7D3Untreated,
+  P13vsP5_UT_D3 = condition_IDP13D3Untreated - 0,
+  P7vsP5_T_D3 = condition_IDP7D3Treated - condition_IDP5D3Treated,
+  P13vsP7_T_D3 = condition_IDP13D3Treated - condition_IDP7D3Treated,
+  P13vsP5_T_D3 = condition_IDP13D3Treated - condition_IDP5D3Treated,
   P7vsP5_UT_D5 = condition_IDP7D5Untreated - condition_IDP5D5Untreated,
-  P13vsP5_UT_D5 = condition_IDP13D5Untreated - condition_IDP5D5Untreated,
   P13vsP7_UT_D5 = condition_IDP13D5Untreated - condition_IDP7D5Untreated,
+  P13vsP5_UT_D5 = condition_IDP13D5Untreated - condition_IDP5D5Untreated,
   P7vsP5_T_D5 = condition_IDP7D5Treated - condition_IDP5D5Treated,
-  P13vsP5_T_D5 = condition_IDP13D5Treated - condition_IDP5D5Treated,
   P13vsP7_T_D5 = condition_IDP13D5Treated - condition_IDP7D5Treated,
+  P13vsP5_T_D5 = condition_IDP13D5Treated - condition_IDP5D5Treated,
+  
+  ## Coefs 25 - 30: Passage x Treatment at each day
   P7vsP5_TvsUT_D3 = (condition_IDP7D3Treated - condition_IDP7D3Untreated) - (condition_IDP5D3Treated - 0),
-  P13vsP5_TvsUT_D3 = (condition_IDP13D3Treated - condition_IDP13D3Untreated) - (condition_IDP5D3Treated - 0),
   P13vsP7_TvsUT_D3 = (condition_IDP13D3Treated - condition_IDP13D3Untreated) - (condition_IDP7D3Treated - condition_IDP7D3Untreated),
+  P13vsP5_TvsUT_D3 = (condition_IDP13D3Treated - condition_IDP13D3Untreated) - (condition_IDP5D3Treated - 0),
   P7vsP5_TvsUT_D5 = (condition_IDP7D5Treated - condition_IDP7D5Untreated) - (condition_IDP5D5Treated - condition_IDP5D5Untreated),
-  P13vsP5_TvsUT_D5 = (condition_IDP13D5Treated - condition_IDP13D5Untreated) - (condition_IDP5D5Treated - condition_IDP5D5Untreated),
   P13vsP7_TvsUT_D5 = (condition_IDP13D5Treated - condition_IDP13D5Untreated) - (condition_IDP7D5Treated - condition_IDP7D5Untreated),
+  P13vsP5_TvsUT_D5 = (condition_IDP13D5Treated - condition_IDP13D5Untreated) - (condition_IDP5D5Treated - condition_IDP5D5Untreated),
+  
+  ## Coefs 31 - 36: Passage x Day at treatment
+  P7vsP5_D5vsD3_UT = (condition_IDP7D5Untreated - condition_IDP5D5Untreated) - (condition_IDP7D3Untreated - 0),
+  P13vsP7_D5vsD3_UT = (condition_IDP13D5Untreated - condition_IDP7D5Untreated) - (condition_IDP13D3Untreated - condition_IDP7D3Untreated),
+  P13vsP5_D5vsD3_UT = (condition_IDP13D5Untreated - condition_IDP5D5Untreated) - (condition_IDP13D3Untreated - 0),  
+  P7vsP5_D5vsD3_T = (condition_IDP7D5Treated - condition_IDP5D5Treated) - (condition_IDP7D3Treated - condition_IDP5D3Treated),
+  P13vsP7_D5vsD3_T = (condition_IDP13D5Treated - condition_IDP7D5Treated) - (condition_IDP13D3Treated - condition_IDP7D3Treated),
+  P13vsP5_D5vsD3_T = (condition_IDP13D5Treated - condition_IDP5D5Treated) - (condition_IDP13D3Treated - condition_IDP5D3Treated),
+  
+  ## Coefs 37 - 39: Day x Treatment at Passage
+  D5vsD3_TvsUT_P5 = (condition_IDP5D5Treated - condition_IDP5D5Untreated) - (condition_IDP5D3Treated - 0),
+  D5vsD3_TvsUT_P7 = (condition_IDP7D5Treated - condition_IDP7D5Untreated) - (condition_IDP7D3Treated - condition_IDP7D3Untreated),
+  D5vsD3_TvsUT_P13 = (condition_IDP13D5Treated - condition_IDP13D5Untreated) - (condition_IDP13D3Treated - condition_IDP13D3Untreated),
+  
   levels = design
 )
 
-# Test for desired contrasts
+P13vsP5_TvsUT_D3# Test for desired contrasts
 
 fit_contrasts <- contrasts.fit(fit,
                                matrix_contrasts) %>%
