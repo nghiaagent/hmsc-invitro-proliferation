@@ -7,7 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_chunk$set(dpi=300,fig.width=24, fig.height = 12)
+knitr::opts_chunk$set(dpi=300,fig.width=36, fig.height = 12)
 ```
 
 ```{r Load data, include=FALSE}
@@ -44,7 +44,7 @@ P7_Untreated_only_ORA <- readRDS(path_construct('D5vsD3_P7_Untreated_only'))
 
 ```
 
-```{r Define plot function-Phase A + B }
+```{r Define plot function-Phase A + B, include=FALSE}
 
 plot_ORA_trio <- function(enrichResults_a,
                           enrichResults_b,
