@@ -10,12 +10,12 @@ png(
   res = 400
 )
 
-vennDiagram(decideTests(fit_contrasts)[,4:6],
+vennDiagram(decideTests(fit_contrasts)[,13:15],
             include = c("up",
                         "down"),
             names = c("Phase B - Phase A",
-                      "Phase C - Phase A",
-                      "Phase C - Phase B"),
+                      "Phase C - Phase B",
+                      "Phase C - Phase A"),
             counts.col = c("red",
                            "blue"))
 
@@ -30,12 +30,12 @@ png(
   res = 400
 )
 
-vennDiagram(decideTests(fit_contrasts)[,13:15],
+vennDiagram(decideTests(fit_contrasts)[,19:21],
             include = c("up",
                         "down"),
             names = c("Phase B - Phase A",
-                      "Phase C - Phase A",
-                      "Phase C - Phase B"),
+                      "Phase C - Phase B",
+                      "Phase C - Phase A"),
             counts.col = c("red",
                            "blue"))
 
