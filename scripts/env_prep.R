@@ -32,7 +32,6 @@ list_Bioc_Pkg <- c(
   "PCAtools",
   "sva",
   "ensembldb",
-  "EGSEA",
   "PADOG",
   "GSVA",
   "AnnotationDbi",
@@ -42,10 +41,10 @@ list_Bioc_Pkg <- c(
   "globaltest",
   "safe",
   "org.Hs.eg.db",
-  "EGSEAdata",
   "variancePartition",
   "clusterProfiler",
-  "ReactomePA"
+  "ReactomePA",
+  "enrichplot"
 )
 
 ### Install Bioconductor packages, if they are not yet installed and/or not up-to-date
@@ -88,7 +87,13 @@ p_load(
   volcano3D,
   writexl,
   msigdbr,
-  cowplot
+  cowplot,
+  viridis,
+  palettetown,
+  seriation,
+  circlize,
+  magick,
+  cluster
 )
 
 #### Create folders for input and outputs, if not already present
@@ -126,6 +131,10 @@ if (!dir.exists("./output/GSEA")) {
 if (!dir.exists("./input")) {
   dir.create("./input")
 }
+
+# Clean up package list
+
+rm(list_Bioc_Pkg)
 
 # Limit number of cores used for multicore processing due to memory issues on laptops.
 
