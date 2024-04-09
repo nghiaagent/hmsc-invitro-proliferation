@@ -15,8 +15,8 @@ table_design <- quant_DGE_clean$samples %>%
   mutate(Treatment = factor(Treatment,
                             levels = c("Untreated", "Treated")))
 
-design <- model.matrix( ~ condition_ID + cell_line,
-                        data = table_design)
+design <- model.matrix(~ condition_ID + cell_line,
+                       data = table_design)
 
 # Use ComBat-seq to correct for batch fx
 # Covariates considered: condition, cell population
@@ -30,8 +30,8 @@ quant_DGE_clean_batchcor <- quant_DGE_clean
 quant_DGE_clean_batchcor$counts <- quant_DGE_batchcor_withcovariates
 rm(quant_DGE_batchcor_withcovariates)
 
-# Define factors for design matrix 
-  
+# Define factors for design matrix
+
 table_design <- quant_DGE_clean_batchcor$samples %>%
   mutate(Day = factor(Day,
                       levels = c("D3", "D5"))) %>%
@@ -39,24 +39,28 @@ table_design <- quant_DGE_clean_batchcor$samples %>%
                           levels = c("P5", "P7", "P13"))) %>%
   mutate(Treatment = factor(Treatment,
                             levels = c("Untreated", "Treated"))) %>%
-  mutate(condition_ID = factor(condition_ID,
-                               levels = c("P5D3Untreated",
-                                          "P5D3Treated",
-                                          "P5D5Untreated",
-                                          "P5D5Treated",
-                                          "P7D3Untreated",
-                                          "P7D3Treated",
-                                          "P7D5Untreated",
-                                          "P7D5Treated",
-                                          "P13D3Untreated",
-                                          "P13D3Treated",
-                                          "P13D5Untreated",
-                                          "P13D5Treated")))
+  mutate(condition_ID = factor(
+    condition_ID,
+    levels = c(
+      "P5D3Untreated",
+      "P5D3Treated",
+      "P5D5Untreated",
+      "P5D5Treated",
+      "P7D3Untreated",
+      "P7D3Treated",
+      "P7D5Untreated",
+      "P7D5Treated",
+      "P13D3Untreated",
+      "P13D3Treated",
+      "P13D5Untreated",
+      "P13D5Treated"
+    )
+  ))
 
 # Define design matrix
 
-design <- model.matrix( ~ condition_ID + run_date + cell_line,
-                        data = table_design)
+design <- model.matrix(~ condition_ID + run_date + cell_line,
+                       data = table_design)
 
 colnames(design) <- make.names(colnames(design))
 
@@ -74,8 +78,8 @@ png(
 
 quant_DGE_voom <-
   voom(quant_DGE_clean_batchcor,
-                         design,
-                         plot = TRUE)
+       design,
+       plot = TRUE)
 
 dev.off()
 
@@ -105,7 +109,6 @@ matrix_contrasts <- makeContrasts(
   Trt_P7_D5 = condition_IDP7D5Treated - condition_IDP7D5Untreated,
   Trt_P13_D3 = condition_IDP13D3Treated - condition_IDP13D3Untreated,
   Trt_P13_D5 = condition_IDP13D5Treated - condition_IDP13D5Untreated,
-  
   
   ## Coefs 7 - 12: Day at each timepoint x treatment
   D5vsD3_UT_P5 = condition_IDP5D5Untreated - 0,
@@ -140,7 +143,7 @@ matrix_contrasts <- makeContrasts(
   ## Coefs 31 - 36: Passage x Day at treatment
   P7vsP5_D5vsD3_UT = (condition_IDP7D5Untreated - condition_IDP5D5Untreated) - (condition_IDP7D3Untreated - 0),
   P13vsP7_D5vsD3_UT = (condition_IDP13D5Untreated - condition_IDP7D5Untreated) - (condition_IDP13D3Untreated - condition_IDP7D3Untreated),
-  P13vsP5_D5vsD3_UT = (condition_IDP13D5Untreated - condition_IDP5D5Untreated) - (condition_IDP13D3Untreated - 0),  
+  P13vsP5_D5vsD3_UT = (condition_IDP13D5Untreated - condition_IDP5D5Untreated) - (condition_IDP13D3Untreated - 0),
   P7vsP5_D5vsD3_T = (condition_IDP7D5Treated - condition_IDP5D5Treated) - (condition_IDP7D3Treated - condition_IDP5D3Treated),
   P13vsP7_D5vsD3_T = (condition_IDP13D5Treated - condition_IDP7D5Treated) - (condition_IDP13D3Treated - condition_IDP7D3Treated),
   P13vsP5_D5vsD3_T = (condition_IDP13D5Treated - condition_IDP5D5Treated) - (condition_IDP13D3Treated - condition_IDP5D3Treated),
@@ -153,11 +156,10 @@ matrix_contrasts <- makeContrasts(
   levels = design
 )
 
-P13vsP5_TvsUT_D3# Test for desired contrasts
+# Test for desired contrasts
 
 fit_contrasts <- contrasts.fit(fit,
                                matrix_contrasts) %>%
   eBayes()
 
 summary(decideTests(fit_contrasts))
-
