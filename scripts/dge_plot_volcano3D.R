@@ -13,9 +13,9 @@ table_design$condition_ID <- factor(table_design$condition_ID,
           levels = c("P5D3Untreated",
                      "P7D3Untreated",
                      "P13D3Untreated"),
-          labels = c("P+5",
-                     "P+7",
-                     "P+13"))
+          labels = c("Phase A",
+                     "Phase B",
+                     "Phase C"))
 
 polar_pvals <- cbind(
   topTable(fit_contrasts,           number = Inf, sort.by = "none")$P.Value,
@@ -42,6 +42,7 @@ polar_manual <- polar_coords(
   padj = polar_padj
 )
 
+
 rownames(polar_manual@pvals) <- quant_DGE_voom$genes$GENENAME
 colnames(polar_manual@pvals) <- c("ANOVA", "P7vsP5", "P13vsP5", "P13vsP7")
 rownames(polar_manual@padj) <- quant_DGE_voom$genes$GENENAME
@@ -51,7 +52,13 @@ colnames(polar_manual@padj) <- c("ANOVA", "P7vsP5", "P13vsP5", "P13vsP7")
 
 volcano3D(polar_manual,
               axis_angle = 3/6,
-              label_size = 20,
-              axis_label_size = 18,
-          axis_title_size = 28)
+              label_size = 30,
+          z_axis_title_size  = 30,
+          radial_axis_title_size  = 30)
+
+radial_plotly(polar_manual,
+          axis_angle = 3/6,
+          label_size = 30,
+          axis_title_size  = 30)
+
 
