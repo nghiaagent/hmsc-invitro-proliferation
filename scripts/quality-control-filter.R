@@ -61,31 +61,37 @@ df_stats_cDNA_ncRNA_ENSEMBL <- rowMeans(quant_cDNA_ncRNA_ENSEMBL_DGE$counts) %>%
 head(df_stats_cDNA_ncRNA_ENSEMBL, 50) %>%
   write_csv("./output/QC/Top_20_Expressed_Genes_cDNA_ncRNA_ENSEMBL.csv")
 
-## Filter genes with low expression using edgeR function
-# 
-# expr_cutoff <- 40
-# 
-# keep_cDNA_ncRNA_ENSEMBL_edgeRfiter <- filterByExpr(quant_cDNA_ncRNA_ENSEMBL_DGE,
-#                                      group = "condition_ID",
-#                                      min.count = expr_cutoff,
-#                                      min.total.count = 1.5*expr_cutoff)
-# 
-# quant_cDNA_ncRNA_ENSEMBL_DGE_edgeRfilter <- quant_cDNA_ncRNA_ENSEMBL_DGE[keep_cDNA_ncRNA_ENSEMBL_edgeRfiter, , keep.lib.sizes=FALSE] %>%
-#   calcNormFactors()
+## Filter genes
+
+
+
+### comment out method that isn't used
+
+## Filter genes with low expression using edgeR function, default threshold
+
+expr_cutoff <- 40
+
+keep_cDNA_ncRNA_ENSEMBL_edgeRfiter <- filterByExpr(quant_cDNA_ncRNA_ENSEMBL_DGE,
+                                     group = "condition_ID",
+                                     min.count = expr_cutoff,
+                                     min.total.count = 1.5*expr_cutoff)
+
+quant_cDNA_ncRNA_ENSEMBL_DGE_filter <- quant_cDNA_ncRNA_ENSEMBL_DGE[keep_cDNA_ncRNA_ENSEMBL_edgeRfiter, , keep.lib.sizes=FALSE] %>%
+  calcNormFactors()
 
 ## Filter genes based on CPM 0.5 threshold
-
-expr_cutoff <- 0.5 # in cpm sum(median_cpm > expr_cutoff)
-
-median_cpm <- apply(cpm(quant_cDNA_ncRNA_ENSEMBL_DGE), 1, median)
-
-quant_cDNA_ncRNA_ENSEMBL_DGE_filter <- quant_cDNA_ncRNA_ENSEMBL_DGE[median_cpm > expr_cutoff, ] %>%
-  calcNormFactors()
+# 
+# expr_cutoff <- 0.5 # in cpm sum(median_cpm > expr_cutoff)
+# 
+# median_cpm <- apply(cpm(quant_cDNA_ncRNA_ENSEMBL_DGE), 1, median)
+# 
+# quant_cDNA_ncRNA_ENSEMBL_DGE_filter <- quant_cDNA_ncRNA_ENSEMBL_DGE[median_cpm > expr_cutoff, ] %>%
+#   calcNormFactors()
 
 # Per sample distribution; before and after adding TMM scaling factor
 
 lcpm_pre_TMM <-
-  cpm(quant_cDNA_ncRNA_ENSEMBL_DGE[apply(cpm(quant_cDNA_ncRNA_ENSEMBL_DGE), 1, median) > expr_cutoff,],
+  cpm(quant_cDNA_ncRNA_ENSEMBL_DGE[keep_cDNA_ncRNA_ENSEMBL_edgeRfiter, , keep.lib.sizes=FALSE],
       log = TRUE) %>%
   as_tibble() %>%
   mutate(GENEID = rownames(quant_cDNA_ncRNA_ENSEMBL_DGE_filter)) %>%
