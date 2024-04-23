@@ -31,38 +31,14 @@ msigdb_c5 <- msigdbr(species = "Homo sapiens",
                      category = "C5") %>%
   dplyr::select(gs_name, ensembl_gene)
 
-# Define function to convert EnrichResult to something that EnrichmentMap accepts
-
-convert_EnrichResult_to_EnrichmentMap_table <-
-  function(EnrichResult) {
-    EnrichResult@result %>%
-      # # filter for term size to keep only gene count >= 5
-      # filter(Count >= 5) %>%
-      # format gene list column
-      mutate(geneID = gsub("/", ",", .$geneID)) %>%
-      # add column for phenotype
-      mutate(phenotype = 1) %>%
-      # Select needed columns for EnrichmentMap in Cytoscape, rename them.
-      select(c(
-        "ID",
-        "Description",
-        "pvalue",
-        "qvalue",
-        "phenotype",
-        "geneID"
-      )) %>%
-      rename('Name' = 'ID',
-             'genes' = 'geneID')
-  }
-
 # Define function to run GSEA on (ordered) list of genes extracted from topTable
 # Takes gene list as input
 # Outputs folder in ./output/data_enrichment/GSEA with all enrichment RDS objects
 # And gene lists ready for Cytoscape
 
 
-run_GSEA<- function(genes_list,
-                    name_output) {
+run_GSEA <- function(genes_list,
+                     name_output) {
   # Make prerequisite folders under ./output
   
   name_output <- as.character(name_output)
@@ -138,7 +114,7 @@ run_GSEA<- function(genes_list,
                 sep = " "))
   
   GSEA_KEGG <- gseKEGG(
-    genes_list$ENTREZID %>% na.omit(),
+    genes_list$ENTREZID,
     organism = 'hsa',
     minGSSize = 25,
     pvalueCutoff = 0.05
@@ -153,9 +129,9 @@ run_GSEA<- function(genes_list,
                 sep = " "))
   
   GSEA_Reactome <-
-    gsePathway(genes_list$ENTREZID %>% na.omit(),
-                  organism = 'human',
-                  minGSSize = 25) %>%
+    gsePathway(genes_list$ENTREZID,
+               organism = 'human',
+               minGSSize = 25) %>%
     setReadable('org.Hs.eg.db',
                 'ENTREZID')
   
@@ -167,8 +143,8 @@ run_GSEA<- function(genes_list,
   
   GSEA_MSigDB_h <-
     GSEA(genes_list$GENEID,
-             TERM2GENE = msigdb_h,
-             minGSSize = 25) %>%
+         TERM2GENE = msigdb_h,
+         minGSSize = 25) %>%
     setReadable('org.Hs.eg.db',
                 'ENSEMBL')
   
@@ -178,8 +154,8 @@ run_GSEA<- function(genes_list,
   
   GSEA_MSigDB_c2 <-
     GSEA(genes_list$GENEID,
-             TERM2GENE = msigdb_c2,
-             minGSSize = 25) %>%
+         TERM2GENE = msigdb_c2,
+         minGSSize = 25) %>%
     setReadable('org.Hs.eg.db',
                 'ENSEMBL')
   
@@ -189,8 +165,8 @@ run_GSEA<- function(genes_list,
   
   GSEA_MSigDB_c3 <-
     GSEA(genes_list$GENEID,
-             TERM2GENE = msigdb_c3,
-             minGSSize = 25) %>%
+         TERM2GENE = msigdb_c3,
+         minGSSize = 25) %>%
     setReadable('org.Hs.eg.db',
                 'ENSEMBL')
   
@@ -200,8 +176,8 @@ run_GSEA<- function(genes_list,
   
   GSEA_MSigDB_c5 <-
     GSEA(genes_list$GENEID,
-             TERM2GENE = msigdb_c5,
-             minGSSize = 25) %>%
+         TERM2GENE = msigdb_c5,
+         minGSSize = 25) %>%
     setReadable('org.Hs.eg.db',
                 'ENSEMBL')
   
@@ -227,102 +203,4 @@ run_GSEA<- function(genes_list,
     file = file.path(path_output,
                      "GSEA_results.RDS")
   )
-  
-  # Export table for Cytoscape
-  
-  message(str_c(
-    "Saving table for Cytoscape/EnrichmentMap to",
-    name_output,
-    sep = " "
-  ))
-  
-  ## GO gene sets
-  
-  write.table(
-    convert_EnrichResult_to_EnrichmentMap_table(GSEA_GOMF),
-    file.path(path_output,
-              "GSEA_GOMF_table.txt"),
-    sep = "\t",
-    row.names = F,
-    quote = F
-  )
-  
-  write.table(
-    convert_EnrichResult_to_EnrichmentMap_table(GSEA_GOBP),
-    file.path(path_output,
-              "GSEA_GOBP_table.txt"),
-    sep = "\t",
-    row.names = F,
-    quote = F
-  )
-  
-  write.table(
-    convert_EnrichResult_to_EnrichmentMap_table(GSEA_GOCC),
-    file.path(path_output,
-              "GSEA_GOCC_table.txt"),
-    sep = "\t",
-    row.names = F,
-    quote = F
-  )
-  
-  ## KEGG
-  
-  write.table(
-    convert_EnrichResult_to_EnrichmentMap_table(GSEA_KEGG),
-    file.path(path_output,
-              "GSEA_KEGG_table.txt"),
-    sep = "\t",
-    row.names = F,
-    quote = F
-  )
-  
-  ## ReactomePA
-  
-  write.table(
-    convert_EnrichResult_to_EnrichmentMap_table(GSEA_Reactome),
-    file.path(path_output,
-              "GSEA_Reactome_table.txt"),
-    sep = "\t",
-    row.names = F,
-    quote = F
-  )
-  
-  ## MSigDB
-  
-  write.table(
-    convert_EnrichResult_to_EnrichmentMap_table(GSEA_MSigDB_h),
-    file.path(path_output,
-              "GSEA_MSigDB_h_table.txt"),
-    sep = "\t",
-    row.names = F,
-    quote = F
-  )
-  
-  write.table(
-    convert_EnrichResult_to_EnrichmentMap_table(GSEA_MSigDB_c2),
-    file.path(path_output,
-              "GSEA_MSigDB_c2_table.txt"),
-    sep = "\t",
-    row.names = F,
-    quote = F
-  )
-  
-  write.table(
-    convert_EnrichResult_to_EnrichmentMap_table(GSEA_MSigDB_c3),
-    file.path(path_output,
-              "GSEA_MSigDB_c3_table.txt"),
-    sep = "\t",
-    row.names = F,
-    quote = F
-  )
-  
-  write.table(
-    convert_EnrichResult_to_EnrichmentMap_table(GSEA_MSigDB_c5),
-    file.path(path_output,
-              "GSEA_MSigDB_c5_table.txt"),
-    sep = "\t",
-    row.names = F,
-    quote = F
-  )
-  
 }
