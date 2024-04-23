@@ -1,13 +1,21 @@
 ---
 title: "Overrepresentation Analysis - D5 vs D3 - Treated vs. Untreated"
-author: "Mitch"
-date: "2024-01-17"
-output: html_document
+date: "`r Sys.Date()`"
+output:
+  rmdformats::robobook:    
+    code_folding: show
+    self_contained: true
+    thumbnails: false
+    lightbox: true
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_chunk$set(dpi=300,fig.width=36, fig.height = 12)
+knitr::opts_chunk$set(cache = TRUE)
+knitr::opts_chunk$set(dpi=300,fig.width=24, fig.height = 12)
+
+## Switch working directory to project dir
+
+knitr::opts_knit$set(root.dir = '..')
 ```
 
 ```{r Load data, include=FALSE}
@@ -46,6 +54,7 @@ P7_Untreated_only_ORA <- readRDS(path_construct('D5vsD3_P7_Untreated_only'))
 
 ```{r Define plot function-Phase A + B, include=FALSE}
 
+
 plot_ORA_trio <- function(enrichResults_a,
                           enrichResults_b,
                           enrichResults_c,
@@ -73,9 +82,24 @@ plot_ORA_trio <- function(enrichResults_a,
   
   cnetplot <-
     plot_grid(
-      cnetplot(enrichResults_a, showCategory = 8),
-      cnetplot(enrichResults_b, showCategory = 8),
-      cnetplot(enrichResults_c, showCategory = 8),
+      cnetplot(
+        enrichResults_a,
+        showCategory = 8,
+        cex_label_category	= 0.6,
+        cex_label_gene	= 0.6
+      ),
+      cnetplot(
+        enrichResults_b,
+        showCategory = 8,
+        cex_label_category	= 0.6,
+        cex_label_gene	= 0.6
+      ),
+      cnetplot(
+        enrichResults_c,
+        showCategory = 8,
+        cex_label_category	= 0.6,
+        cex_label_gene	= 0.6
+      ),
       ncol = 3,
       nrow = 1
     )
@@ -87,11 +111,17 @@ plot_ORA_trio <- function(enrichResults_a,
   
   emapplot <-
     plot_grid(
-      emapplot(enrichplot::pairwise_termsim(enrichResults_a)),
-      emapplot(enrichplot::pairwise_termsim(enrichResults_b)),
       emapplot(
-        enrichplot::pairwise_termsim(enrichResults_c) %>%
-          pairwise_termsim()
+        enrichplot::pairwise_termsim(enrichResults_a),
+        cex_label_category	= 0.6
+      ),
+      emapplot(
+        enrichplot::pairwise_termsim(enrichResults_b),
+        cex_label_category	= 0.6
+      ),
+      emapplot(
+        enrichplot::pairwise_termsim(enrichResults_c),
+        cex_label_category	= 0.6
       ),
       ncol = 3,
       nrow = 1
@@ -172,8 +202,18 @@ plot_ORA_duo <- function(enrichResults_a,
   
   cnetplot <-
     plot_grid(
-      cnetplot(enrichResults_a, showCategory = 8),
-      cnetplot(enrichResults_b, showCategory = 8),
+      cnetplot(
+        enrichResults_a,
+        showCategory = 8,
+        cex_label_category	= 0.6,
+        cex_label_gene	= 0.6
+      ),
+      cnetplot(
+        enrichResults_b,
+        showCategory = 8,
+        cex_label_category	= 0.6,
+        cex_label_gene	= 0.6
+      ),
       ncol = 2,
       nrow = 1
     )
@@ -185,8 +225,14 @@ plot_ORA_duo <- function(enrichResults_a,
   
   emapplot <-
     plot_grid(
-      emapplot(enrichplot::pairwise_termsim(enrichResults_a)),
-      emapplot(enrichplot::pairwise_termsim(enrichResults_b)),
+      emapplot(
+        enrichplot::pairwise_termsim(enrichResults_a),
+        cex_label_category	= 0.6
+      ),
+      emapplot(
+        enrichplot::pairwise_termsim(enrichResults_b),
+        cex_label_category	= 0.6
+      ),
       ncol = 2,
       nrow = 1
       
@@ -239,7 +285,6 @@ plot_ORA_duo <- function(enrichResults_a,
     )
   )
 }
-
 
 plot_ORA_single <- function(enrichResults_a,
                             title) {
@@ -339,7 +384,7 @@ plot_ORA_single <- function(enrichResults_a,
 
 ```
 
-# Methods overview
+# Methods
 
 After statistical analysis, Venn analysis was performed between genes differentially expressed between Days 3 and 5 in untreated cells and Days 3 and 5 in treated cells. Venn analysis was repeated at all 3 hMSC growth phases, in total deriving 5 list of DEGs suitable for Overrepresentation Analysis (ORA).
 
@@ -385,11 +430,11 @@ Gene lists:
 
 ![](attachments/Picture1.png){width="50%"}
 
-# GO
+# Phase A / Passage+5
 
-## BP
+## GO
 
-### Phase A / Passage+5
+### BP
 
 ```{r}
 
@@ -408,27 +453,7 @@ plot(plots$upsetplot)
 
 ```
 
-### Phase B / Passage+7
-
-```{r}
-
-plots <- plot_ORA_duo(P7_Untreated_only_ORA$GOBP,
-                      P7_Overlap_ORA$GOBP,
-                      title = "Phase B - GO Biological Processes")
-
-plot(plots$dotplot)
-
-plot(plots$cnetplot)
-
-plot(plots$emapplot)
-
-plot(plots$upsetplot)
-
-```
-
-## CC
-
-### Phase A / Passage+5
+### CC
 
 ```{r}
 
@@ -447,27 +472,7 @@ plot(plots$upsetplot)
 
 ```
 
-### Phase B / Passage+7
-
-```{r}
-
-plots <- plot_ORA_duo(P7_Untreated_only_ORA$GOCC,
-                      P7_Overlap_ORA$GOCC,
-                      title = "Phase B - GO Cellular Component")
-
-plot(plots$dotplot)
-
-plot(plots$cnetplot)
-
-plot(plots$emapplot)
-
-plot(plots$upsetplot)
-
-```
-
-## MF
-
-### Phase A / Passage+5
+### MF
 
 ```{r}
 
@@ -485,28 +490,9 @@ plot(plots$emapplot)
 plot(plots$upsetplot)
 ```
 
-### Phase B / Passage+7
+## MSigDB
 
-```{r}
-
-plots <- plot_ORA_duo(P7_Untreated_only_ORA$GOMF,
-                      P7_Overlap_ORA$GOMF,
-                      title = "Phase B - GO Molecular Function")
-
-plot(plots$dotplot)
-
-plot(plots$cnetplot)
-
-plot(plots$emapplot)
-
-plot(plots$upsetplot)
-```
-
-# MSigDB
-
-## h
-
-### Phase A / Passage+5
+### h
 
 ```{r}
 
@@ -525,27 +511,7 @@ plot(plots$upsetplot)
 
 ```
 
-### Phase B / Passage+7
-
-```{r}
-
-plots <- plot_ORA_duo(P7_Untreated_only_ORA$MSigDB_h,
-                      P7_Overlap_ORA$MSigDB_h,
-                      title = "Phase B - MSigDB_h")
-
-plot(plots$dotplot)
-
-plot(plots$cnetplot)
-
-plot(plots$emapplot)
-
-plot(plots$upsetplot)
-
-```
-
-## c2
-
-### Phase A / Passage+5
+### c2
 
 ```{r}
 
@@ -564,27 +530,9 @@ plot(plots$upsetplot)
 
 ```
 
-### Phase B / Passage+7
+### c3
 
-```{r}
-
-plots <- plot_ORA_duo(P7_Untreated_only_ORA$MSigDB_c2,
-                      P7_Overlap_ORA$MSigDB_c2,
-                      title = "Phase B - MSigDB_c2")
-
-plot(plots$dotplot)
-
-plot(plots$cnetplot)
-
-plot(plots$emapplot)
-
-plot(plots$upsetplot)
-
-```
-
-## c3
-
-### Phase A / Passage+5
+NB: Left - Overlap, Right - Treated Only
 
 ```{r}
 
@@ -602,27 +550,7 @@ plot(plots$upsetplot)
 
 ```
 
-### Phase B / Passage+7
-
-```{r}
-
-plots <- plot_ORA_duo(P7_Untreated_only_ORA$MSigDB_c3,
-                      P7_Overlap_ORA$MSigDB_c3,
-                      title = "Phase B - MSigDB_c3")
-
-plot(plots$dotplot)
-
-plot(plots$cnetplot)
-
-plot(plots$emapplot)
-
-plot(plots$upsetplot)
-
-```
-
-## c5
-
-### Phase A / Passage+5
+### c5
 
 ```{r}
 
@@ -640,26 +568,7 @@ plot(plots$emapplot)
 plot(plots$upsetplot)
 ```
 
-### Phase B / Passage+7
-
-```{r}
-
-plots <- plot_ORA_duo(P7_Untreated_only_ORA$MSigDB_c5,
-                      P7_Overlap_ORA$MSigDB_c5,
-                      title = "Phase B - MSigDB_c5")
-
-plot(plots$dotplot)
-
-plot(plots$cnetplot)
-
-plot(plots$emapplot)
-
-plot(plots$upsetplot)
-```
-
-# ReactomePA
-
-### Phase A / Passage+5
+## ReactomePA
 
 ```{r}
 
@@ -677,13 +586,161 @@ plot(plots$emapplot)
 plot(plots$upsetplot)
 ```
 
-### Phase B / Passage+7
+## KEGG
+
+```{r}
+
+plots <- plot_ORA_trio(P5_Untreated_only_ORA$KEGG,
+                      P5_Overlap_ORA$KEGG,
+                      P5_Treated_only_ORA$KEGG,
+                      title = "Phase A - KEGG")
+
+plot(plots$dotplot)
+
+plot(plots$cnetplot)
+
+plot(plots$emapplot)
+
+plot(plots$upsetplot)
+```
+
+# Phase B / Passage+7
+
+## GO
+
+### BP
+
+```{r}
+
+plots <- plot_ORA_duo(P7_Untreated_only_ORA$GOBP,
+                       P7_Overlap_ORA$GOBP,
+                       title = "Phase B - GO Biological Processes")
+
+plot(plots$dotplot)
+
+plot(plots$cnetplot)
+
+plot(plots$emapplot)
+
+plot(plots$upsetplot)
+
+```
+
+### CC
+
+```{r}
+
+plots <- plot_ORA_duo(P7_Untreated_only_ORA$GOCC,
+                       P7_Overlap_ORA$GOCC,
+                       title = "Phase B - GO Cellular Component")
+
+plot(plots$dotplot)
+
+plot(plots$cnetplot)
+
+plot(plots$emapplot)
+
+plot(plots$upsetplot)
+
+```
+
+### MF
+
+```{r}
+
+plots <- plot_ORA_duo(P7_Untreated_only_ORA$GOMF,
+                       P7_Overlap_ORA$GOMF,
+                       title = "Phase B - GO Molecular Function")
+
+plot(plots$dotplot)
+
+plot(plots$cnetplot)
+
+plot(plots$emapplot)
+
+plot(plots$upsetplot)
+```
+
+## MSigDB
+
+### h
+
+```{r}
+
+plots <- plot_ORA_duo(P7_Untreated_only_ORA$MSigDB_h,
+                       P7_Overlap_ORA$MSigDB_h,
+                       title = "Phase B - MSigDB_h")
+
+plot(plots$dotplot)
+
+plot(plots$cnetplot)
+
+plot(plots$emapplot)
+
+plot(plots$upsetplot)
+
+```
+
+### c2
+
+```{r}
+
+plots <- plot_ORA_duo(P7_Untreated_only_ORA$MSigDB_c2,
+                       P7_Overlap_ORA$MSigDB_c2,
+                       title = "Phase B - MSigDB_c2")
+
+plot(plots$dotplot)
+
+plot(plots$cnetplot)
+
+plot(plots$emapplot)
+
+plot(plots$upsetplot)
+
+```
+
+### c3
+
+```{r}
+
+plots <- plot_ORA_duo(P7_Untreated_only_ORA$MSigDB_c3,
+                      P7_Overlap_ORA$MSigDB_c3,
+                      title = "Phase B - MSigDB_c3")
+
+plot(plots$dotplot)
+
+plot(plots$cnetplot)
+
+plot(plots$emapplot)
+
+plot(plots$upsetplot)
+
+```
+
+### c5
+
+```{r}
+
+plots <- plot_ORA_duo(P7_Untreated_only_ORA$MSigDB_c5,
+                       P7_Overlap_ORA$MSigDB_c5,
+                       title = "Phase B - MSigDB_c5")
+
+plot(plots$dotplot)
+
+plot(plots$cnetplot)
+
+plot(plots$emapplot)
+
+plot(plots$upsetplot)
+```
+
+## ReactomePA
 
 ```{r}
 
 plots <- plot_ORA_duo(P7_Untreated_only_ORA$Reactome,
-                      P7_Overlap_ORA$Reactome,
-                      title = "Phase B - Reactome")
+                       P7_Overlap_ORA$Reactome,
+                       title = "Phase B - Reactome")
 
 plot(plots$dotplot)
 
@@ -694,26 +751,7 @@ plot(plots$emapplot)
 plot(plots$upsetplot)
 ```
 
-# KEGG
-
-### Phase A / Passage+5
-
-```{r}
-
-plots <- plot_ORA_duo(P5_Untreated_only_ORA$KEGG,
-                       P5_Overlap_ORA$KEGG,
-                       title = "Phase A - KEGG")
-
-plot(plots$dotplot)
-
-plot(plots$cnetplot)
-
-plot(plots$emapplot)
-
-plot(plots$upsetplot)
-```
-
-### Phase B / Passage+7
+## KEGG
 
 ```{r}
 

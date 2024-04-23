@@ -8,6 +8,10 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(dpi=300,fig.width=18, fig.height = 12)
+
+## Switch working directory to project dir
+
+knitr::opts_knit$set(root.dir = '..')
 ```
 
 ```{r Setup, include=FALSE}

@@ -7,6 +7,10 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+## Switch working directory to project dir
+
+knitr::opts_knit$set(root.dir = '..')
 ```
 
 ```{r Setup, include=FALSE}
@@ -33,16 +37,16 @@ design_D3$condition_ID <- factor(design_D3$condition_ID,
 
 polar_pvals <- cbind(
   topTable(fit_contrasts,           number = Inf, sort.by = "none")$P.Value,
-  topTable(fit_contrasts, coef = 4, number = Inf, sort.by = "none")$P.Value,
-  topTable(fit_contrasts, coef = 5, number = Inf, sort.by = "none")$P.Value,
-  topTable(fit_contrasts, coef = 6, number = Inf, sort.by = "none")$P.Value
+  topTable(fit_contrasts, coef = 13, number = Inf, sort.by = "none")$P.Value,
+  topTable(fit_contrasts, coef = 15, number = Inf, sort.by = "none")$P.Value,
+  topTable(fit_contrasts, coef = 14, number = Inf, sort.by = "none")$P.Value
 )
 
 polar_padj <- cbind(
   topTable(fit_contrasts,           number = Inf, sort.by = "none")$adj.P.Val,
-  topTable(fit_contrasts, coef = 4, number = Inf, sort.by = "none")$adj.P.Val,
-  topTable(fit_contrasts, coef = 5, number = Inf, sort.by = "none")$adj.P.Val,
-  topTable(fit_contrasts, coef = 6, number = Inf, sort.by = "none")$adj.P.Val
+  topTable(fit_contrasts, coef = 13, number = Inf, sort.by = "none")$adj.P.Val,
+  topTable(fit_contrasts, coef = 14, number = Inf, sort.by = "none")$adj.P.Val,
+  topTable(fit_contrasts, coef = 15, number = Inf, sort.by = "none")$adj.P.Val
 )
 
 ## Construct volcano3d object
@@ -83,16 +87,16 @@ design_D5$condition_ID <- factor(design_D5$condition_ID,
 
 polar_pvals <- cbind(
   topTable(fit_contrasts,           number = Inf, sort.by = "none")$P.Value,
-  topTable(fit_contrasts, coef = 13, number = Inf, sort.by = "none")$P.Value,
-  topTable(fit_contrasts, coef = 14, number = Inf, sort.by = "none")$P.Value,
-  topTable(fit_contrasts, coef = 15, number = Inf, sort.by = "none")$P.Value
+  topTable(fit_contrasts, coef = 19, number = Inf, sort.by = "none")$P.Value,
+  topTable(fit_contrasts, coef = 21, number = Inf, sort.by = "none")$P.Value,
+  topTable(fit_contrasts, coef = 20, number = Inf, sort.by = "none")$P.Value
 )
 
 polar_padj <- cbind(
   topTable(fit_contrasts,           number = Inf, sort.by = "none")$adj.P.Val,
-  topTable(fit_contrasts, coef = 13, number = Inf, sort.by = "none")$adj.P.Val,
-  topTable(fit_contrasts, coef = 14, number = Inf, sort.by = "none")$adj.P.Val,
-  topTable(fit_contrasts, coef = 15, number = Inf, sort.by = "none")$adj.P.Val
+  topTable(fit_contrasts, coef = 19, number = Inf, sort.by = "none")$adj.P.Val,
+  topTable(fit_contrasts, coef = 21, number = Inf, sort.by = "none")$adj.P.Val,
+  topTable(fit_contrasts, coef = 20, number = Inf, sort.by = "none")$adj.P.Val
 )
 
 ## Construct volcano3d object

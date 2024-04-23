@@ -1,0 +1,896 @@
+---
+title: "Gene Set Variation Analysis - D5 vs D3 - Treated vs. Untreated"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: true
+    
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache = FALSE)
+knitr::opts_chunk$set(dpi=300,fig.width=8, fig.height = 6)
+knitr::opts_chunk$set(echo = TRUE,
+                      warning = FALSE,
+                      message = TRUE
+                      )
+
+## Switch working directory to project dir
+
+knitr::opts_knit$set(root.dir = '..')
+```
+
+```{r Load data, include=FALSE}
+# Load packages
+
+source("./scripts/env_prep.R")
+
+# Construct file paths
+
+# Load data for D5 vs D3 GSVA
+
+fit_GSVA <- readRDS("./output/data_enrichment/GSVA/GSVA_results.RDS")
+
+quant_GSVA <- readRDS("./output/data_enrichment/GSVA/quant_GSVA.RDS")
+
+```
+
+```{r Define XY plot methods, include = FALSE}
+
+# Use glimmaXY to plot only significant gene sets
+# Select only significant gene sets
+# Generate new signif codes: -1 = x only, 0 = both, 1 = y only
+
+plot_XY <- function(
+    fit,
+    coef_x,
+    coef_y,
+    xlab = "x",
+    ylab = "y") {
+  
+  # Add annotations to fit obj
+      
+  
+  # Select only signif gene sets
+  
+    status <-
+    abs(decideTests(fit)[,coef_x]) + abs(decideTests(fit)[,coef_y])
+    
+    fit_signif <- fit[status > 0,]
+    
+    top_x <- topTable(fit_signif,
+                      coef = coef_x,
+                      number = Inf,
+                      sort.by = "none")
+    
+    top_y <- topTable(fit_signif,
+                      coef = coef_y,
+                      number = Inf,
+                      sort.by = "none")
+    
+    # Generate signif codes to show overlap
+    # How code works
+    #    x  DOWN | ns | UP
+    #  y   
+    # DOWN   -4  | -3 | -2
+    # ns     -1  |  0 | 1
+    # UP     2  |  3 | 4
+    # Swap -1 and 1 for  -1 (x only)
+    # Swap -3 and 3 for 1 (y only)
+    # Swap -4, -2, 2, 4 for 0 (both x and y)
+    
+    status_signif <-
+      (decideTests(fit_signif)[, coef_x] + 3 * decideTests(fit_signif)[, coef_y]) %>%
+      case_match(c(-1, 1) ~ -1,
+                 c(-3, 3) ~ 1,
+                 c(-4,-2, 2, 4) ~ 0)
+
+    
+    vec_x <- topTable(fit_signif,
+                      coef = coef_x,
+                      number = Inf,
+                      sort.by = "none")$logFC %>%
+      as.data.frame()
+    
+    rownames(vec_x) <- rownames(fit_signif$coefficients)
+    
+    vec_y <- topTable(fit_signif,
+                      coef = coef_y,
+                      number = Inf,
+                      sort.by = "none")$logFC %>%
+      as.data.frame()
+    
+    rownames(vec_y) <- rownames(fit_signif$coefficients)
+    
+    glimmaXY(x = vec_x,
+             y = vec_y,
+             status = status_signif,
+             status.cols = c("#1052bd",
+                             "#9951A4",
+                             "#cc212f"),
+             main = "Blue - Untreated only, Purple - Both, Red - Treated only"
+             )
+    
+}
+
+
+```
+
+
+
+
+# Methods
+
+Single sample gene set enrichment analysis using GSVA was used to quantify pathway activity within each sample. Statistical analysis using limma was then used to determine activity changes between D5 and D3 at each treatment and hMSC growth phase. Results for Phase A / P+5 and Phase B / P+7 are plotted.
+
+The following databases were used:
+
+-   GO
+
+    -   Biological Processes
+
+    -   Cellular Component
+
+    -   Molecular Function
+
+-   MSigDB
+
+    -   h: Hallmark
+
+    -   c2: Curated
+
+    -   c3: Regulatory targets
+
+-   ReactomePA
+
+-   KEGG
+
+# Phase A / Passage+5
+
+## GO
+
+### BP
+
+#### Venn diagram
+
+```{r}
+
+vennDiagram(decideTests(fit_GSVA$GOBP)[,c(7,10)],
+            include = c("up",
+                        "down"),
+            names = c("Untreated",
+                      "Treated"),
+            counts.col = c("red",
+                           "blue"))
+
+```
+
+#### Volcano - Untreated cells
+
+```{r}
+
+glimmaVolcano(x = fit_GSVA$GOBP,
+              coef = 7)
+
+```
+
+#### Volcano - Treated cells
+
+```{r}
+
+glimmaVolcano(fit_GSVA$GOBP,
+              coef = 10)
+
+```
+
+#### Correlation of gene set activity between untreated and treated cells
+
+```{r}
+
+plot_XY(fit_GSVA$GOBP,
+        coef_x = 7,
+        coef_y = 10,
+        xlab = "D5vsD3_P5_UT",
+        ylab = "D5vsD3_P5_T")
+
+```
+
+
+### CC
+
+#### Venn diagram
+
+```{r}
+
+vennDiagram(decideTests(fit_GSVA$GOCC)[,c(7,10)],
+            include = c("up",
+                        "down"),
+            names = c("Untreated",
+                      "Treated"),
+            counts.col = c("red",
+                           "blue"))
+
+```
+
+#### Volcano - Untreated cells
+
+```{r}
+
+glimmaVolcano(x = fit_GSVA$GOCC,
+              coef = 7)
+
+```
+
+#### Volcano - Treated cells
+
+```{r}
+
+glimmaVolcano(fit_GSVA$GOCC,
+              coef = 10)
+
+```
+
+#### Correlation of gene set activity between untreated and treated cells
+
+```{r}
+
+plot_XY(fit_GSVA$GOCC,
+        coef_x = 7,
+        coef_y = 10,
+        xlab = "D5vsD3_P5_UT",
+        ylab = "D5vsD3_P5_T")
+
+```
+
+### MF
+
+#### Venn diagram
+
+```{r}
+
+vennDiagram(decideTests(fit_GSVA$GOMF)[,c(7,10)],
+            include = c("up",
+                        "down"),
+            names = c("Untreated",
+                      "Treated"),
+            counts.col = c("red",
+                           "blue"))
+
+```
+
+#### Volcano - Untreated cells
+
+```{r}
+
+glimmaVolcano(x = fit_GSVA$GOMF,
+              coef = 7)
+
+```
+
+#### Volcano - Treated cells
+
+```{r}
+
+glimmaVolcano(fit_GSVA$GOMF,
+              coef = 10)
+
+```
+
+#### Correlation of gene set activity between untreated and treated cells
+
+```{r}
+
+plot_XY(fit_GSVA$GOMF,
+        coef_x = 7,
+        coef_y = 10,
+        xlab = "D5vsD3_P5_UT",
+        ylab = "D5vsD3_P5_T")
+
+```
+
+## MSigDB
+
+### h
+
+
+#### Venn diagram
+
+```{r}
+
+vennDiagram(decideTests(fit_GSVA$h)[,c(7,10)],
+            include = c("up",
+                        "down"),
+            names = c("Untreated",
+                      "Treated"),
+            counts.col = c("red",
+                           "blue"))
+
+```
+
+#### Volcano - Untreated cells
+
+```{r}
+
+glimmaVolcano(x = fit_GSVA$h,
+              coef = 7)
+
+```
+
+#### Volcano - Treated cells
+
+```{r}
+
+glimmaVolcano(fit_GSVA$h,
+              coef = 10)
+
+```
+
+#### Correlation of gene set activity between untreated and treated cells
+
+```{r}
+
+plot_XY(fit_GSVA$h,
+        coef_x = 7,
+        coef_y = 10,
+        xlab = "D5vsD3_P5_UT",
+        ylab = "D5vsD3_P5_T")
+
+```
+
+### c2
+
+#### Venn diagram
+
+```{r}
+
+vennDiagram(decideTests(fit_GSVA$c2)[,c(7,10)],
+            include = c("up",
+                        "down"),
+            names = c("Untreated",
+                      "Treated"),
+            counts.col = c("red",
+                           "blue"))
+
+```
+
+#### Volcano - Untreated cells
+
+```{r}
+
+glimmaVolcano(x = fit_GSVA$c2,
+              coef = 7)
+
+```
+
+#### Volcano - Treated cells
+
+```{r}
+
+glimmaVolcano(fit_GSVA$c2,
+              coef = 10)
+
+```
+
+#### Correlation of gene set activity between untreated and treated cells
+
+```{r}
+
+plot_XY(fit_GSVA$c2,
+        coef_x = 7,
+        coef_y = 10,
+        xlab = "D5vsD3_P5_UT",
+        ylab = "D5vsD3_P5_T")
+
+```
+
+### c3
+
+#### Venn diagram
+
+```{r}
+
+vennDiagram(decideTests(fit_GSVA$c3)[,c(7,10)],
+            include = c("up",
+                        "down"),
+            names = c("Untreated",
+                      "Treated"),
+            counts.col = c("red",
+                           "blue"))
+
+```
+
+#### Volcano - Untreated cells
+
+```{r}
+
+glimmaVolcano(x = fit_GSVA$c3,
+              coef = 7)
+
+```
+
+#### Volcano - Treated cells
+
+```{r}
+
+glimmaVolcano(fit_GSVA$c3,
+              coef = 10)
+
+```
+
+#### Correlation of gene set activity between untreated and treated cells
+
+```{r}
+
+plot_XY(fit_GSVA$c3,
+        coef_x = 7,
+        coef_y = 10,
+        xlab = "D5vsD3_P5_UT",
+        ylab = "D5vsD3_P5_T")
+
+```
+
+## ReactomePA
+
+#### Venn diagram
+
+```{r}
+
+vennDiagram(decideTests(fit_GSVA$Reactome)[,c(7,10)],
+            include = c("up",
+                        "down"),
+            names = c("Untreated",
+                      "Treated"),
+            counts.col = c("red",
+                           "blue"))
+
+```
+
+#### Volcano - Untreated cells
+
+```{r}
+
+glimmaVolcano(x = fit_GSVA$Reactome,
+              coef = 7)
+
+```
+
+#### Volcano - Treated cells
+
+```{r}
+
+glimmaVolcano(fit_GSVA$Reactome,
+              coef = 10)
+
+```
+
+#### Correlation of gene set activity between untreated and treated cells
+
+```{r}
+
+plot_XY(fit_GSVA$Reactome,
+        coef_x = 7,
+        coef_y = 10,
+        xlab = "D5vsD3_P5_UT",
+        ylab = "D5vsD3_P5_T")
+
+```
+
+## KEGG
+
+#### Venn diagram
+
+```{r}
+
+vennDiagram(decideTests(fit_GSVA$KEGG)[,c(7,10)],
+            include = c("up",
+                        "down"),
+            names = c("Untreated",
+                      "Treated"),
+            counts.col = c("red",
+                           "blue"))
+
+```
+
+#### Volcano - Untreated cells
+
+```{r}
+
+glimmaVolcano(x = fit_GSVA$KEGG,
+              coef = 7)
+
+```
+
+#### Volcano - Treated cells
+
+```{r}
+
+glimmaVolcano(fit_GSVA$KEGG,
+              coef = 10)
+
+```
+
+#### Correlation of gene set activity between untreated and treated cells
+
+```{r}
+
+plot_XY(fit_GSVA$KEGG,
+        coef_x = 7,
+        coef_y = 10,
+        xlab = "D5vsD3_P5_UT",
+        ylab = "D5vsD3_P5_T")
+
+```
+
+# Phase B / Passage+7
+
+## GO
+
+### BP
+
+#### Venn diagram
+
+```{r}
+
+vennDiagram(decideTests(fit_GSVA$GOBP)[,c(8,11)],
+            include = c("up",
+                        "down"),
+            names = c("Untreated",
+                      "Treated"),
+            counts.col = c("red",
+                           "blue"))
+
+```
+
+#### Volcano - Untreated cells
+
+```{r}
+
+glimmaVolcano(x = fit_GSVA$GOBP,
+              coef = 8)
+
+```
+
+#### Volcano - Treated cells
+
+```{r}
+
+glimmaVolcano(fit_GSVA$GOBP,
+              coef = 11)
+
+```
+
+#### Correlation of gene set activity between untreated and treated cells
+
+```{r}
+
+plot_XY(fit_GSVA$GOBP,
+        coef_x = 8,
+        coef_y = 11,
+        xlab = "D5vsD3_P7_UT",
+        ylab = "D5vsD3_P7_T")
+
+```
+
+### CC
+
+#### Venn diagram
+
+```{r}
+
+vennDiagram(decideTests(fit_GSVA$GOCC)[,c(8,11)],
+            include = c("up",
+                        "down"),
+            names = c("Untreated",
+                      "Treated"),
+            counts.col = c("red",
+                           "blue"))
+
+```
+
+#### Volcano - Untreated cells
+
+```{r}
+
+glimmaVolcano(x = fit_GSVA$GOCC,
+              coef = 8)
+
+```
+
+#### Volcano - Treated cells
+
+```{r}
+
+glimmaVolcano(fit_GSVA$GOCC,
+              coef = 11)
+
+```
+
+#### Correlation of gene set activity between untreated and treated cells
+
+```{r}
+
+plot_XY(fit_GSVA$GOCC,
+        coef_x = 8,
+        coef_y = 11,
+        xlab = "D5vsD3_P7_UT",
+        ylab = "D5vsD3_P7_T")
+
+```
+
+### MF
+
+#### Venn diagram
+
+```{r}
+
+vennDiagram(decideTests(fit_GSVA$GOMF)[,c(8,11)],
+            include = c("up",
+                        "down"),
+            names = c("Untreated",
+                      "Treated"),
+            counts.col = c("red",
+                           "blue"))
+
+```
+
+#### Volcano - Untreated cells
+
+```{r}
+
+glimmaVolcano(x = fit_GSVA$GOMF,
+              coef = 8)
+
+```
+
+#### Volcano - Treated cells
+
+```{r}
+
+glimmaVolcano(fit_GSVA$GOMF,
+              coef = 11)
+
+```
+
+#### Correlation of gene set activity between untreated and treated cells
+
+```{r}
+
+plot_XY(fit_GSVA$GOMF,
+        coef_x = 8,
+        coef_y = 11,
+        xlab = "D5vsD3_P7_UT",
+        ylab = "D5vsD3_P7_T")
+
+```
+
+## MSigDB
+
+### h
+
+#### Venn diagram
+
+```{r}
+
+vennDiagram(decideTests(fit_GSVA$h)[,c(8,11)],
+            include = c("up",
+                        "down"),
+            names = c("Untreated",
+                      "Treated"),
+            counts.col = c("red",
+                           "blue"))
+
+```
+
+#### Volcano - Untreated cells
+
+```{r}
+
+glimmaVolcano(x = fit_GSVA$h,
+              coef = 8)
+
+```
+
+#### Volcano - Treated cells
+
+```{r}
+
+glimmaVolcano(fit_GSVA$h,
+              coef = 11)
+
+```
+
+#### Correlation of gene set activity between untreated and treated cells
+
+```{r}
+
+plot_XY(fit_GSVA$h,
+        coef_x = 8,
+        coef_y = 11,
+        xlab = "D5vsD3_P7_UT",
+        ylab = "D5vsD3_P7_T")
+
+```
+
+### c2
+
+#### Venn diagram
+
+```{r}
+
+vennDiagram(decideTests(fit_GSVA$c2)[,c(8,11)],
+            include = c("up",
+                        "down"),
+            names = c("Untreated",
+                      "Treated"),
+            counts.col = c("red",
+                           "blue"))
+
+```
+
+#### Volcano - Untreated cells
+
+```{r}
+
+glimmaVolcano(x = fit_GSVA$c2,
+              coef = 8)
+
+```
+
+#### Volcano - Treated cells
+
+```{r}
+
+glimmaVolcano(fit_GSVA$c2,
+              coef = 11)
+
+```
+
+#### Correlation of gene set activity between untreated and treated cells
+
+```{r}
+
+plot_XY(fit_GSVA$c2,
+        coef_x = 8,
+        coef_y = 11,
+        xlab = "D5vsD3_P7_UT",
+        ylab = "D5vsD3_P7_T")
+
+```
+
+### c3
+
+#### Venn diagram
+
+```{r}
+
+vennDiagram(decideTests(fit_GSVA$c3)[,c(8,11)],
+            include = c("up",
+                        "down"),
+            names = c("Untreated",
+                      "Treated"),
+            counts.col = c("red",
+                           "blue"))
+
+```
+
+#### Volcano - Untreated cells
+
+```{r}
+
+glimmaVolcano(x = fit_GSVA$c3,
+              coef = 8)
+
+```
+
+#### Volcano - Treated cells
+
+```{r}
+
+glimmaVolcano(fit_GSVA$c3,
+              coef = 11)
+
+```
+
+#### Correlation of gene set activity between untreated and treated cells
+
+```{r}
+
+plot_XY(fit_GSVA$c3,
+        coef_x = 8,
+        coef_y = 11,
+        xlab = "D5vsD3_P7_UT",
+        ylab = "D5vsD3_P7_T")
+
+```
+
+## ReactomePA
+
+#### Venn diagram
+
+```{r}
+
+vennDiagram(decideTests(fit_GSVA$Reactome)[,c(8,11)],
+            include = c("up",
+                        "down"),
+            names = c("Untreated",
+                      "Treated"),
+            counts.col = c("red",
+                           "blue"))
+
+```
+
+#### Volcano - Untreated cells
+
+```{r}
+
+glimmaVolcano(x = fit_GSVA$Reactome,
+              coef = 8)
+
+```
+
+#### Volcano - Treated cells
+
+```{r}
+
+glimmaVolcano(fit_GSVA$Reactome,
+              coef = 11)
+
+```
+
+#### Correlation of gene set activity between untreated and treated cells
+
+```{r}
+
+plot_XY(fit_GSVA$Reactome,
+        coef_x = 8,
+        coef_y = 11,
+        xlab = "D5vsD3_P7_UT",
+        ylab = "D5vsD3_P7_T")
+
+```
+
+## KEGG
+
+#### Venn diagram
+
+```{r}
+
+vennDiagram(decideTests(fit_GSVA$KEGG)[,c(8,11)],
+            include = c("up",
+                        "down"),
+            names = c("Untreated",
+                      "Treated"),
+            counts.col = c("red",
+                           "blue"))
+
+```
+
+#### Volcano - Untreated cells
+
+```{r}
+
+glimmaVolcano(x = fit_GSVA$KEGG,
+              coef = 8)
+
+```
+
+#### Volcano - Treated cells
+
+```{r}
+
+glimmaVolcano(fit_GSVA$KEGG,
+              coef = 11)
+
+```
+
+#### Correlation of gene set activity between untreated and treated cells
+
+```{r}
+
+plot_XY(fit_GSVA$KEGG,
+        coef_x = 8,
+        coef_y = 11,
+        xlab = "D5vsD3_P7_UT",
+        ylab = "D5vsD3_P7_T")
+
+```
