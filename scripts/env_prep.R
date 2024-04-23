@@ -44,7 +44,9 @@ list_Bioc_Pkg <- c(
   "variancePartition",
   "clusterProfiler",
   "ReactomePA",
-  "enrichplot"
+  "enrichplot",
+  "GSEABase",
+  "BiocStyle"
 )
 
 ### Install Bioconductor packages, if they are not yet installed and/or not up-to-date
@@ -70,7 +72,6 @@ p_load(
 invisible(lapply(list_Bioc_Pkg, function(x)
   library(x, character.only = TRUE)))
 
-
 ### Load all CRAN packages with pacman
 
 p_load(
@@ -93,7 +94,10 @@ p_load(
   seriation,
   circlize,
   magick,
-  cluster
+  cluster,
+  rmdformats,
+  future,
+  shinybusy
 )
 
 #### Create folders for input and outputs, if not already present
