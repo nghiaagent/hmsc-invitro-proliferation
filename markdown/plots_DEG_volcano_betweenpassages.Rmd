@@ -1,8 +1,12 @@
 ---
-title: "3D Volcano plots"
-author: "Mitch"
-date: "2024-01-17"
-output: html_document
+title: "Volcano Plots - between passages"
+date: "`r Sys.Date()`"
+output:
+  rmdformats::robobook:    
+    code_folding: show
+    self_contained: true
+    thumbnails: false
+    lightbox: true
 ---
 
 ```{r setup, include=FALSE}
@@ -18,10 +22,20 @@ knitr::opts_knit$set(root.dir = '..')
 source("./scripts/env_prep.R")
 source("./scripts/dge_cellpops_as_fixed.R")
 
+# Define conditions of interest
+
+conditions_interest <- c(
+  "P5D3Untreated",
+  "P7D3Untreated",
+  "P13D3Untreated"
+)
+
 ```
 
 
-# Between passages, Day 3
+# Between passages, Day 3, untreated
+
+## 3D volcano plots
 
 ```{r echo=FALSE, warning=FALSE}
 
@@ -31,9 +45,9 @@ design_D3$condition_ID <- factor(design_D3$condition_ID,
           levels = c("P5D3Untreated",
                      "P7D3Untreated",
                      "P13D3Untreated"),
-          labels = c("A",
-                     "B",
-                     "C"))
+          labels = c("5",
+                     "7",
+                     "13"))
 
 polar_pvals <- cbind(
   topTable(fit_contrasts,           number = Inf, sort.by = "none")$P.Value,
@@ -45,8 +59,8 @@ polar_pvals <- cbind(
 polar_padj <- cbind(
   topTable(fit_contrasts,           number = Inf, sort.by = "none")$adj.P.Val,
   topTable(fit_contrasts, coef = 13, number = Inf, sort.by = "none")$adj.P.Val,
-  topTable(fit_contrasts, coef = 14, number = Inf, sort.by = "none")$adj.P.Val,
-  topTable(fit_contrasts, coef = 15, number = Inf, sort.by = "none")$adj.P.Val
+  topTable(fit_contrasts, coef = 15, number = Inf, sort.by = "none")$adj.P.Val,
+  topTable(fit_contrasts, coef = 14, number = Inf, sort.by = "none")$adj.P.Val
 )
 
 ## Construct volcano3d object
@@ -71,7 +85,41 @@ volcano3D(polar_manual,
 
 ```
 
-# Between passages, Day 5
+3D cylindrical volcano plot summarising DEGs between hMSC growth phases. Z-scores of mean logCPM values were calculated then projected onto polar coordinates along 3 axes (A, B, C) in the x-y plane. Each axis represents one hMSC growth phase. Z-axis shows -log10 p-values derived from linear model fit. Significant genes were color-coded based on pairwise statistical tests, corrected for multiple comparisons. Passages 5, 7, 13 were shortened to P+5, P+7, P+1 on the plot.
+
+## Between P+5 and P+7
+
+### All conditions displayed in logCPM plot
+
+```{r}
+
+glimmaVolcano(x = fit_contrasts,
+              counts = quant_DGE_voom$E,
+              groups = quant_DGE_voom$targets$condition_ID,
+              xlab = "logFC",
+              transform.counts = "none",
+              coef = 13)
+
+```
+### Only D3, Untreated cells displayed in logCPM plot
+
+```{r}
+
+glimmaVolcano(x = fit_contrasts,
+              counts = quant_DGE_voom[,quant_DGE_voom$targets$condition_ID %in% conditions_interest]$E,
+              groups = quant_DGE_voom[,quant_DGE_voom$targets$condition_ID %in% conditions_interest]$targets$condition_ID,
+              xlab = "logFC",
+              transform.counts = "none",
+              coef = 13)
+
+```
+
+## Between P+7 and P+13
+
+## Between P+5 and P+13
+
+
+# Between passages, Day 5, untreated
 
 ```{r echo=FALSE, warning=FALSE}
 
@@ -120,3 +168,6 @@ volcano3D(polar_manual,
           axis_title_size = 28)
 
 ```
+
+3D cylindrical volcano plot summarising DEGs between hMSC growth phases. Z-scores of mean logCPM values were calculated then projected onto polar coordinates along 3 axes (A, B, C) in the x-y plane. Each axis represents one hMSC growth phase. Z-axis shows -log10 p-values derived from linear model fit. Significant genes were color-coded based on pairwise statistical tests, corrected for multiple comparisons. Passages 5, 7, 13 were shortened to P+5, P+7, P+1 on the plot.
+

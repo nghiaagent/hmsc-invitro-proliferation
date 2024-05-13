@@ -12,6 +12,17 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(cache = TRUE)
 knitr::opts_chunk$set(dpi=300,fig.width=24, fig.height = 12)
+
+## Switch working directory to project dir
+
+knitr::opts_knit$set(root.dir = '..')
+
+## Hide code blocks
+
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE,
+                      message = FALSE
+                      )
 ```
 
 ```{r Load data, include=FALSE}
