@@ -1,0 +1,306 @@
+---
+title: "Gene Set Variation Analysis - Between passages"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: true
+    
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache = FALSE)
+knitr::opts_chunk$set(dpi=300,fig.width=8, fig.height = 6)
+knitr::opts_chunk$set(echo = TRUE,
+                      warning = FALSE,
+                      message = TRUE
+                      )
+
+## Switch working directory to project dir
+
+knitr::opts_knit$set(root.dir = '..')
+```
+
+
+```{r Load data, include=FALSE}
+# Load packages
+
+source("./scripts/env_prep.R")
+
+# Construct file paths
+
+# Load data for D5 vs D3 GSVA
+
+fit_GSVA <- readRDS("./output/data_enrichment/GSVA/GSVA_results.RDS")
+
+quant_GSVA <- readRDS("./output/data_enrichment/GSVA/quant_GSVA.RDS")
+
+conditions_interest <- c(
+  "P5D3Untreated",
+  "P7D3Untreated",
+  "P13D3Untreated"
+)
+
+```
+
+
+# Methods
+
+Single sample gene set enrichment analysis using GSVA was used to quantify pathway activity within each sample. Statistical analysis using limma was then used to determine activity changes between hMSC growth phases.
+
+The following databases were used:
+
+-   GO
+
+    -   Biological Processes
+
+    -   Cellular Component
+
+    -   Molecular Function
+
+-   MSigDB
+
+    -   h: Hallmark
+
+    -   c2: Curated
+
+    -   c3: Regulatory targets
+
+-   ReactomePA
+
+-   KEGG
+
+# P7vsP5
+
+## GO
+
+### BP
+
+```{r}
+
+glimmaVolcano(x = fit_GSVA$GOBP,
+              coef = 13)
+
+```
+
+### CC
+
+```{r}
+
+glimmaVolcano(x = fit_GSVA$GOCC,
+              coef = 13)
+
+```
+
+### MF
+
+```{r}
+
+glimmaVolcano(x = fit_GSVA$GOMF,
+              coef = 13)
+
+```
+
+## MSigDB
+
+### h
+
+```{r}
+
+glimmaVolcano(x = fit_GSVA$h,
+              coef = 13)
+
+```
+
+### c2
+
+```{r}
+
+glimmaVolcano(x = fit_GSVA$c2,
+              coef = 13)
+
+```
+
+### c3
+
+```{r}
+
+glimmaVolcano(x = fit_GSVA$c3,
+              coef = 13)
+
+```
+
+## ReactomePA
+
+```{r}
+
+glimmaVolcano(x = fit_GSVA$Reactome,
+              coef = 13)
+
+```
+
+## KEGG
+
+```{r}
+
+glimmaVolcano(x = fit_GSVA$KEGG,
+              coef = 13)
+
+```
+
+
+# P13 vs P7
+
+## GO
+
+### BP
+
+```{r}
+
+glimmaVolcano(x = fit_GSVA$GOBP,
+              coef = 14)
+
+```
+
+### CC
+
+```{r}
+
+glimmaVolcano(x = fit_GSVA$GOCC,
+              coef = 14)
+
+```
+
+### MF
+
+```{r}
+
+glimmaVolcano(x = fit_GSVA$GOMF,
+              coef = 14)
+
+```
+
+## MSigDB
+
+### h
+
+```{r}
+
+glimmaVolcano(x = fit_GSVA$h,
+              coef = 14)
+
+```
+
+### c2
+
+```{r}
+
+glimmaVolcano(x = fit_GSVA$c2,
+              coef = 14)
+
+```
+
+### c3
+
+```{r}
+
+glimmaVolcano(x = fit_GSVA$c3,
+              coef = 14)
+
+```
+
+## ReactomePA
+
+```{r}
+
+glimmaVolcano(x = fit_GSVA$Reactome,
+              coef = 14)
+
+```
+
+## KEGG
+
+```{r}
+
+glimmaVolcano(x = fit_GSVA$KEGG,
+              coef = 14)
+
+```
+
+
+# P13 vs P5
+
+## GO
+
+### BP
+
+```{r}
+
+glimmaVolcano(x = fit_GSVA$GOBP,
+              coef = 15)
+
+```
+
+### CC
+
+```{r}
+
+glimmaVolcano(x = fit_GSVA$GOCC,
+              coef = 15)
+
+```
+
+### MF
+
+```{r}
+
+glimmaVolcano(x = fit_GSVA$GOMF,
+              coef = 15)
+
+```
+
+## MSigDB
+
+### h
+
+```{r}
+
+glimmaVolcano(x = fit_GSVA$h,
+              coef = 15)
+
+```
+
+### c2
+
+```{r}
+
+glimmaVolcano(x = fit_GSVA$c2,
+              coef = 15)
+
+```
+
+### c3
+
+```{r}
+
+glimmaVolcano(x = fit_GSVA$c3,
+              coef = 15)
+
+```
+
+## ReactomePA
+
+```{r}
+
+glimmaVolcano(x = fit_GSVA$Reactome,
+              coef = 15)
+
+```
+
+## KEGG
+
+```{r}
+
+glimmaVolcano(x = fit_GSVA$KEGG,
+              coef = 15)
+
+```
