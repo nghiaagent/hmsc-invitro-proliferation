@@ -2,7 +2,7 @@
 # Load dataset
 
 quant_DGE_clean <-
-  readRDS(file = "./output/quant_cDNA_ncRNA_ENSEMBL_DGE_filter.RDS")
+  readRDS(file = "./output/quant_cDNA_DGE_filter.RDS")
 
 # Make design matrix
 
@@ -98,7 +98,6 @@ summary(decideTests(fit))
 ## Coefs 25 - 30: Passage x Treatment at each day
 ## Coefs 31 - 36: Passage x Day at treatment
 ## Coefs 37 - 39: Day x Treatment at Passage
-
 
 matrix_contrasts <- makeContrasts(
   
