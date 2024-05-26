@@ -1,5 +1,6 @@
-# Extract gene names from Venn diagram
-# These Venn diagrams show overlap between UnTreated and Treated cells
+# Extract gene names from limma fit for ORA
+# Between passages at D3
+# Venn diagrams
 # D5vsD3 @ Phase A UT vs. D5vsD3 @ Phase A T: Coefs  7; 10
 # D5vsD3 @ Phase B UT vs. D5vsD3 @ Phase B T: Coefs  8; 11
 # D5vsD3 @ Phase C UT vs. D5vsD3 @ Phase C T: Coefs  9; 12
@@ -10,7 +11,18 @@
 # P13vsP7 @ D5 UT vs. P7vsP5 @ D5 T:          Coefs 20; 23
 # P13vsP5 @ D5 UT vs. P7vsP5 @ D5 T:          Coefs 21; 24
 
-tests <- decideTests(fit_contrasts)
+tests <- decideTests(fit_contrasts[!is.na(fit_contrasts$genes$ENTREZID),])
+
+# Between passages, untreated cells
+
+genes_P7vsP5_D3_Untreated <- 
+  quant_DGE_voom$genes[which(tests[, 13] != 0),]
+
+genes_P13vsP7_D3_Untreated <- 
+  quant_DGE_voom$genes[which(tests[, 14] != 0),]
+
+genes_P13vsP5_D3_Untreated <- 
+  quant_DGE_voom$genes[which(tests[, 15] != 0),]
 
 # D5vsD3 at passages
 
