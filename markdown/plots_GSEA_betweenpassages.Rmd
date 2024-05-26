@@ -1,0 +1,697 @@
+---
+title: "Gene Set Enrichment Analysis - Between passages at D3, untreated cells"
+date: "`r Sys.Date()`"
+output:
+  rmdformats::robobook:    
+    code_folding: show
+    self_contained: true
+    thumbnails: false
+    lightbox: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache = TRUE)
+knitr::opts_chunk$set(dpi=300,fig.width=12, fig.height = 12)
+
+## Switch working directory to project dir
+
+knitr::opts_knit$set(root.dir = '..')
+
+## Hide code blocks
+
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE,
+                      message = FALSE
+                      )
+
+```
+
+```{r Load data, include=FALSE}
+# Load packages
+
+source("./scripts/env_prep.R")
+
+# Construct file paths
+
+path_construct <- function(condition) {
+  file.path(getwd(),
+            'output',
+            'data_enrichment',
+            'GSEA',
+            condition,
+            'GSEA_results.RDS')
+}
+
+# Load data for D5 vs D3 GSEA
+
+P7vsP5_GSEA <- readRDS(path_construct('P7vsP5_UT_D3'))
+
+P13vsP7_GSEA <- readRDS(path_construct('P13vsP7_UT_D3'))
+
+P13vsP5_GSEA <- readRDS(path_construct('P13vsP5_UT_D3'))
+
+
+```
+
+```{r Define plot function, include=FALSE}
+
+plot_GSEA <- function(enrichResults,
+                      title) {
+  plot_title <- ggdraw() +
+    draw_label(title,
+               fontface = 'bold')
+  
+  message(str_c("\nDrawing dot plot",
+                title,
+                sep = " "))
+  
+  dotplot <-
+    plot_grid(dotplot(enrichResults, showCategory = 30),
+              ncol = 1,
+              nrow = 1)
+  
+  message(str_c("\nDrawing Gene-Concept Network plot",
+                title,
+                sep = " "))
+  
+  cnetplot <-
+    plot_grid(
+      cnetplot(
+        enrichResults,
+        showCategory = 8,
+        cex_label_category	= 0.6,
+        cex_label_gene	= 0.6
+      ),
+      ncol = 1,
+      nrow = 1
+    )
+  
+  
+  message(str_c("\nDrawing Enrichment Map",
+                title,
+                sep = " "))
+  
+  emapplot <-
+    plot_grid(
+      emapplot(
+        enrichplot::pairwise_termsim(enrichResults),
+        cex_label_category	= 0.6
+      ),
+      ncol = 1,
+      nrow = 1
+      
+    )
+  
+  message(str_c("\nDrawing UpSet plot",
+                title,
+                sep = " "))
+  
+  upsetplot <- plot_grid(enrichplot::upsetplot(enrichResults),
+                         ncol = 1,
+                         nrow = 1)
+  
+  message(str_c("\nDrawing ridgeline plot",
+                title,
+                sep = " "))
+  
+  ridgeplot <- plot_grid(
+    enrichplot::ridgeplot(enrichResults, showCategory = 30),
+    ncol = 1,
+    nrow = 1
+  )
+  
+  
+  message(str_c("\nExporting plots",
+                title,
+                sep = " "))
+  
+  list(
+    "dotplot" = plot_grid(
+      plot_title,
+      dotplot,
+      ncol = 1,
+      rel_heights = c(0.1, 1)
+    ),
+    "cnetplot" = plot_grid(
+      plot_title,
+      cnetplot,
+      ncol = 1,
+      rel_heights = c(0.1, 1)
+    ),
+    "emapplot" = plot_grid(
+      plot_title,
+      emapplot,
+      ncol = 1,
+      rel_heights = c(0.1, 1)
+    ),
+    "upsetplot" = plot_grid(
+      plot_title,
+      upsetplot,
+      ncol = 1,
+      rel_heights = c(0.1, 1)
+    ),
+    "ridgeplot" = plot_grid(
+      plot_title,
+      ridgeplot,
+      ncol = 1,
+      rel_heights = c(0.1, 1)
+    )
+  )
+}
+
+```
+
+# Methods
+
+After statistical analysis, ordered lists of logFCs between Days 3 and 5 in untreated cells and Days 3 and 5 in treated cells were created. The ordered lists were subjected to GSEA. GSEA was performed against the following datasets:
+
+-   GO
+
+    -   Biological Processes
+
+    -   Cellular Component
+
+    -   Molecular Function
+
+-   MSigDB
+
+    -   h: Hallmark
+
+    -   c2: Curated
+
+    -   c3: Regulatory targets
+
+    -   c5: GO
+
+-   ReactomePA
+
+-   KEGG
+
+# P7 vs P5
+
+## GO
+
+### BP
+
+```{r}
+
+plots <- plot_GSEA(P7vsP5_GSEA$GOBP,
+                   'Phase A - GO Biological Processes')
+
+plot(plots$dotplot)
+
+plot(plots$cnetplot)
+
+plot(plots$emapplot)
+
+plot(plots$upsetplot)
+
+plot(plots$ridgeplot)
+
+```
+
+### CC
+
+```{r}
+
+plots <- plot_GSEA(P7vsP5_GSEA$GOCC,
+                   'Phase A - GO Cellular Component')
+
+plot(plots$dotplot)
+
+plot(plots$cnetplot)
+
+plot(plots$emapplot)
+
+plot(plots$upsetplot)
+
+plot(plots$ridgeplot)
+
+```
+
+### MF
+
+```{r}
+
+plots <- plot_GSEA(P7vsP5_GSEA$GOMF,
+                   'Phase A - GO Molecular Function')
+
+plot(plots$dotplot)
+
+plot(plots$cnetplot)
+
+plot(plots$emapplot)
+
+plot(plots$upsetplot)
+
+plot(plots$ridgeplot)
+```
+
+## MSigDB
+
+### h
+
+```{r}
+
+plots <- plot_GSEA(P7vsP5_GSEA$MSigDB_h,
+                   'Phase A - MSigDB h')
+
+plot(plots$dotplot)
+
+plot(plots$cnetplot)
+
+plot(plots$emapplot)
+
+plot(plots$upsetplot)
+
+plot(plots$ridgeplot)
+
+```
+
+### c2
+
+```{r}
+
+plots <- plot_GSEA(P7vsP5_GSEA$MSigDB_c2,
+                   'Phase A - MSigDB c2')
+
+plot(plots$dotplot)
+
+plot(plots$cnetplot)
+
+plot(plots$emapplot)
+
+plot(plots$upsetplot)
+
+plot(plots$ridgeplot)
+
+```
+
+### c3
+
+```{r}
+
+plots <- plot_GSEA(P7vsP5_GSEA$MSigDB_c3,
+                   'Phase A - MSigDB c3')
+
+plot(plots$dotplot)
+
+plot(plots$cnetplot)
+
+plot(plots$emapplot)
+
+plot(plots$upsetplot)
+
+plot(plots$ridgeplot)
+
+```
+
+### c5
+
+```{r}
+
+plots <- plot_GSEA(P7vsP5_GSEA$MSigDB_c5,
+                   'Phase A - MSigDB c5')
+
+plot(plots$dotplot)
+
+plot(plots$cnetplot)
+
+plot(plots$emapplot)
+
+plot(plots$upsetplot)
+
+plot(plots$ridgeplot)
+
+```
+
+## ReactomePA
+
+```{r}
+
+plots <- plot_GSEA(P7vsP5_GSEA$Reactome,
+                   'Phase A - Reactome')
+
+plot(plots$dotplot)
+
+plot(plots$cnetplot)
+
+plot(plots$emapplot)
+
+plot(plots$upsetplot)
+
+plot(plots$ridgeplot)
+
+```
+
+## KEGG
+
+```{r}
+
+plots <- plot_GSEA(P7vsP5_GSEA$KEGG,
+                   'Phase A - KEGG')
+
+plot(plots$dotplot)
+
+plot(plots$cnetplot)
+
+plot(plots$emapplot)
+
+plot(plots$upsetplot)
+
+plot(plots$ridgeplot)
+
+```
+
+# P13 vs P7
+
+## GO
+
+### BP
+
+```{r}
+
+plots <- plot_GSEA(P13vsP7_GSEA$GOBP,
+                   'Phase A - GO Biological Processes')
+
+plot(plots$dotplot)
+
+plot(plots$cnetplot)
+
+plot(plots$emapplot)
+
+plot(plots$upsetplot)
+
+plot(plots$ridgeplot)
+
+```
+
+### CC
+
+```{r}
+
+plots <- plot_GSEA(P13vsP7_GSEA$GOCC,
+                   'Phase A - GO Cellular Component')
+
+plot(plots$dotplot)
+
+plot(plots$cnetplot)
+
+plot(plots$emapplot)
+
+plot(plots$upsetplot)
+
+plot(plots$ridgeplot)
+
+```
+
+### MF
+
+```{r}
+
+plots <- plot_GSEA(P13vsP7_GSEA$GOMF,
+                   'Phase A - GO Molecular Function')
+
+plot(plots$dotplot)
+
+plot(plots$cnetplot)
+
+plot(plots$emapplot)
+
+plot(plots$upsetplot)
+
+plot(plots$ridgeplot)
+```
+
+## MSigDB
+
+### h
+
+```{r}
+
+plots <- plot_GSEA(P13vsP7_GSEA$MSigDB_h,
+                   'Phase A - MSigDB h')
+
+plot(plots$dotplot)
+
+plot(plots$cnetplot)
+
+plot(plots$emapplot)
+
+plot(plots$upsetplot)
+
+plot(plots$ridgeplot)
+
+```
+
+### c2
+
+```{r}
+
+plots <- plot_GSEA(P13vsP7_GSEA$MSigDB_c2,
+                   'Phase A - MSigDB c2')
+
+plot(plots$dotplot)
+
+plot(plots$cnetplot)
+
+plot(plots$emapplot)
+
+plot(plots$upsetplot)
+
+plot(plots$ridgeplot)
+
+```
+
+### c3
+
+```{r}
+
+plots <- plot_GSEA(P13vsP7_GSEA$MSigDB_c3,
+                   'Phase A - MSigDB c3')
+
+plot(plots$dotplot)
+
+plot(plots$cnetplot)
+
+plot(plots$emapplot)
+
+plot(plots$upsetplot)
+
+plot(plots$ridgeplot)
+
+```
+
+### c5
+
+```{r}
+
+plots <- plot_GSEA(P13vsP7_GSEA$MSigDB_c5,
+                   'Phase A - MSigDB c5')
+
+plot(plots$dotplot)
+
+plot(plots$cnetplot)
+
+plot(plots$emapplot)
+
+plot(plots$upsetplot)
+
+plot(plots$ridgeplot)
+
+```
+
+## ReactomePA
+
+```{r}
+
+plots <- plot_GSEA(P13vsP7_GSEA$Reactome,
+                   'Phase A - Reactome')
+
+plot(plots$dotplot)
+
+plot(plots$cnetplot)
+
+plot(plots$emapplot)
+
+plot(plots$upsetplot)
+
+plot(plots$ridgeplot)
+
+```
+
+## KEGG
+
+```{r}
+
+plots <- plot_GSEA(P13vsP7_GSEA$KEGG,
+                   'Phase A - KEGG')
+
+plot(plots$dotplot)
+
+plot(plots$cnetplot)
+
+plot(plots$emapplot)
+
+plot(plots$upsetplot)
+
+plot(plots$ridgeplot)
+
+```
+
+# P13 vs P5
+
+## GO
+
+### BP
+
+```{r}
+
+plots <- plot_GSEA(P13vsP5_GSEA$GOBP,
+                   'Phase A - GO Biological Processes')
+
+plot(plots$dotplot)
+
+plot(plots$cnetplot)
+
+plot(plots$emapplot)
+
+plot(plots$upsetplot)
+
+plot(plots$ridgeplot)
+
+```
+
+### CC
+
+```{r}
+
+plots <- plot_GSEA(P13vsP5_GSEA$GOCC,
+                   'Phase A - GO Cellular Component')
+
+plot(plots$dotplot)
+
+plot(plots$cnetplot)
+
+plot(plots$emapplot)
+
+plot(plots$upsetplot)
+
+plot(plots$ridgeplot)
+
+```
+
+### MF
+
+```{r}
+
+plots <- plot_GSEA(P13vsP5_GSEA$GOMF,
+                   'Phase A - GO Molecular Function')
+
+plot(plots$dotplot)
+
+plot(plots$cnetplot)
+
+plot(plots$emapplot)
+
+plot(plots$upsetplot)
+
+plot(plots$ridgeplot)
+```
+
+## MSigDB
+
+### h
+
+```{r}
+
+plots <- plot_GSEA(P13vsP5_GSEA$MSigDB_h,
+                   'Phase A - MSigDB h')
+
+plot(plots$dotplot)
+
+plot(plots$cnetplot)
+
+plot(plots$emapplot)
+
+plot(plots$upsetplot)
+
+plot(plots$ridgeplot)
+
+```
+
+### c2
+
+```{r}
+
+plots <- plot_GSEA(P13vsP5_GSEA$MSigDB_c2,
+                   'Phase A - MSigDB c2')
+
+plot(plots$dotplot)
+
+plot(plots$cnetplot)
+
+plot(plots$emapplot)
+
+plot(plots$upsetplot)
+
+plot(plots$ridgeplot)
+
+```
+
+### c5
+
+```{r}
+
+plots <- plot_GSEA(P13vsP5_GSEA$MSigDB_c5,
+                   'Phase A - MSigDB c5')
+
+plot(plots$dotplot)
+
+plot(plots$cnetplot)
+
+plot(plots$emapplot)
+
+plot(plots$upsetplot)
+
+plot(plots$ridgeplot)
+
+```
+
+## ReactomePA
+
+```{r}
+
+plots <- plot_GSEA(P13vsP5_GSEA$Reactome,
+                   'Phase A - Reactome')
+
+plot(plots$dotplot)
+
+plot(plots$cnetplot)
+
+plot(plots$emapplot)
+
+plot(plots$upsetplot)
+
+plot(plots$ridgeplot)
+
+```
+
+## KEGG
+
+```{r}
+
+plots <- plot_GSEA(P13vsP5_GSEA$KEGG,
+                   'Phase A - KEGG')
+
+plot(plots$dotplot)
+
+plot(plots$cnetplot)
+
+plot(plots$emapplot)
+
+plot(plots$upsetplot)
+
+plot(plots$ridgeplot)
+
+```
