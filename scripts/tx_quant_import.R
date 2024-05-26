@@ -137,6 +137,22 @@ genes <-
   dplyr::distinct(GENEID,
                   .keep_all = TRUE)
 
+### Add inclusion of genes in MSigDB h
+
+msigdb_h  <-
+  read.gmt("./input/genesets/msigdb_v2023.2.Hs_GMTs/h.all.v2023.2.Hs.entrez.gmt") %>%
+  mutate(term = as.character(term)) %>%
+  mutate(ENTREZID = as.integer(gene)) %>%
+  mutate(gene = NULL) %>%
+  nest_by(ENTREZID) %>%
+  rowwise() %>% 
+  mutate(data = list(deframe(data))) %>%
+  mutate(data = str_flatten_comma(data)) %>%
+  mutate(msigdb_h = data) %>%
+  mutate(data = NULL)
+
+genes <- left_join(genes, msigdb_h)
+
 quant_cDNA_ncRNA_ENSEMBL_DGE$genes <- genes
 
 # Export quantification results
