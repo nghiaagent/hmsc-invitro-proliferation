@@ -1,4 +1,4 @@
-# Extract ordered gene list from interaction terms names from Venn diagram
+# Extract ordered gene list for interaction terms 
 
 # These lists show effect of heparin changing between Days 3 and 5
 
