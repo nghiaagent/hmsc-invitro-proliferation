@@ -100,47 +100,11 @@ p_load(
   shinybusy
 )
 
-#### Create folders for input and outputs, if not already present
-# Code below means "if test for directory presence returns FALSE, create the directory"
-
-### Check and create ./output/ folder
-
-if (!dir.exists("./output")) {
-  dir.create("./output")
-}
-
-if (!dir.exists("./output/plots_QC")) {
-  dir.create("./output/plots_QC")
-}
-
-if (!dir.exists("./output/plots_PCA_prebatchcorrection")) {
-  dir.create("./output/plots_PCA_prebatchcorrection")
-}
-
-
-if (!dir.exists("./output/plots_PCA_postbatchcorrection")) {
-  dir.create("./output/plots_PCA_postbatchcorrection")
-}
-
-if (!dir.exists("./output/QC")) {
-  dir.create("./output/QC")
-}
-
-if (!dir.exists("./output/GSEA")) {
-  dir.create("./output/GSEA")
-}
-
-### Check and create ./input/  folder and subfolders
-
-if (!dir.exists("./input")) {
-  dir.create("./input")
-}
-
 # Clean up package list
 
 rm(list_Bioc_Pkg)
 
-# Limit number of cores used for multicore processing due to memory issues on laptops.
+# Limit number of cores used due to memory issues on laptops.
 
 BiocParallel::register(SnowParam(workers = 8),
                        default = T)
