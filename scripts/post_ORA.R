@@ -5,6 +5,17 @@
 # dge_extract_venn_genes
 # post_ORA_function
 
+# ORA between passages
+
+run_ORA(genes_P7vsP5_D3_Untreated,
+        "P7vsP5_D3_Untreated")
+
+run_ORA(genes_P13vsP7_D3_Untreated,
+        "P13vsP7_D3_Untreated")
+
+run_ORA(genes_P13vsP5_D3_Untreated,
+        "P13vsP5_D3_Untreated")
+
 # ORA between days of passage
 
 run_ORA(genes_D3_Untreated_P13vsP5_and_P13vsP7_only,
