@@ -1,12 +1,9 @@
 ---
 title: "Volcano Plots - between passages"
 date: "`r Sys.Date()`"
-output:
-  rmdformats::robobook:    
-    code_folding: show
-    self_contained: true
-    thumbnails: false
-    lightbox: true
+output: 
+  html_document:
+    toc: true
 ---
 
 ```{r setup, include=FALSE}
@@ -31,7 +28,6 @@ conditions_interest <- c(
 )
 
 ```
-
 
 # Between passages, Day 3, untreated
 
@@ -85,23 +81,9 @@ volcano3D(polar_manual,
 
 ```
 
-3D cylindrical volcano plot summarising DEGs between hMSC growth phases. Z-scores of mean logCPM values were calculated then projected onto polar coordinates along 3 axes (A, B, C) in the x-y plane. Each axis represents one hMSC growth phase. Z-axis shows -log10 p-values derived from linear model fit. Significant genes were color-coded based on pairwise statistical tests, corrected for multiple comparisons. Passages 5, 7, 13 were shortened to P+5, P+7, P+1 on the plot.
+**Legend***:* 3D cylindrical volcano plot summarising DEGs between hMSC growth phases. Z-scores of mean logCPM values were calculated then projected onto polar coordinates along 3 axes (A, B, C) in the x-y plane. Each axis represents one hMSC growth phase. Z-axis shows -log10 p-values derived from linear model fit. Significant genes were color-coded based on pairwise statistical tests, corrected for multiple comparisons. Passages 5, 7, 13 were shortened to P+5, P+7, P+1 on the plot.
 
 ## Between P+5 and P+7
-
-### All conditions displayed in logCPM plot
-
-```{r}
-
-glimmaVolcano(x = fit_contrasts,
-              counts = quant_DGE_voom$E,
-              groups = quant_DGE_voom$targets$condition_ID,
-              xlab = "logFC",
-              transform.counts = "none",
-              coef = 13)
-
-```
-### Only D3, Untreated cells displayed in logCPM plot
 
 ```{r}
 
@@ -116,58 +98,26 @@ glimmaVolcano(x = fit_contrasts,
 
 ## Between P+7 and P+13
 
-## Between P+5 and P+13
+```{r}
 
-
-# Between passages, Day 5, untreated
-
-```{r echo=FALSE, warning=FALSE}
-
-design_D5 <- table_design
-
-design_D5$condition_ID <- factor(design_D5$condition_ID,
-          levels = c("P5D5Untreated",
-                     "P7D5Untreated",
-                     "P13D5Untreated"),
-          labels = c("A",
-                     "B",
-                     "C"))
-
-polar_pvals <- cbind(
-  topTable(fit_contrasts,           number = Inf, sort.by = "none")$P.Value,
-  topTable(fit_contrasts, coef = 19, number = Inf, sort.by = "none")$P.Value,
-  topTable(fit_contrasts, coef = 21, number = Inf, sort.by = "none")$P.Value,
-  topTable(fit_contrasts, coef = 20, number = Inf, sort.by = "none")$P.Value
-)
-
-polar_padj <- cbind(
-  topTable(fit_contrasts,           number = Inf, sort.by = "none")$adj.P.Val,
-  topTable(fit_contrasts, coef = 19, number = Inf, sort.by = "none")$adj.P.Val,
-  topTable(fit_contrasts, coef = 21, number = Inf, sort.by = "none")$adj.P.Val,
-  topTable(fit_contrasts, coef = 20, number = Inf, sort.by = "none")$adj.P.Val
-)
-
-## Construct volcano3d object
-
-rownames(quant_DGE_voom$E) <- quant_DGE_voom$genes$GENENAME
-
-polar_manual <- polar_coords(
-  outcome = design_D5$condition_ID,
-  data = t(quant_DGE_voom$E),
-  pvals = polar_pvals,
-  padj = polar_padj
-)
-
-
-## Plot
-
-volcano3D(polar_manual,
-              axis_angle = 3/6,
-              label_size = 20,
-              axis_label_size = 18,
-          axis_title_size = 28)
+glimmaVolcano(x = fit_contrasts,
+              counts = quant_DGE_voom[,quant_DGE_voom$targets$condition_ID %in% conditions_interest]$E,
+              groups = quant_DGE_voom[,quant_DGE_voom$targets$condition_ID %in% conditions_interest]$targets$condition_ID,
+              xlab = "logFC",
+              transform.counts = "none",
+              coef = 14)
 
 ```
 
-3D cylindrical volcano plot summarising DEGs between hMSC growth phases. Z-scores of mean logCPM values were calculated then projected onto polar coordinates along 3 axes (A, B, C) in the x-y plane. Each axis represents one hMSC growth phase. Z-axis shows -log10 p-values derived from linear model fit. Significant genes were color-coded based on pairwise statistical tests, corrected for multiple comparisons. Passages 5, 7, 13 were shortened to P+5, P+7, P+1 on the plot.
+## Between P+5 and P+13
 
+```{r}
+
+glimmaVolcano(x = fit_contrasts,
+              counts = quant_DGE_voom[,quant_DGE_voom$targets$condition_ID %in% conditions_interest]$E,
+              groups = quant_DGE_voom[,quant_DGE_voom$targets$condition_ID %in% conditions_interest]$targets$condition_ID,
+              xlab = "logFC",
+              transform.counts = "none",
+              coef = 15)
+
+```
