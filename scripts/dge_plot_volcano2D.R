@@ -4,22 +4,22 @@ source("./scripts/dge_cellpops_as_fixed.R")
 
 # Extract logFC and p-vals for comparisons between passages at D3 and D5
 
-top_P7vsP5_D3 <- topTable(fit_contrasts, coef = 4,
+top_P7vsP5_D3 <- topTable(fit_contrasts, coef = 13,
                           number = Inf)
 
-top_P7vsP5_D5 <- topTable(fit_contrasts, coef = 13,
+top_P7vsP5_D5 <- topTable(fit_contrasts, coef = 16,
                           number = Inf)
 
-top_P13vsP5_D3 <- topTable(fit_contrasts, coef = 5,
+top_P13vsP5_D3 <- topTable(fit_contrasts, coef = 15,
                            number = Inf)
 
-top_P13vsP5_D5 <- topTable(fit_contrasts, coef = 14,
+top_P13vsP5_D5 <- topTable(fit_contrasts, coef = 18,
                            number = Inf)
 
-top_P13vsP7_D3 <- topTable(fit_contrasts, coef = 6,
+top_P13vsP7_D3 <- topTable(fit_contrasts, coef = 14,
                            number = Inf)
 
-top_P13vsP7_D5 <- topTable(fit_contrasts, coef = 15,
+top_P13vsP7_D5 <- topTable(fit_contrasts, coef = 17,
                            number = Inf)
 
 # Extract logFC and p-vals for Trt vs Ctrl
@@ -27,45 +27,45 @@ top_P13vsP7_D5 <- topTable(fit_contrasts, coef = 15,
 top_treat_P5_D3 <- topTable(fit_contrasts, coef = 1,
                             number = Inf)
 
-top_treat_P5_D5 <- topTable(fit_contrasts, coef = 10,
+top_treat_P5_D5 <- topTable(fit_contrasts, coef = 2,
                             number = Inf)
 
-top_treat_P7_D3 <- topTable(fit_contrasts, coef = 2,
+top_treat_P7_D3 <- topTable(fit_contrasts, coef = 3,
                             number = Inf)
 
-top_treat_P7_D5 <- topTable(fit_contrasts, coef = 11,
+top_treat_P7_D5 <- topTable(fit_contrasts, coef = 4,
                             number = Inf)
 
-top_treat_P13_D3 <- topTable(fit_contrasts, coef = 3,
+top_treat_P13_D3 <- topTable(fit_contrasts, coef = 5,
                              number = Inf)
 
-top_treat_P13_D5 <- topTable(fit_contrasts, coef = 12,
+top_treat_P13_D5 <- topTable(fit_contrasts, coef = 6,
                              number = Inf)
 
 # Extract logFC and pvals for interaction term
 
 top_interaction_TvsUT_P7vsP5_D3 <-
-  topTable(fit_contrasts, coef = 19,
+  topTable(fit_contrasts, coef = 25,
            number = Inf)
 
 top_interaction_TvsUT_P13vsP5_D3 <-
-  topTable(fit_contrasts, coef = 20,
+  topTable(fit_contrasts, coef = 27,
            number = Inf)
 
 top_interaction_TvsUT_P13vsP7_D3 <-
-  topTable(fit_contrasts, coef = 21,
+  topTable(fit_contrasts, coef = 26,
            number = Inf)
 
 top_interaction_TvsUT_P7vsP5_D5 <-
-  topTable(fit_contrasts, coef = 22,
+  topTable(fit_contrasts, coef = 28,
            number = Inf)
 
 top_interaction_TvsUT_P13vsP5_D5 <-
-  topTable(fit_contrasts, coef = 23,
+  topTable(fit_contrasts, coef = 30,
            number = Inf)
 
 top_interaction_TvsUT_P13vsP7_D5 <-
-  topTable(fit_contrasts, coef = 24,
+  topTable(fit_contrasts, coef = 29,
            number = Inf)
 
 # Draw 2D volcano plot - between growth phases
@@ -572,24 +572,40 @@ ggsave(
 
 grid_paper_day3 <-
   plot_grid(
-    volcano_P7vsP5_D3  + theme(legend.position = "none",
-                               plot.title = element_blank()),
-    volcano_P13vsP5_D3  + theme(legend.position = "none",
-                                plot.title = element_blank()),
-    volcano_P13vsP7_D3 + theme(legend.position = "none",
-                               plot.title = element_blank()),
+    ggdraw() + draw_text("P7vsP5", 
+                         angle = 90,
+                         fontface = "bold",
+                         size = 25),
+    volcano_P7vsP5_D3  + 
+      theme(legend.position = "right",
+            plot.title = element_blank()),
+    ggdraw() + draw_text("P13vsP7", 
+                         angle = 90,
+                         fontface = "bold",
+                         size = 25),
+    volcano_P13vsP5_D3  + 
+      theme(legend.position = "right",
+            plot.title = element_blank()),
+    ggdraw() + draw_text("P13vsP5", 
+                         angle = 90,
+                         fontface = "bold",
+                         size = 25),
+    volcano_P13vsP7_D3 + 
+      theme(legend.position = "right",
+            plot.title = element_blank()),
     labels = NULL,
     label_size = 28,
-    ncol = 1,
-    nrow = 3
+    ncol = 2,
+    nrow = 3,
+    rel_widths = c(0.05,1)
   )
 
 ggsave(
   filename = "./output/plots_volcano/day3_paperver.png",
   grid_paper_day3,
-  scale = 1.2,
-  width = 12,
-  height = 10,
+  scale = 0.7,
+  width = 18,
+  height = 15,
   units = "in",
   dpi = 300
 )
