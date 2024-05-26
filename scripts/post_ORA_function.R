@@ -6,30 +6,54 @@
 # GO (CC, BP, MF)
 # KEGG
 # ReactomePA
-# MSigDB h, c2, c3, c5
+# MSigDB h, c2, c3
 
-# Obtain gene sets for MSigDB
+# Obtain gene sets
 
-## set h: hallmark
-## set c2: curated
-## set c3: regulatory gene sets
-## set c5: ontology gene sets
+## GO
 
-msigdb_h <- msigdbr(species = "Homo sapiens",
-                    category = "H") %>%
-  dplyr::select(gs_name, ensembl_gene)
+### GOBP
+### Represented by MSigDB c5/GO/BP
 
-msigdb_c2 <- msigdbr(species = "Homo sapiens",
-                     category = "C2") %>%
-  dplyr::select(gs_name, ensembl_gene)
+msigdb_GOBP <-
+  read.gmt("./input/genesets/msigdb_v2023.2.Hs_GMTs/c5.go.bp.v2023.2.Hs.entrez.gmt")
 
-msigdb_c3 <- msigdbr(species = "Homo sapiens",
-                     category = "C3") %>%
-  dplyr::select(gs_name, ensembl_gene)
+### GOMF
+### Represented by MSigDB c5/GO/MF
 
-msigdb_c5 <- msigdbr(species = "Homo sapiens",
-                     category = "C5") %>%
-  dplyr::select(gs_name, ensembl_gene)
+msigdb_GOMF <-
+  read.gmt("./input/genesets/msigdb_v2023.2.Hs_GMTs/c5.go.mf.v2023.2.Hs.entrez.gmt")
+
+### GOCC
+### Represented by MSigDB c5/GO/CC
+
+msigdb_GOCC <-
+  read.gmt("./input/genesets/msigdb_v2023.2.Hs_GMTs/c5.go.cc.v2023.2.Hs.entrez.gmt")
+
+## MSigDB
+
+msigdb_h  <-
+  read.gmt("./input/genesets/msigdb_v2023.2.Hs_GMTs/h.all.v2023.2.Hs.entrez.gmt")
+
+msigdb_c2 <-
+  read.gmt("./input/genesets/msigdb_v2023.2.Hs_GMTs/c2.cgp.v2023.2.Hs.entrez.gmt")
+
+msigdb_c3 <-
+  read.gmt("./input/genesets/msigdb_v2023.2.Hs_GMTs/c3.all.v2023.2.Hs.entrez.gmt")
+
+## ReactomePA
+## Represented by MSigDB c2/CP/Reactome
+
+msigdb_reactome <-
+  read.gmt("./input/genesets/msigdb_v2023.2.Hs_GMTs/c2.cp.reactome.v2023.2.Hs.entrez.gmt")
+
+## KEGG
+## Represented by MSigDB c2/CP/KEGG_LEGACY
+
+msigdb_KEGG <-
+  read.gmt(
+    "./input/genesets/msigdb_v2023.2.Hs_GMTs/c2.cp.kegg_legacy.v2023.2.Hs.entrez.gmt"
+  )
 
 # Define function to convert EnrichResult to something that EnrichmentMap accepts
 
@@ -86,49 +110,40 @@ run_ORA <- function(genes_list,
                 name_output,
                 sep = " "))
   
-  ORA_GOMF <- enrichGO(
-    genes_list$GENEID,
-    OrgDb = org.Hs.eg.db,
-    keyType = "ENSEMBL",
-    ont = "MF",
+  ORA_GOMF <- enricher(
+    genes_list$ENTREZID,
+    TERM2GENE = msigdb_GOMF,
     minGSSize = 25,
-    maxGSSize = 500,
-    pvalueCutoff = 0.05
+    maxGSSize = 500
   ) %>%
     setReadable('org.Hs.eg.db',
-                'ENSEMBL')
+                'ENTREZID')
   
   message(str_c("Running GOBP enrichment for",
                 name_output,
                 sep = " "))
   
-  ORA_GOBP <- enrichGO(
-    genes_list$GENEID,
-    OrgDb = org.Hs.eg.db,
-    keyType = "ENSEMBL",
-    ont = "BP",
+  ORA_GOBP <- enricher(
+    genes_list$ENTREZID,
+    TERM2GENE = msigdb_GOBP,
     minGSSize = 25,
-    maxGSSize = 500,
-    pvalueCutoff = 0.05
+    maxGSSize = 500
   ) %>%
     setReadable('org.Hs.eg.db',
-                'ENSEMBL')
+                'ENTREZID')
   
   message(str_c("Running GOCC enrichment for",
                 name_output,
                 sep = " "))
   
-  ORA_GOCC <- enrichGO(
-    genes_list$GENEID,
-    OrgDb = org.Hs.eg.db,
-    keyType = "ENSEMBL",
-    ont = "CC",
+  ORA_GOCC <- enricher(
+    genes_list$ENTREZID,
+    TERM2GENE = msigdb_GOCC,
     minGSSize = 25,
-    maxGSSize = 500,
-    pvalueCutoff = 0.05
+    maxGSSize = 500
   ) %>%
     setReadable('org.Hs.eg.db',
-                'ENSEMBL')
+                'ENTREZID')
   
   # Run ORA on KEGG
   
@@ -136,11 +151,11 @@ run_ORA <- function(genes_list,
                 name_output,
                 sep = " "))
   
-  ORA_KEGG <- enrichKEGG(
-    genes_list$ENTREZID %>% na.omit(),
-    organism = 'hsa',
+  ORA_KEGG <- enricher(
+    genes_list$ENTREZID,
+    TERM2GENE = msigdb_KEGG,
     minGSSize = 25,
-    pvalueCutoff = 0.05
+    maxGSSize = 500
   ) %>%
     setReadable('org.Hs.eg.db',
                 'ENTREZID')
@@ -152,9 +167,12 @@ run_ORA <- function(genes_list,
                 sep = " "))
   
   ORA_Reactome <-
-    enrichPathway(genes_list$ENTREZID %>% na.omit(),
-                  organism = 'human',
-                  minGSSize = 25) %>%
+    enricher(
+      genes_list$ENTREZID,
+      TERM2GENE = msigdb_reactome,
+      minGSSize = 25,
+      maxGSSize = 500
+    ) %>%
     setReadable('org.Hs.eg.db',
                 'ENTREZID')
   
@@ -165,44 +183,42 @@ run_ORA <- function(genes_list,
                 sep = " "))
   
   ORA_MSigDB_h <-
-    enricher(genes_list$GENEID,
-             TERM2GENE = msigdb_h,
-             minGSSize = 25) %>%
+    enricher(
+      genes_list$ENTREZID,
+      TERM2GENE = msigdb_h,
+      minGSSize = 25,
+      maxGSSize = 500
+    ) %>%
     setReadable('org.Hs.eg.db',
-                'ENSEMBL')
+                'ENTREZID')
   
   message(str_c("Running MSigDB c2 enrichment for",
                 name_output,
                 sep = " "))
   
   ORA_MSigDB_c2 <-
-    enricher(genes_list$GENEID,
-             TERM2GENE = msigdb_c2,
-             minGSSize = 25) %>%
+    enricher(
+      genes_list$ENTREZID,
+      TERM2GENE = msigdb_c2,
+      minGSSize = 25,
+      maxGSSize = 500
+    ) %>%
     setReadable('org.Hs.eg.db',
-                'ENSEMBL')
+                'ENTREZID')
   
   message(str_c("Running MSigDB c3 enrichment for",
                 name_output,
                 sep = " "))
   
   ORA_MSigDB_c3 <-
-    enricher(genes_list$GENEID,
-             TERM2GENE = msigdb_c3,
-             minGSSize = 25) %>%
+    enricher(
+      genes_list$ENTREZID,
+      TERM2GENE = msigdb_c3,
+      minGSSize = 25,
+      maxGSSize = 500
+    ) %>%
     setReadable('org.Hs.eg.db',
-                'ENSEMBL')
-  
-  message(str_c("Running MSigDB c5 enrichment for",
-                name_output,
-                sep = " "))
-  
-  ORA_MSigDB_c5 <-
-    enricher(genes_list$GENEID,
-             TERM2GENE = msigdb_c5,
-             minGSSize = 25) %>%
-    setReadable('org.Hs.eg.db',
-                'ENSEMBL')
+                'ENTREZID')
   
   # Export RDS
   
@@ -219,7 +235,6 @@ run_ORA <- function(genes_list,
       "MSigDB_h" = ORA_MSigDB_h,
       "MSigDB_c2" = ORA_MSigDB_c2,
       "MSigDB_c3" = ORA_MSigDB_c3,
-      "MSigDB_c5" = ORA_MSigDB_c5,
       "Reactome" = ORA_Reactome,
       "path" = as.character(path_output)
     ),
@@ -310,15 +325,6 @@ run_ORA <- function(genes_list,
     convert_EnrichResult_to_EnrichmentMap_table(ORA_MSigDB_c3),
     file.path(path_output,
               "ORA_MSigDB_c3_table.txt"),
-    sep = "\t",
-    row.names = F,
-    quote = F
-  )
-  
-  write.table(
-    convert_EnrichResult_to_EnrichmentMap_table(ORA_MSigDB_c5),
-    file.path(path_output,
-              "ORA_MSigDB_c5_table.txt"),
     sep = "\t",
     row.names = F,
     quote = F
