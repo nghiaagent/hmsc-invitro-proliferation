@@ -2,109 +2,120 @@
 # I choose to run it this way so we can plot genes that are unexpressed.
 # Source env_prep.R first.
 
-source("./scripts/dge_plot_volcano3D.R")
+# Select data for conditions
 
-# Plot GPCs
+conditions_interest <- c("P5D3Untreated",
+                         "P7D3Untreated",
+                         "P13D3Untreated")
 
-plot_GPC1 <- boxplot_trio(polar = polar_manual,
-                          value = "GPC1") +
-  scale_y_continuous(limits = c(-6,8),
-                     n.breaks = 15) +
-  theme_bw()
+quant_DGE_small <-
+  quant_DGE_voom[, quant_DGE_voom$targets$condition_ID %in% conditions_interest]
 
+plot_GOI <- function(gene_sel) {
+  
+  gene_sel_name <- mapIds(org.Hs.eg.db,
+                                    keys = gene_sel,
+                                    column = "SYMBOL",
+                                    keytype = "ENTREZID")
 
-plot_GPC2 <- boxplot_trio(polar = polar_manual,
-                          value = "GPC2") +
-  scale_y_continuous(limits = c(-6,8),
-                     n.breaks = 15) +
-  theme_bw()
+quant_sel <-
+  quant_DGE_small[quant_DGE_small$genes$ENTREZID == as.integer(gene_sel), ]
 
+df_plot <- quant_sel$targets %>%
+  cbind(as.vector(quant_sel$E)) %>%
+  rename("logCPM" = "as.vector(quant_sel$E)")
 
-plot_GPC3 <- boxplot_trio(polar = polar_manual,
-                          value = "GPC3") +
-  scale_y_continuous(limits = c(-6,8),
-                     n.breaks = 15) +
-  theme_bw()
+ggplot(df_plot,
+       aes(x = Passage,
+           y = logCPM,
+           fill = Passage)) +
+  geom_boxplot() +
+  geom_jitter() +
+  theme_minimal_hgrid() +
+  ggtitle(label = gene_sel_name)
 
+}
 
-plot_GPC4 <- boxplot_trio(polar = polar_manual,
-                          value = "GPC4") +
-  scale_y_continuous(limits = c(-6,8),
-                     n.breaks = 15) +
-  theme_bw()
+plots_inhouse <- map(geneIds_inhouse[geneIds_inhouse %in% as.character(quant_DGE_small$genes$ENTREZID)],
+                     plot_GOI)
 
+plots_Wnt <- map(geneIds_Wnt[geneIds_Wnt %in% as.character(quant_DGE_small$genes$ENTREZID)],
+                 plot_GOI)
 
-plot_GPC5 <- boxplot_trio(polar = polar_manual,
-                          value = "GPC5") +
-  scale_y_continuous(limits = c(-6,8),
-                     n.breaks = 15) +
-  theme_bw()
+plots_HSPGs <- map(geneIds_HSPGs[geneIds_HSPGs %in% as.character(quant_DGE_small$genes$ENTREZID)],
+                   plot_GOI)
 
+for (i in 1:length(plots_inhouse)) {
+  
+  message(str_c("drawing plot for ",
+                names(plots_inhouse)[[i]],
+                sep = ""))
+  
+  ggsave(
+    filename = str_c(names(plots_inhouse)[[i]],
+                           ".png",
+                           sep = ""),
+    plot = plots_inhouse[[i]],
+    path = file.path(
+      '.',
+      'output',
+      'plots_boxplot_logCPM',
+      'main'
+    ),
+    scale = 0.7,
+    width = 8,
+    height = 8,
+    units = "in",
+    dpi = 144
+  )
+}
 
-plot_GPC6 <- boxplot_trio(polar = polar_manual,
-                          value = "GPC6") +
-  scale_y_continuous(limits = c(-6,8),
-                     n.breaks = 15) +
-  theme_bw()
+for (i in 1:length(plots_Wnt)) {
+  
+  message(str_c("drawing plot for ",
+                names(plots_Wnt)[[i]],
+                sep = ""))
+  
+  ggsave(
+    filename = str_c(names(plots_Wnt)[[i]],
+                     ".png",
+                     sep = ""),
+    plot = plots_Wnt[[i]],
+    path = file.path(
+      '.',
+      'output',
+      'plots_boxplot_logCPM',
+      'WNT'
+    ),
+    scale = 0.7,
+    width = 8,
+    height = 8,
+    units = "in",
+    dpi = 144
+  )
+}
 
-plot_grid_GPC <- plot_grid(
-  plot_GPC1  + theme(legend.position = "none"),
-  plot_GPC2  + theme(legend.position = "none"),
-  plot_GPC3  + theme(legend.position = "none"),
-  plot_GPC4  + theme(legend.position = "none"),
-  plot_GPC5  + theme(legend.position = "none"),
-  plot_GPC6  + theme(legend.position = "none"),
-  nrow = 2
-)
-
-# Plot SDCs
-
-plot_SDC1 <- boxplot_trio(polar = polar_manual,
-                          value = "SDC1") +
-  scale_y_continuous(limits = c(3.5,10),
-                     n.breaks = 6) +
-  theme_bw()
-
-plot_SDC2 <- boxplot_trio(polar = polar_manual,
-                          value = "SDC2") +
-  scale_y_continuous(limits = c(3.5,10),
-                     n.breaks = 6) +
-  theme_bw()
-
-plot_SDC3 <- boxplot_trio(polar = polar_manual,
-                          value = "SDC3") +
-  scale_y_continuous(limits = c(3.5,10),
-                     n.breaks = 6) +
-  theme_bw()
-
-plot_SDC4 <- boxplot_trio(polar = polar_manual,
-                          value = "SDC4") +
-  scale_y_continuous(limits = c(3.5,10),
-                     n.breaks = 6) +
-  theme_bw()
-
-plot_grid_SDC <- plot_grid(
-  plot_SDC1  + theme(legend.position = "none"),
-  plot_SDC2  + theme(legend.position = "none"),
-  plot_SDC3  + theme(legend.position = "none"),
-  plot_SDC4  + theme(legend.position = "none"),
-  nrow = 2
-)
-
-# Plot E2Fs
-
-# Export plots
-
-ggsave(filename = "./output/plots_boxplot/GPC.png",
-       plot = plot_grid_GPC,
-       scale = 1.2,
-       width = 10,
-       height = 6
-       )
-
-ggsave(filename = "./output/plots_boxplot/SDC.png",
-       plot = plot_grid_SDC,
-       scale = 1.2,
-       width = 10,
-       height = 6
-)
+for (i in 1:length(plots_HSPGs)) {
+  
+  message(str_c("drawing plot for ",
+                names(plots_HSPGs)[[i]],
+                sep = ""))
+  
+  ggsave(
+    filename = str_c(names(plots_HSPGs)[[i]],
+                     ".png",
+                     sep = ""),
+    plot = plots_HSPGs[[i]],
+    path = file.path(
+      '.',
+      'output',
+      'plots_boxplot_logCPM',
+      'HSPG_extra'
+    ),
+    scale = 0.7,
+    width = 8,
+    height = 8,
+    units = "in",
+    dpi = 144
+  )
+}
