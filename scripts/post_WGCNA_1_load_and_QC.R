@@ -32,37 +32,13 @@ if (!quant_DGE_qual$allOK)
   GCN_E <- GCN_E[GCN_qual$goodSamples, GCN_qual$goodGenes]
 }
 
-# Perform sample clustering to detect outliers
-## No outliers that are not already known (i.e. all related to batch effect)
-
-sizeGrWindow(12,9)
-
-png(
-  "./output/plots_WGCNA/Sample clustering.png",
-  res = 150,
-  width = 25,
-  height = 25,
-  units = "cm"
-)
-
-par(cex = 0.6)
-par(mar = c(5, 5, 5, 5))
-plot(hclust(dist(GCN_E), 
-            method = "average"), 
-     main = "Hierarchical clustering of samples", 
-     sub="", 
-     xlab="", 
-     cex.lab = 1.5, 
-     cex.axis = 1.5, 
-     cex.main = 2)
-
-dev.off()
-
 # Extract sample metadata
 
 GCN_samples <- quant_DGE_voom$targets
 
-# Plot sample dendrogram and metadata
+
+# Perform sample clustering to detect outliers
+## No outliers that are not already known (i.e. all related to batch effect)
 
 meta_exclude <- c('group',
                   'norm.factors',
@@ -73,6 +49,13 @@ meta_exclude <- c('group',
                   "ID",
                   "timepoint_ID",
                   "condition_ID")
+png(
+  "./output/plots_WGCNA/Sample clustering.png",
+  res = 150,
+  width = 40,
+  height = 25,
+  units = "cm"
+)
 
 plotDendroAndColors(
   dendro = hclust(dist(GCN_E),
@@ -80,5 +63,8 @@ plotDendroAndColors(
   colors = labels2colors(dplyr::select(GCN_samples,
                                        !all_of(meta_exclude))),
   groupLabels = names(dplyr::select(GCN_samples,
-                                    !all_of(meta_exclude)))
+                                    !all_of(meta_exclude))),
+  main = "Hierarchical clustering of samples"
 )
+
+dev.off()
