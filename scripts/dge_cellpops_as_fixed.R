@@ -1,13 +1,14 @@
 ### Don't source this file by itself; call in from another file after running env_prep.R
+
 # Load dataset
 
 quant_DGE_clean <-
   readRDS(file = "./output/quant_cDNA_DGE_filter.RDS")
 
-# Make design matrix
+# Define design matrix for batch correction
 
-## Treat cell line as an additive factor
 ## Treat time points and treatments as fixed effects
+## Treat cell line as an additive factor
 
 table_design <- quant_DGE_clean$samples %>%
   mutate(Passage = factor(Passage,
@@ -19,16 +20,16 @@ design <- model.matrix(~ condition_ID + cell_line,
                        data = table_design)
 
 # Use ComBat-seq to correct for batch fx
-# Covariates considered: condition, cell population
+# Batch fx corrected while considering: condition, cell population
 
-quant_DGE_batchcor_withcovariates <-
+quant_DGE_batchcor_E <-
   sva::ComBat_seq(quant_DGE_clean$counts,
                   batch = table_design$run_date,
                   covar_mod = design)
 
 quant_DGE_clean_batchcor <- quant_DGE_clean
-quant_DGE_clean_batchcor$counts <- quant_DGE_batchcor_withcovariates
-rm(quant_DGE_batchcor_withcovariates)
+quant_DGE_clean_batchcor$counts <- quant_DGE_batchcor_E
+rm(quant_DGE_batchcor_E)
 
 # Define factors for design matrix
 
@@ -57,14 +58,18 @@ table_design <- quant_DGE_clean_batchcor$samples %>%
     )
   ))
 
-# Define design matrix
+# Define design matrix for limma
+
+## Treat time points and treatments (condition) as fixed effects
+## Treat cell line as an additive factor
+## Include batch as an additive factor
 
 design <- model.matrix(~ condition_ID + run_date + cell_line,
                        data = table_design)
 
 colnames(design) <- make.names(colnames(design))
 
-# Apply voom transformation
+# Apply voom transformation, data are now logCPM
 # Output mean-variance trend plot
 
 png(
@@ -74,7 +79,6 @@ png(
   units = 'cm',
   res = 400
 )
-
 
 quant_DGE_voom <-
   voom(quant_DGE_clean_batchcor,
