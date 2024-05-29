@@ -1,19 +1,18 @@
-#### Load packages
-### Install pacman, a package manager to install and load multiple packages at once
+# Install pacman, a package manager to install and load multiple packages at once
 
 if (!requireNamespace("pacman")) {
   install.packages("pacman")
 }
 library(pacman)
 
-### Some packages below use Bioconductor
+# Install Bioconductor package manager
 
 if (!require("BiocManager", quietly = TRUE))
   install.packages("BiocManager")
 
 library(BiocManager)
 
-### List Bioconductor packages to be required
+# List Bioconductor packages to load/install
 
 list_Bioc_Pkg <- c(
   "BiocHubsShiny",
@@ -49,30 +48,20 @@ list_Bioc_Pkg <- c(
   "BiocStyle"
 )
 
-### Install Bioconductor packages, if they are not yet installed and/or not up-to-date
+# Install Bioconductor packages, if they are not yet installed
+# Swap update = TRUE / FALSE depending on need to update pkg
 
 BiocManager::install(
   pkgs = list_Bioc_Pkg,
-  update = F
+  update = FALSE
 )
 
-### Install packages specifically for EGSEA
-
-p_load(
-  HTMLUtils,
-  hwriter,
-  ggplot2,
-  gplots,
-  stringi,
-  metap,
-  devtools)
-
-### Load Bioconductor packages with pacman
+# Load Bioconductor packages
 
 invisible(lapply(list_Bioc_Pkg, function(x)
   library(x, character.only = TRUE)))
 
-### Load all CRAN packages with pacman
+# Load all CRAN packages
 
 p_load(
   tibble,
@@ -109,3 +98,5 @@ rm(list_Bioc_Pkg)
 BiocParallel::register(SnowParam(workers = 8),
                        default = T)
 bpparam()
+
+# TO ADD: Create folders needed for outputting files
