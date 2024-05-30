@@ -1,7 +1,3 @@
-# Load data
-
-source("./scripts/dge_cellpops_as_fixed.R")
-
 # Extract logFC and p-vals for comparisons between passages at D3 and D5
 
 top_P7vsP5_D3 <- topTable(fit_contrasts, coef = 4,
