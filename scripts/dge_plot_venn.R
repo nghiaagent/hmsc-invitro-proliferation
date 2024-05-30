@@ -1,9 +1,9 @@
-# Load data
+# Run DGE first
 
-source("./scripts/dge_cellpops_as_fixed.R")
+## Overlap of DEGs between passages, at D3 UT
 
 png(
-  "./output/Venn D3.png",
+  "./output/Venn D3 UT.png",
   width = 30,
   height = 20,
   units = 'cm',
@@ -21,9 +21,10 @@ vennDiagram(decideTests(fit_contrasts)[,13:15],
 
 dev.off()
 
+## Overlap of DEGs between passages, at D5 UT
 
 png(
-  "./output/Venn D5.png",
+  "./output/Venn D5 UT.png",
   width = 30,
   height = 20,
   units = 'cm',
