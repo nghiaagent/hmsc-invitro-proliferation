@@ -20,9 +20,6 @@ list_Bioc_Pkg <- c(
   "edgeR",
   "Homo.sapiens",
   "limma",
-  "biomaRt",
-  "qusage",
-  "maditr",
   "Glimma",
   "EnsDb.Hsapiens.v75",
   "ComplexHeatmap",
@@ -31,7 +28,6 @@ list_Bioc_Pkg <- c(
   "PCAtools",
   "sva",
   "ensembldb",
-  "PADOG",
   "GSVA",
   "AnnotationDbi",
   "topGO",
@@ -40,12 +36,14 @@ list_Bioc_Pkg <- c(
   "globaltest",
   "safe",
   "org.Hs.eg.db",
-  "variancePartition",
   "clusterProfiler",
   "ReactomePA",
+  "reactome.db",
   "enrichplot",
   "GSEABase",
-  "BiocStyle"
+  "BiocStyle",
+  "CEMiTool",
+  "HDO.db"
 )
 
 # Install Bioconductor packages, if they are not yet installed
@@ -86,7 +84,8 @@ p_load(
   cluster,
   rmdformats,
   future,
-  shinybusy
+  shinybusy,
+  WGCNA
 )
 
 # Clean up package list
