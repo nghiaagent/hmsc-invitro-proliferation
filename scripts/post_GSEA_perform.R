@@ -5,7 +5,7 @@
 # dge_extract_betweenpassages_genelist
 # post_GSEA_function
 
-# GSEA between passages
+# GSEA between passages, at each treatment and day
 
 ## UT D3
 
@@ -51,7 +51,7 @@ run_GSEA(genes_P13vsP7_T_D5,
 run_GSEA(genes_P13vsP5_T_D5,
          "P13vsP5_T_D5")
 
-# GSEA between days of passage (nested within treat)
+# GSEA between days, at each treatment and passage
 
 ## UT
 
@@ -75,7 +75,9 @@ run_GSEA(genes_D5vsD3_T_P7,
 run_GSEA(genes_D5vsD3_T_P13,
          "D5vsD3_T_P13")
 
-# GSEA between days of passage (interaction term)
+# GSEA interaction term
+
+## Effect of treatment over days
 
 run_GSEA(genes_D5vsD3_P5_TvsUT,
          "D5vsD3_P5_TvsUT")
@@ -86,7 +88,9 @@ run_GSEA(genes_D5vsD3_P7_TvsUT,
 run_GSEA(genes_D5vsD3_P13_TvsUT,
          "D5vsD3_P13_TvsUT")
 
-# GSEA between passages at day 3
+## Effect of treatment over passages
+
+### At D3
 
 run_GSEA(genes_P7vsP5_D3_TvsUT,
          'P7vsP5_D3_TvsUT')
@@ -97,7 +101,7 @@ run_GSEA(genes_P13vsP7_D3_TvsUT,
 run_GSEA(genes_P13vsP5_D3_TvsUT,
          'P13vsP5_D3_TvsUT')
 
-# GSEA between passages at day 5
+### At D5
 
 run_GSEA(genes_P7vsP5_D5_TvsUT,
          'P7vsP5_D5_TvsUT')
