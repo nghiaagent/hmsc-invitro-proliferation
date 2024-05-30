@@ -1,7 +1,3 @@
-# Load data
-
-source("./scripts/dge_cellpops_as_fixed.R")
-
 # Supply p-values to the 3D volcano plot
 ## First column: ANOVA p-values
 ## Remaining columns: Comparisons
@@ -13,22 +9,22 @@ table_design$condition_ID <- factor(table_design$condition_ID,
           levels = c("P5D3Untreated",
                      "P7D3Untreated",
                      "P13D3Untreated"),
-          labels = c("Phase A",
-                     "Phase B",
-                     "Phase C"))
+          labels = c("5",
+                     "7",
+                     "13"))
 
 polar_pvals <- cbind(
   topTable(fit_contrasts,           number = Inf, sort.by = "none")$P.Value,
-  topTable(fit_contrasts, coef = 4, number = Inf, sort.by = "none")$P.Value,
-  topTable(fit_contrasts, coef = 5, number = Inf, sort.by = "none")$P.Value,
-  topTable(fit_contrasts, coef = 6, number = Inf, sort.by = "none")$P.Value
+  topTable(fit_contrasts, coef = 13, number = Inf, sort.by = "none")$P.Value,
+  topTable(fit_contrasts, coef = 15, number = Inf, sort.by = "none")$P.Value,
+  topTable(fit_contrasts, coef = 14, number = Inf, sort.by = "none")$P.Value
 )
 
 polar_padj <- cbind(
   topTable(fit_contrasts,           number = Inf, sort.by = "none")$adj.P.Val,
-  topTable(fit_contrasts, coef = 4, number = Inf, sort.by = "none")$adj.P.Val,
-  topTable(fit_contrasts, coef = 5, number = Inf, sort.by = "none")$adj.P.Val,
-  topTable(fit_contrasts, coef = 6, number = Inf, sort.by = "none")$adj.P.Val
+  topTable(fit_contrasts, coef = 13, number = Inf, sort.by = "none")$adj.P.Val,
+  topTable(fit_contrasts, coef = 15, number = Inf, sort.by = "none")$adj.P.Val,
+  topTable(fit_contrasts, coef = 14, number = Inf, sort.by = "none")$adj.P.Val
 )
 
 ## Construct volcano3d object
