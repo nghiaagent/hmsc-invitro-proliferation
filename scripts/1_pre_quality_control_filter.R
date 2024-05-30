@@ -1,7 +1,7 @@
 ### Don't source this file by itself; call in from another file after running env_prep.R
 ### Load dataset 
 
-quant_cDNA_ncRNA_ENSEMBL_DGE <- readRDS(file = "./output/quant_cDNA_ncRNA_ENSEMBL_DGE.RDS")
+quant_cDNA_ncRNA_ENSEMBL_DGE <- readRDS(file = "./output/data_expression/pre_DGE/quant_cDNA_ncRNA_ENSEMBL_DGE.RDS")
 
 # Library size barplot. Library size is the total number of counts across all genes per sample
 
@@ -198,4 +198,4 @@ dev.off()
 
 # Save files 
 
-saveRDS(quant_cDNA_ncRNA_ENSEMBL_DGE_filter, file = "./output/quant_cDNA_ncRNA_ENSEMBL_DGE_filter.RDS")
+saveRDS(quant_cDNA_ncRNA_ENSEMBL_DGE_filter, file = "./output/data_expression/pre_DGE/quant_cDNA_ncRNA_ENSEMBL_DGE_filter.RDS")

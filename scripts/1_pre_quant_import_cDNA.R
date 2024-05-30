@@ -157,8 +157,8 @@ quant_cDNA_DGE$genes <- genes
 
 # Export quantification results
 
-saveRDS(quant_cDNA_DGE, file = "./output/quant_cDNA_DGE.RDS")
+saveRDS(quant_cDNA_DGE, file = "./output/data_expression/pre_DGE/quant_cDNA_DGE.RDS")
 
-saveRDS(quant_cDNA_tx, file = "./output/quant_cDNA_tx.RDS")
+saveRDS(quant_cDNA_tx, file = "./output/data_expression/pre_DGE/quant_cDNA_tx.RDS")
 
-saveRDS(quant_cDNA_gene, file = "./output/quant_cDNA_gene.RDS")
+saveRDS(quant_cDNA_gene, file = "./output/data_expression/pre_DGE/quant_cDNA_gene.RDS")

@@ -157,8 +157,8 @@ quant_cDNA_ncRNA_ENSEMBL_DGE$genes <- genes
 
 # Export quantification results
 
-saveRDS(quant_cDNA_ncRNA_ENSEMBL_DGE, file = "./output/quant_cDNA_ncRNA_ENSEMBL_DGE.RDS")
+saveRDS(quant_cDNA_ncRNA_ENSEMBL_DGE, file = "./output/data_expression/pre_DGE/quant_cDNA_ncRNA_ENSEMBL_DGE.RDS")
 
-saveRDS(quant_cDNA_ncRNA_ENSEMBL_tx, file = "./output/quant_cDNA_ncRNA_ENSEMBL_tx.RDS")
+saveRDS(quant_cDNA_ncRNA_ENSEMBL_tx, file = "./output/data_expression/pre_DGE/quant_cDNA_ncRNA_ENSEMBL_tx.RDS")
 
-saveRDS(quant_cDNA_ncRNA_ENSEMBL_gene, file = "./output/quant_cDNA_ncRNA_ENSEMBL_gene.RDS")
+saveRDS(quant_cDNA_ncRNA_ENSEMBL_gene, file = "./output/data_expression/pre_DGE/quant_cDNA_ncRNA_ENSEMBL_gene.RDS")

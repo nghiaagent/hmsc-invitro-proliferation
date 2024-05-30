@@ -3,7 +3,7 @@
 ## Overlap of DEGs between passages, at D3 UT
 
 png(
-  "./output/Venn D3 UT.png",
+  "./output/plots_venn/Venn D3 UT.png",
   width = 30,
   height = 20,
   units = 'cm',
@@ -24,7 +24,7 @@ dev.off()
 ## Overlap of DEGs between passages, at D5 UT
 
 png(
-  "./output/Venn D5 UT.png",
+  "./output/plots_venn/Venn D5 UT.png",
   width = 30,
   height = 20,
   units = 'cm',
