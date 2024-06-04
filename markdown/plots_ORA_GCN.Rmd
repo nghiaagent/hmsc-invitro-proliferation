@@ -1,0 +1,599 @@
+---
+title: "Overrepresentation Analysis - based on WGCNA gene modules"
+date: "`r Sys.Date()`"
+output:
+  rmdformats::robobook:    
+    code_folding: show
+    self_contained: true
+    thumbnails: false
+    lightbox: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache = TRUE)
+knitr::opts_chunk$set(dpi=300,fig.width=24, fig.height = 12)
+
+## Switch working directory to project dir
+
+knitr::opts_knit$set(root.dir = '..')
+```
+
+```{r Load data, include=FALSE}
+# Load packages
+
+source("./scripts/0_meta_env_prep.R")
+
+# Construct file paths
+
+path_construct <- function(condition) {
+  file.path(getwd(),
+            'output',
+            'data_enrichment',
+            'ORA',
+            condition,
+            'ORA_results.RDS')
+}
+
+# Load data for ORA analysis on GCN results
+
+## WGCNA all samples
+## Corr modules - top: MEturquoise, MEred
+
+WGCNA_allsamples_red <- readRDS(path_construct('WGCNA_allsamples_red'))
+
+WGCNA_allsamples_turquoise <- readRDS(path_construct('WGCNA_allsamples_turquoise'))
+
+## WGCNA D3 UT only
+## Corr modules - top: MEyellow, MEbrown
+
+WGCNA_subset_yellow <- readRDS(path_construct('WGCNA_subset_yellow'))
+
+WGCNA_subset_brown <- readRDS(path_construct('WGCNA_subset_brown'))
+
+```
+
+```{r Define plot function-Phase A + B, include=FALSE}
+
+
+plot_ORA_trio <- function(enrichResults_a,
+                          enrichResults_b,
+                          enrichResults_c,
+                          title) {
+  plot_title <- ggdraw() +
+    draw_label(title,
+               fontface = 'bold')
+  
+  message(str_c("\nDrawing dot plot",
+                title,
+                sep = " "))
+  
+  dotplot <-
+    plot_grid(
+      dotplot(enrichResults_a, showCategory = 30),
+      dotplot(enrichResults_b, showCategory = 30),
+      dotplot(enrichResults_c, showCategory = 30),
+      ncol = 3,
+      nrow = 1
+    )
+  
+  message(str_c("\nDrawing Gene-Concept Network plot",
+                title,
+                sep = " "))
+  
+  cnetplot <-
+    plot_grid(
+      cnetplot(
+        enrichResults_a,
+        showCategory = 8,
+        cex_label_category	= 0.6,
+        cex_label_gene	= 0.6
+      ),
+      cnetplot(
+        enrichResults_b,
+        showCategory = 8,
+        cex_label_category	= 0.6,
+        cex_label_gene	= 0.6
+      ),
+      cnetplot(
+        enrichResults_c,
+        showCategory = 8,
+        cex_label_category	= 0.6,
+        cex_label_gene	= 0.6
+      ),
+      ncol = 3,
+      nrow = 1
+    )
+  
+  
+  message(str_c("\nDrawing Enrichment Map",
+                title,
+                sep = " "))
+  
+  emapplot <-
+    plot_grid(
+      emapplot(
+        enrichplot::pairwise_termsim(enrichResults_a),
+        cex_label_category	= 0.6
+      ),
+      emapplot(
+        enrichplot::pairwise_termsim(enrichResults_b),
+        cex_label_category	= 0.6
+      ),
+      emapplot(
+        enrichplot::pairwise_termsim(enrichResults_c),
+        cex_label_category	= 0.6
+      ),
+      ncol = 3,
+      nrow = 1
+      
+    )
+  
+  message(str_c("\nExporting plots",
+                title,
+                sep = " "))
+  
+  list(
+    "dotplot" = plot_grid(
+      plot_title,
+      dotplot,
+      ncol = 1,
+      rel_heights = c(0.1, 1)
+    ),
+    "cnetplot" = plot_grid(
+      plot_title,
+      cnetplot,
+      ncol = 1,
+      rel_heights = c(0.1, 1)
+    ),
+    "emapplot" = plot_grid(
+      plot_title,
+      emapplot,
+      ncol = 1,
+      rel_heights = c(0.1, 1)
+    )
+  )
+}
+
+plot_ORA_duo <- function(enrichResults_a,
+                         enrichResults_b,
+                         title) {
+  plot_title <- ggdraw() +
+    draw_label(title,
+               fontface = 'bold')
+  
+  message(str_c("\nDrawing dot plot",
+                title,
+                sep = " "))
+  
+  dotplot <-
+    plot_grid(
+      dotplot(enrichResults_a, showCategory = 30),
+      dotplot(enrichResults_b, showCategory = 30),
+      ncol = 2,
+      nrow = 1
+    )
+  
+  message(str_c("\nDrawing Gene-Concept Network plot",
+                title,
+                sep = " "))
+  
+  cnetplot <-
+    plot_grid(
+      cnetplot(
+        enrichResults_a,
+        showCategory = 8,
+        cex_label_category	= 0.6,
+        cex_label_gene	= 0.6
+      ),
+      cnetplot(
+        enrichResults_b,
+        showCategory = 8,
+        cex_label_category	= 0.6,
+        cex_label_gene	= 0.6
+      ),
+      ncol = 2,
+      nrow = 1
+    )
+  
+  
+  message(str_c("\nDrawing Enrichment Map",
+                title,
+                sep = " "))
+  
+  emapplot <-
+    plot_grid(
+      emapplot(
+        enrichplot::pairwise_termsim(enrichResults_a),
+        cex_label_category	= 0.6
+      ),
+      emapplot(
+        enrichplot::pairwise_termsim(enrichResults_b),
+        cex_label_category	= 0.6
+      ),
+      ncol = 2,
+      nrow = 1
+      
+    )
+  
+  message(str_c("\nExporting plots",
+                title,
+                sep = " "))
+  
+  list(
+    "dotplot" = plot_grid(
+      plot_title,
+      dotplot,
+      ncol = 1,
+      rel_heights = c(0.1, 1)
+    ),
+    "cnetplot" = plot_grid(
+      plot_title,
+      cnetplot,
+      ncol = 1,
+      rel_heights = c(0.1, 1)
+    ),
+    "emapplot" = plot_grid(
+      plot_title,
+      emapplot,
+      ncol = 1,
+      rel_heights = c(0.1, 1)
+    )
+  )
+}
+
+plot_ORA_single <- function(enrichResults_a,
+                            title) {
+  plot_title <- ggdraw() +
+    draw_label(title,
+               fontface = 'bold')
+  
+  message(str_c("\nDrawing dot plot",
+                title,
+                sep = " "))
+  
+  dotplot <-
+    plot_grid(dotplot(enrichResults_a, showCategory = 30),
+              ncol = 1,
+              nrow = 1)
+  
+  message(str_c("\nDrawing Gene-Concept Network plot",
+                title,
+                sep = " "))
+  
+  cnetplot <-
+    plot_grid(cnetplot(enrichResults_a, showCategory = 8),
+              ncol = 1,
+              nrow = 1)
+  
+  
+  message(str_c("\nDrawing Enrichment Map",
+                title,
+                sep = " "))
+  
+  emapplot <-
+    plot_grid(emapplot(enrichplot::pairwise_termsim(enrichResults_a)),
+              ncol = 1,
+              nrow = 1)
+  
+  message(str_c("\nDrawing Similarity space plot",
+                title,
+                sep = " "))
+  
+  ssplot <- plot_grid(
+    enrichplot::ssplot(
+      enrichplot::pairwise_termsim(enrichResults_a),
+      show_category = Inf
+    ),
+    ncol = 1,
+    nrow = 1
+  )
+  
+  message(str_c("\nExporting plots",
+                title,
+                sep = " "))
+  
+  list(
+    "dotplot" = plot_grid(
+      plot_title,
+      dotplot,
+      ncol = 1,
+      rel_heights = c(0.1, 1)
+    ),
+    "cnetplot" = plot_grid(
+      plot_title,
+      cnetplot,
+      ncol = 1,
+      rel_heights = c(0.1, 1)
+    ),
+    "emapplot" = plot_grid(
+      plot_title,
+      emapplot,
+      ncol = 1,
+      rel_heights = c(0.1, 1)
+    ),
+    "ssplot" = plot_grid(
+      plot_title,
+      ssplot,
+      ncol = 1,
+      rel_heights = c(0.1, 1)
+    )
+  )
+}
+
+
+```
+
+# Methods
+
+ORA was performed against the following datasets:
+
+-   GO
+
+    -   Biological Processes
+
+    -   Cellular Component
+
+    -   Molecular Function
+
+-   MSigDB
+
+    -   h: Hallmark
+
+    -   c2: Curated
+
+-   ReactomePA
+
+-   KEGG
+
+Gene lists:
+
+-   Phase A
+
+    -   Untreated only
+
+    -   Overlap
+
+    -   Treated only
+
+-   Phase B
+
+    -   Untreated only
+
+    -   Overlap
+
+
+# WGCNA all samples
+
+## GO
+
+### BP
+
+```{r}
+
+plots <- plot_ORA_duo(WGCNA_allsamples_red$GOBP,
+                      WGCNA_allsamples_turquoise$GOBP,
+                      title = "WGCNA all samples - GO Biological Processes")
+
+plot(plots$dotplot)
+
+plot(plots$cnetplot)
+
+plot(plots$emapplot)
+
+```
+
+### CC
+
+```{r}
+
+plots <- plot_ORA_duo(WGCNA_allsamples_red$GOCC,
+                      WGCNA_allsamples_turquoise$GOCC,
+                      title = "WGCNA all samples - GO Cellular Component")
+
+plot(plots$dotplot)
+
+plot(plots$cnetplot)
+
+plot(plots$emapplot)
+
+```
+
+### MF
+
+```{r}
+
+plots <- plot_ORA_duo(WGCNA_allsamples_red$GOMF,
+                      WGCNA_allsamples_turquoise$GOMF,
+                      title = "WGCNA all samples - GO Molecular Function")
+
+plot(plots$dotplot)
+
+plot(plots$cnetplot)
+
+plot(plots$emapplot)
+```
+
+## MSigDB
+
+### h
+
+```{r}
+
+plots <- plot_ORA_duo(WGCNA_allsamples_red$MSigDB_h,
+                      WGCNA_allsamples_turquoise$MSigDB_h,
+                      title = "WGCNA all samples - MSigDB_h")
+
+plot(plots$dotplot)
+
+plot(plots$cnetplot)
+
+plot(plots$emapplot)
+
+```
+
+### c2
+
+```{r}
+
+plots <- plot_ORA_duo(WGCNA_allsamples_red$MSigDB_c2,
+                      WGCNA_allsamples_turquoise$MSigDB_c2,
+                      title = "WGCNA all samples - MSigDB_c2")
+
+plot(plots$dotplot)
+
+plot(plots$cnetplot)
+
+plot(plots$emapplot)
+
+```
+
+## ReactomePA
+
+```{r}
+
+plots <- plot_ORA_duo(WGCNA_allsamples_red$Reactome,
+                      WGCNA_allsamples_turquoise$Reactome,
+                      title = "WGCNA all samples - Reactome")
+
+plot(plots$dotplot)
+
+plot(plots$cnetplot)
+
+plot(plots$emapplot)
+
+```
+
+## KEGG
+
+```{r}
+
+plots <- plot_ORA_duo(WGCNA_allsamples_red$KEGG,
+                      WGCNA_allsamples_turquoise$KEGG,
+                      title = "WGCNA all samples - KEGG")
+
+plot(plots$dotplot)
+
+plot(plots$cnetplot)
+
+plot(plots$emapplot)
+
+```
+
+# WGCNA D3 UT samples
+
+## GO
+
+### BP
+
+```{r}
+
+plots <- plot_ORA_duo(WGCNA_subset_yellow$GOBP,
+                      WGCNA_subset_brown$GOBP,
+                      title = "WGCNA D3 UT only - GO Biological Processes")
+
+plot(plots$dotplot)
+
+plot(plots$cnetplot)
+
+plot(plots$emapplot)
+
+```
+
+### CC
+
+```{r}
+
+plots <- plot_ORA_duo(WGCNA_subset_yellow$GOCC,
+                      WGCNA_subset_brown$GOCC,
+                      title = "WGCNA D3 UT only - GO Cellular Component")
+
+plot(plots$dotplot)
+
+plot(plots$cnetplot)
+
+plot(plots$emapplot)
+
+```
+
+### MF
+
+```{r}
+
+plots <- plot_ORA_duo(WGCNA_subset_yellow$GOMF,
+                      WGCNA_subset_brown$GOMF,
+                      title = "WGCNA D3 UT only - GO Molecular Function")
+
+plot(plots$dotplot)
+
+plot(plots$cnetplot)
+
+plot(plots$emapplot)
+
+```
+
+## MSigDB
+
+### h
+
+```{r}
+
+plots <- plot_ORA_duo(WGCNA_subset_yellow$MSigDB_h,
+                      WGCNA_subset_brown$MSigDB_h,
+                      title = "WGCNA D3 UT only - MSigDB_h")
+
+plot(plots$dotplot)
+
+plot(plots$cnetplot)
+
+plot(plots$emapplot)
+
+```
+
+### c2
+
+```{r}
+
+plots <- plot_ORA_duo(WGCNA_subset_yellow$MSigDB_c2,
+                      WGCNA_subset_brown$MSigDB_c2,
+                      title = "WGCNA D3 UT only - MSigDB_c2")
+
+plot(plots$dotplot)
+
+plot(plots$cnetplot)
+
+plot(plots$emapplot)
+
+```
+
+
+## ReactomePA
+
+```{r}
+
+plots <- plot_ORA_duo(WGCNA_subset_yellow$Reactome,
+                      WGCNA_subset_brown$Reactome,
+                      title = "WGCNA D3 UT only - Reactome")
+
+plot(plots$dotplot)
+
+plot(plots$cnetplot)
+
+plot(plots$emapplot)
+
+```
+
+## KEGG
+
+```{r}
+
+plots <- plot_ORA_duo(WGCNA_subset_yellow$KEGG,
+                      WGCNA_subset_brown$KEGG,
+                      title = "WGCNA D3 UT only - KEGG")
+
+plot(plots$dotplot)
+
+plot(plots$cnetplot)
+
+plot(plots$emapplot)
+
+```
