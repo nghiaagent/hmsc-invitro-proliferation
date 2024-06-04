@@ -3,7 +3,7 @@
 # Load dataset
 
 quant_DGE_clean <-
-  readRDS(file = "./output/quant_cDNA_DGE_filter.RDS")
+  readRDS(file = "./output/data_expression/pre_DGE/quant_cDNA_DGE_filter.RDS")
 
 # Define design matrix for batch correction
 
@@ -166,3 +166,14 @@ fit_contrasts <- contrasts.fit(fit,
   eBayes()
 
 summary(decideTests(fit_contrasts))
+
+# Save data
+
+saveRDS(quant_DGE_voom,
+        file = "./output/data_expression/post_DGE/quant_DGE_voom.RDS")
+
+saveRDS(fit_contrasts,
+        file = "./output/data_expression/post_DGE/fit_contrasts.RDS")
+
+saveRDS(fit,
+        file = "./output/data_expression/post_DGE/fit.RDS")
