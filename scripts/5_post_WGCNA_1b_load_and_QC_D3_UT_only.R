@@ -181,7 +181,7 @@ GCN <- list(
       run_date,
       timepoint_ID
     ),
-  genes = quant_DGE_voom$genes,
+  genes = quant_DGE_WGCNA$genes,
   sft = GCN_sft
 )
 
