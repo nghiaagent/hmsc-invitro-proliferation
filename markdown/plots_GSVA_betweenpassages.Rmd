@@ -24,7 +24,7 @@ knitr::opts_knit$set(root.dir = '..')
 ```{r Load data, include=FALSE}
 # Load packages
 
-source("./scripts/env_prep.R")
+source("./scripts/0_meta_env_prep.R")
 
 # Construct file paths
 
@@ -147,6 +147,15 @@ glimmaVolcano(x = fit_GSVA$KEGG,
 
 ```
 
+## GCN
+
+```{r}
+
+glimmaVolcano(x = fit_GSVA$GCN,
+              coef = 13)
+
+```
+
 
 # P13 vs P7
 
@@ -226,6 +235,15 @@ glimmaVolcano(x = fit_GSVA$KEGG,
 
 ```
 
+## GCN
+
+```{r}
+
+glimmaVolcano(x = fit_GSVA$GCN,
+              coef = 14)
+
+```
+
 
 # P13 vs P5
 
@@ -301,6 +319,15 @@ glimmaVolcano(x = fit_GSVA$Reactome,
 ```{r}
 
 glimmaVolcano(x = fit_GSVA$KEGG,
+              coef = 15)
+
+```
+
+## GCN
+
+```{r}
+
+glimmaVolcano(x = fit_GSVA$GCN,
               coef = 15)
 
 ```
