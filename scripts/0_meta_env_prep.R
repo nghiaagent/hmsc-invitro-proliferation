@@ -43,7 +43,8 @@ list_Bioc_Pkg <- c(
   "GSEABase",
   "BiocStyle",
   "CEMiTool",
-  "HDO.db"
+  "HDO.db",
+  "SBGNview"
 )
 
 # Install Bioconductor packages, if they are not yet installed
@@ -85,7 +86,8 @@ p_load(
   rmdformats,
   future,
   shinybusy,
-  WGCNA
+  WGCNA,
+  data.table
 )
 
 # Clean up package list
