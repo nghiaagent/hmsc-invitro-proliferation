@@ -111,7 +111,7 @@ run_ORA <- function(genes_list,
                 sep = " "))
   
   ORA_GOMF <- enricher(
-    genes_list$ENTREZID,
+    genes_list,
     TERM2GENE = msigdb_GOMF,
     minGSSize = 25,
     maxGSSize = 500
@@ -124,7 +124,7 @@ run_ORA <- function(genes_list,
                 sep = " "))
   
   ORA_GOBP <- enricher(
-    genes_list$ENTREZID,
+    genes_list,
     TERM2GENE = msigdb_GOBP,
     minGSSize = 25,
     maxGSSize = 500
@@ -137,7 +137,7 @@ run_ORA <- function(genes_list,
                 sep = " "))
   
   ORA_GOCC <- enricher(
-    genes_list$ENTREZID,
+    genes_list,
     TERM2GENE = msigdb_GOCC,
     minGSSize = 25,
     maxGSSize = 500
@@ -152,7 +152,7 @@ run_ORA <- function(genes_list,
                 sep = " "))
   
   ORA_KEGG <- enricher(
-    genes_list$ENTREZID,
+    genes_list,
     TERM2GENE = msigdb_KEGG,
     minGSSize = 25,
     maxGSSize = 500
@@ -168,7 +168,7 @@ run_ORA <- function(genes_list,
   
   ORA_Reactome <-
     enricher(
-      genes_list$ENTREZID,
+      genes_list,
       TERM2GENE = msigdb_reactome,
       minGSSize = 25,
       maxGSSize = 500
@@ -184,7 +184,7 @@ run_ORA <- function(genes_list,
   
   ORA_MSigDB_h <-
     enricher(
-      genes_list$ENTREZID,
+      genes_list,
       TERM2GENE = msigdb_h,
       minGSSize = 25,
       maxGSSize = 500
@@ -198,7 +198,7 @@ run_ORA <- function(genes_list,
   
   ORA_MSigDB_c2 <-
     enricher(
-      genes_list$ENTREZID,
+      genes_list,
       TERM2GENE = msigdb_c2,
       minGSSize = 25,
       maxGSSize = 500
@@ -212,7 +212,7 @@ run_ORA <- function(genes_list,
   
   ORA_MSigDB_c3 <-
     enricher(
-      genes_list$ENTREZID,
+      genes_list,
       TERM2GENE = msigdb_c3,
       minGSSize = 25,
       maxGSSize = 500

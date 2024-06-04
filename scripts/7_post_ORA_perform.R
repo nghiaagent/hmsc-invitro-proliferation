@@ -3,115 +3,104 @@
 # env_prep
 # dge_cellpops_as_fixed
 # dge_extract_venn_genes
+# post_WGCNA_extract_module_genes
 # post_ORA_function
 
 # ORA between passages
 
-run_ORA(genes_P7vsP5_D3_Untreated,
+run_ORA(genes_P7vsP5_D3_Untreated$ENTREZID,
         "P7vsP5_D3_Untreated")
 
-run_ORA(genes_P13vsP7_D3_Untreated,
+run_ORA(genes_P13vsP7_D3_Untreated$ENTREZID,
         "P13vsP7_D3_Untreated")
 
-run_ORA(genes_P13vsP5_D3_Untreated,
+run_ORA(genes_P13vsP5_D3_Untreated$ENTREZID,
         "P13vsP5_D3_Untreated")
 
-# ORA between days of passage
+# ORA on overlap in changes between passages in untreated cells
 
-run_ORA(genes_D3_Untreated_P13vsP5_and_P13vsP7_only,
+run_ORA(genes_D3_Untreated_P13vsP5_and_P13vsP7_only$ENTREZID,
         "D3_Untreated_P13vsP5_and_P13vsP7_only")
-# 
-# run_ORA(genes_D3_Untreated_P13vsP5_only,
-#         "D3_Untreated_P13vsP5_only")
 
-run_ORA(genes_D3_Untreated_P13vsP7_only,
+run_ORA(genes_D3_Untreated_P13vsP5_only$ENTREZID,
+        "D3_Untreated_P13vsP5_only")
+
+run_ORA(genes_D3_Untreated_P13vsP7_only$ENTREZID,
         "D3_Untreated_P13vsP7_only")
 
-run_ORA(genes_D3_Untreated_P7vsP5_only,
+run_ORA(genes_D3_Untreated_P7vsP5_only$ENTREZID,
         "D3_Untreated_P7vsP5_only")
 
-run_ORA(genes_D5_Untreated_P13vsP5_and_P13vsP7_only,
+run_ORA(genes_D5_Untreated_P13vsP5_and_P13vsP7_only$ENTREZID,
         "D5_Untreated_P13vsP5_and_P13vsP7_only")
 
-run_ORA(genes_D5_Untreated_P13vsP5_only,
+run_ORA(genes_D5_Untreated_P13vsP5_only$ENTREZID,
         "D5_Untreated_P13vsP5_only")
 
-run_ORA(genes_D5_Untreated_P13vsP7_only,
+run_ORA(genes_D5_Untreated_P13vsP7_only$ENTREZID,
         "D5_Untreated_P13vsP7_only")
 
-run_ORA(genes_D5_Untreated_P7vsP5_only,
+run_ORA(genes_D5_Untreated_P7vsP5_only$ENTREZID,
         "D5_Untreated_P7vsP5_only")
 
-# ORA days x treat
+# ORA on GCN gene sets
+## Modules correlated with passage / day selected
+## And modules differentially regulated with GSVA
 
-run_ORA(genes_D5vsD3_P13_Overlap,
-        "D5vsD3_P13_Overlap")
+## WGCNA with all samples - Modules: Red, Turquoise
 
-run_ORA(genes_D5vsD3_P13_Untreated_only,
-        "D5vsD3_P13_Untreated_only")
+### Corr with trait - Modules: Red, Turquoise
 
-run_ORA(genes_D5vsD3_P5_Overlap,
-        "D5vsD3_P5_Overlap")
+run_ORA(GCN_genelists$WGCNA_allsamples_turquoise,
+        "WGCNA_allsamples_turquoise")
 
-run_ORA(genes_D5vsD3_P5_Treated_only,
-        "D5vsD3_P5_Treated_only")
+run_ORA(GCN_genelists$WGCNA_allsamples_red,
+        "WGCNA_allsamples_red")
 
-run_ORA(genes_D5vsD3_P5_Untreated_only,
-        "D5vsD3_P5_Untreated_only")
+### DEM in GSVA - Modules: Black, Green, Magenta
 
-run_ORA(genes_D5vsD3_P7_Overlap,
-        "D5vsD3_P7_Overlap")
+run_ORA(GCN_genelists$WGCNA_allsamples_black,
+        "WGCNA_allsamples_black")
 
-run_ORA(genes_D5vsD3_P7_Treated_only,
-        "D5vsD3_P7_Treated_only")
+run_ORA(GCN_genelists$WGCNA_allsamples_green,
+        "WGCNA_allsamples_green")
 
-run_ORA(genes_D5vsD3_P7_Untreated_only,
-        "D5vsD3_P7_Untreated_only")
+run_ORA(GCN_genelists$WGCNA_allsamples_magenta,
+        "WGCNA_allsamples_magenta")
 
-# ORA passage x treat at each day
+## WGCNA with D3 UT samples 
+### Corr with trait - Modules: Turquoise, Green, Yellow, Brown
 
-## D3
+run_ORA(GCN_genelists$WGCNA_subset_turquoise,
+        "WGCNA_subset_turquoise")
 
-run_ORA(genes_P13vsP5_D3_Overlap,
-        "P13vsP5_D3_Overlap")
+run_ORA(GCN_genelists$WGCNA_subset_green,
+        "WGCNA_subset_green")
 
-run_ORA(genes_P13vsP7_D3_Overlap,
-        "P13vsP7_D3_Overlap")
+run_ORA(GCN_genelists$WGCNA_subset_yellow,
+        "WGCNA_subset_yellow")
 
-run_ORA(genes_P7vsP5_D3_Overlap,
-        "P7vsP5_D3_Overlap")
+run_ORA(GCN_genelists$WGCNA_subset_brown,
+        "WGCNA_subset_brown")
 
-run_ORA(genes_P13vsP5_D3_Treated_only,
-        "P13vsP5_D3_Treated_only")
+### DEM in GSVA - Modules: Red
 
-run_ORA(genes_P13vsP7_D3_Treated_only,
-        "P13vsP7_D3_Treated_only")
+run_ORA(GCN_genelists$WGCNA_subset_red,
+        "WGCNA_subset_red")
 
-run_ORA(genes_P7vsP5_D3_Treated_only,
-        "P7vsP5_D3_Treated_only")
+## CEMiTool: All 5
 
-run_ORA(genes_P13vsP5_D3_Untreated_only,
-        "P13vsP5_D3_Untreated_only")
+run_ORA(GCN_genelists$CEMiTool_M1,
+        "CEMiTool_M1")
 
-run_ORA(genes_P13vsP7_D3_Untreated_only,
-        "P13vsP7_D3_Untreated_only")
+run_ORA(GCN_genelists$CEMiTool_M2,
+        "CEMiTool_M2")
 
-## D5
+run_ORA(GCN_genelists$CEMiTool_M3,
+        "CEMiTool_M3")
 
-run_ORA(genes_P13vsP5_D5_Overlap,
-        "P13vsP5_D5_Overlap")
+run_ORA(GCN_genelists$CEMiTool_M4,
+        "CEMiTool_M4")
 
-run_ORA(genes_P13vsP7_D5_Overlap,
-        "P13vsP7_D5_Overlap")
-
-run_ORA(genes_P7vsP5_D5_Overlap,
-        "P7vsP5_D5_Overlap")
-
-run_ORA(genes_P13vsP5_D5_Untreated_only,
-        "P13vsP5_D5_Untreated_only")
-
-run_ORA(genes_P13vsP7_D5_Untreated_only,
-        "P13vsP7_D5_Untreated_only")
-
-run_ORA(genes_P7vsP5_D5_Untreated_only,
-        "P7vsP5_D5_Untreated_only")
+run_ORA(GCN_genelists$CEMiTool_M5,
+        "CEMiTool_M5")
