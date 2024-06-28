@@ -16,8 +16,8 @@ knitr::opts_knit$set(root.dir = '..')
 
 ```{r Setup, include=FALSE}
 # Load data
-source("./scripts/env_prep.R")
-source("./scripts/dge_cellpops_as_fixed.R")
+source("./scripts/0_meta_env_prep.R")
+source("./scripts/2_dge.R")
 
 # Define conditions of interest
 
