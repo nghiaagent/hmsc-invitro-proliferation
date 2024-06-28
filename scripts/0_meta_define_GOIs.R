@@ -1,7 +1,3 @@
-# Load data
-
-source("./scripts/dge_cellpops_as_fixed.R")
-
 genenames_inhouse <- c(
   "ENO2",
   "NANOG",
@@ -37,10 +33,62 @@ genenames_inhouse <- c(
   "POU5F1"
 )
 
+genenames_rt2array <- c(
+  "A2M",
+  "ABCA1",
+  "ACHE",
+  "ADAM10",
+  "ADAM9",
+  "APBA1",
+  "APBA3",
+  "APBB1",
+  "APBB2",
+  "APH1A",
+  "APLP1",
+  "APLP2",
+  "APOA1",
+  "APOE",
+  "APP",
+  "BACE1",
+  "BACE2",
+  "BCHE",
+  "BDNF",
+  "CAPN1",
+  "CASP3",
+  "CASP4",
+  "CDK1",
+  "CDK5",
+  "CDKL1",
+  "CHAT",
+  "CLU",
+  "CTSB",
+  "CTSC",
+  "CTSD",
+  "CTSG",
+  "CTSL",
+  "EP300",
+  "ERN1",
+  "GAP43",
+  "GNAO1",
+  "GNAZ",
+  "GNB1",
+  "GNB2",
+  "GNB4",
+  "GNB5",
+  "GNG11",
+  "GNG3",
+  "GNG4"
+)
+
 geneIds_inhouse <- mapIds(org.Hs.eg.db,
                           keys = genenames_inhouse,
                           column = "ENTREZID",
                           keytype = "SYMBOL")
+
+geneIds_rt2array <- mapIds(org.Hs.eg.db,
+                           keys = genenames_rt2array,
+                           column = "ENTREZID",
+                           keytype = "SYMBOL")
 
 ## Define genes in WNT signalling
 
@@ -69,6 +117,6 @@ geneIds_HSPGs <- c(msigdb_KEGG[["KEGG_GLYCOSAMINOGLYCAN_BIOSYNTHESIS_HEPARAN_SUL
   setdiff(geneIds_inhouse)
 
 names(geneIds_HSPGs) <- mapIds(org.Hs.eg.db,
-                             keys = geneIds_HSPGs,
-                             column = "SYMBOL",
-                             keytype = "ENTREZID")
+                               keys = geneIds_HSPGs,
+                               column = "SYMBOL",
+                               keytype = "ENTREZID")
