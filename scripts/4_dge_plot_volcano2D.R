@@ -1,7 +1,3 @@
-# Load data
-
-source("./scripts/dge_cellpops_as_fixed.R")
-
 # Extract logFC and p-vals for comparisons between passages at D3 and D5
 
 top_P7vsP5_D3 <- topTable(fit_contrasts, coef = 13,
@@ -201,8 +197,8 @@ volcano_treat_P5_D3 <-
     y = 'adj.P.Val',
     title = "Effect of Heparin treatment at Phase A, Day 3",
     subtitle = NULL,
-    xlim = c(-8, 22),
-    ylim = c(0, 8),
+    xlim = c(-10, 10),
+    ylim = c(0, 3.5),
     pCutoff = 0.05,
     legendPosition = 'right',
     boxedLabels = TRUE,
@@ -221,8 +217,8 @@ volcano_treat_P7_D3 <-
     y = 'adj.P.Val',
     title = "Effect of Heparin treatment at Phase B, Day 3",
     subtitle = NULL,
-    xlim = c(-8, 22),
-    ylim = c(0, 8),
+    xlim = c(-10, 10),
+    ylim = c(0, 3.5),
     pCutoff = 0.05,
     legendPosition = 'right',
     boxedLabels = TRUE,
@@ -241,8 +237,8 @@ volcano_treat_P13_D3 <-
     y = 'adj.P.Val',
     title = "Effect of Heparin treatment at Phase C, Day 3",
     subtitle = NULL,
-    xlim = c(-8, 22),
-    ylim = c(0, 8),
+    xlim = c(-10, 10),
+    ylim = c(0, 3.5),
     pCutoff = 0.05,
     legendPosition = 'right',
     boxedLabels = TRUE,
@@ -603,6 +599,48 @@ grid_paper_day3 <-
 ggsave(
   filename = "./output/plots_volcano/day3_paperver.png",
   grid_paper_day3,
+  scale = 0.7,
+  width = 18,
+  height = 15,
+  units = "in",
+  dpi = 300
+)
+
+## Make fig for paper - between treatments
+
+grid_paper_treat <-
+  plot_grid(
+    ggdraw() + draw_text("P5D3", 
+                         angle = 90,
+                         fontface = "bold",
+                         size = 25),
+    volcano_treat_P5_D3  + 
+      theme(legend.position = "right",
+            plot.title = element_blank()),
+    ggdraw() + draw_text("P7D3", 
+                         angle = 90,
+                         fontface = "bold",
+                         size = 25),
+    volcano_treat_P7_D3  + 
+      theme(legend.position = "right",
+            plot.title = element_blank()),
+    ggdraw() + draw_text("P13D3", 
+                         angle = 90,
+                         fontface = "bold",
+                         size = 25),
+    volcano_treat_P13_D3 + 
+      theme(legend.position = "right",
+            plot.title = element_blank()),
+    labels = NULL,
+    label_size = 28,
+    ncol = 2,
+    nrow = 3,
+    rel_widths = c(0.05,1)
+  )
+
+ggsave(
+  filename = "./output/plots_volcano/treat_paperver.png",
+  grid_paper_treat,
   scale = 0.7,
   width = 18,
   height = 15,
