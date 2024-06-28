@@ -13,17 +13,17 @@ rownames(temp$genes) <- temp$genes$GENEID
 
 order <- order(fit$Amean, decreasing = TRUE)
 
-temp <- temp[order,]
+temp <- temp[order, ]
 
-temp <- temp[complete.cases(temp$genes),]
+temp <- temp[complete.cases(temp$genes$ENTREZID), ]
 
-temp <- temp[!duplicated(temp$genes$ENTREZID),]
+temp <- temp[!duplicated(temp$genes$ENTREZID), ]
 
 rownames(temp$E) <- temp$genes$ENTREZID
 
 rownames(temp$genes) <- temp$genes$ENTREZID
 
-temp <- temp[order(temp$genes$GENEID, decreasing = FALSE),]
+temp <- temp[order(temp$genes$GENEID, decreasing = FALSE), ]
 
 temp$genes <- temp$genes %>% select(!GENEID)
 
@@ -63,7 +63,7 @@ msigdb_h  <-
   getGmt(con = "./input/genesets/msigdb_v2023.2.Hs_GMTs/h.all.v2023.2.Hs.entrez.gmt")
 
 msigdb_c2 <-
-  getGmt(con = "./input/genesets/msigdb_v2023.2.Hs_GMTs/c2.all.v2023.2.Hs.entrez.gmt")
+  getGmt(con = "./input/genesets/msigdb_v2023.2.Hs_GMTs/c2.cgp.v2023.2.Hs.entrez.gmt")
 
 msigdb_c3 <-
   getGmt(con = "./input/genesets/msigdb_v2023.2.Hs_GMTs/c3.all.v2023.2.Hs.entrez.gmt")
@@ -82,10 +82,12 @@ msigdb_KEGG <-
 
 ## GCN gene sets
 
-GCN_sets <- getGmt(con = file.path(".",
-                                   "input",
-                                   "genesets",
-                                   "GCN_sets.gmt"))
+GCN_sets <- getGmt(con = file.path(
+  ".",
+  "input",
+  "genesets",
+  "GCN_sets_WGCNA_allsamples_only.gmt"
+))
 
 # Perform GSVA
 
@@ -222,14 +224,14 @@ quant_GSVA_GOMF <- gsvaParam(quant_DGE_ESet,
 quant_GSVA_GOCC <- gsvaParam(quant_DGE_ESet,
                              msigdb_GOCC,
                              minSize = 5,
-                             maxSize = 500) %>%              
+                             maxSize = 500) %>%
   gsva()
 
 
 quant_GSVA_h <- gsvaParam(quant_DGE_ESet,
-                             msigdb_h,
-                             minSize = 5,
-                             maxSize = 500) %>%              
+                          msigdb_h,
+                          minSize = 5,
+                          maxSize = 500) %>%
   gsva()
 
 
@@ -264,9 +266,9 @@ quant_GSVA_KEGG <- gsvaParam(quant_DGE_ESet,
 ## GCN
 
 quant_GSVA_GCN <- gsvaParam(quant_DGE_ESet,
-                             GCN_sets,
-                             minSize = 5,
-                             maxSize = Inf) %>%
+                            GCN_sets,
+                            minSize = 5,
+                            maxSize = Inf) %>%
   gsva()
 
 
@@ -286,34 +288,13 @@ quant_GSVA <- list(
 
 # Save data
 
-saveRDS(fit_GSVA,
-        "./output/data_enrichment/GSVA/GSVA_results.RDS")
+if (!dir.exists(file.path("output", "data_enrichment", "GSVA"))) {
+  dir.create(file.path("output", "data_enrichment", "GSVA"), recursive = TRUE)
+}
 
-saveRDS(quant_GSVA,
-        "./output/data_enrichment/GSVA/quant_GSVA.RDS")
+saveRDS(fit_GSVA, "./output/data_enrichment/GSVA/GSVA_results.RDS")
 
-# Summarise DEG list
-
-## Interaction terms (Treat x Timepoint)
-
-lapply(fit_GSVA, decideTests) %>%
-  lapply(summary) %>%
-  lapply(function(x)
-    x[, c(25:30, 37:39)])
-
-## Venn diagrams (Treat x Day)
-
-lapply(fit_GSVA, decideTests) %>%
-  lapply(summary) %>%
-  lapply(function(x)
-    x[, c(7:12)])
-
-## Venn diagrams (Treat x Passage)
-
-lapply(fit_GSVA, decideTests) %>%
-  lapply(summary) %>%
-  lapply(function(x)
-    x[, c(13:24)])
+saveRDS(quant_GSVA, "./output/data_enrichment/GSVA/quant_GSVA.RDS")
 
 #
 # # Target stats analysis to desired gene sets
