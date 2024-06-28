@@ -165,7 +165,12 @@ fit_contrasts <- contrasts.fit(fit,
                                matrix_contrasts) %>%
   eBayes()
 
-summary(decideTests(fit_contrasts))
+
+summary(decideTests(fit_contrasts[fit_contrasts$genes$GENEBIOTYPE == "protein_coding",],
+                    p.value = 0.2,
+                    adjust.method = "BH"))
+
+topTable(fit_contrasts[fit_contrasts$genes$GENEBIOTYPE == "protein_coding",], n = Inf, p.value = .2, coef = 1)
 
 # Save data
 
