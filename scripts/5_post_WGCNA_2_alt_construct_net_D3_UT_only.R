@@ -14,6 +14,11 @@ GCN$net <- blockwiseModules(datExpr = GCN$E,
                         pamRespectsDendro = FALSE,
                         maxBlockSize = Inf,
                         saveTOMs = TRUE,
+                        saveTOMFileBase = file.path('.',
+                                                    'output',
+                                                    'data_WGCNA',
+                                                    'WGCNA_D3_UT',
+                                                    'blockwiseTOM'),
                         verbose = 5)
 
 # Plot dendrogram
