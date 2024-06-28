@@ -2,9 +2,9 @@
 # Load dataset 
 ## Dataset has both mRNA and ncRNA
 
-quant_DGE_clean <- readRDS(file = "./output/quant_cDNA_ncRNA_ENSEMBL_DGE_filter.RDS")
+quant_DGE_clean <- readRDS(file = "./output/data_expression/pre_DGE/quant_cDNA_DGE.RDS")
 
-# Run PCA on top 90% variable genes
+# Run PCA on top 10% variable genes
 
 # Choose optimal number of PCs to retain
 # Optimal number of PCs is between 1 - 4; very large PC1 due to batch fx
