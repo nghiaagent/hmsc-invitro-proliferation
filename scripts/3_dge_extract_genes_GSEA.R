@@ -42,23 +42,17 @@
 # Define function to create list of lists, one with ENSEMBL ID, one with ENTREZ ID
 
 extract_geneList <- function(fit, coef) {
-  
-  top <- topTable(fit,
-                   coef = coef,
-                  number = Inf) %>%
+  top <- topTable(fit, coef = coef, number = Inf) %>%
     arrange(desc(logFC)) %>%
-    dplyr::select(c(1:7))
+    dplyr::select(c(1:8))
   
   list_GENEID <- top$logFC
   names(list_GENEID) <- as.character(top$GENEID)
   
   list_ENTREZID <- na.omit(top)$logFC
   names(list_ENTREZID) <- as.character(na.omit(top)$ENTREZID)
-
-  list(
-    "GENEID" = list_GENEID,
-    "ENTREZID" = list_ENTREZID
-  )
+  
+  list("GENEID" = list_GENEID, "ENTREZID" = list_ENTREZID)
 }
 
 # Ordered gene list, D5vsD3
