@@ -65,4 +65,4 @@ list_sheets <- list(
   "Treatment @ Phase C, D5" = top_treat_P13_D5
 )
 
-write.xlsx(list_sheets, "./top_DEGs.xlsx")
+write_xlsx(list_sheets, "./output/top_DEGs.xlsx")
