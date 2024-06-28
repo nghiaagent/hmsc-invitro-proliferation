@@ -48,29 +48,7 @@ po/*~
 # RStudio Connect folder
 rsconnect/
 
-# Files in output folders that are not meant to be seen outside
-
-output/data_enrichment/*
-!output/data_enrichment/.gitkeep
-
-output/data_expression/*
-!output/data_expression/.gitkeep
-
-output/data_expression/genes_all/*
-!output/data_expression/genes_all/.gitkeep
-
-output/data_expression/genes_significant_only/*
-!output/data_expression/genes_significant_only/.gitkeep
-
-output/data_expression/post_DGE/*
-!output/data_expression/post_DGE/.gitkeep
-
-output/data_expression/pre_DGE/*
-!output/data_expression/pre_DGE/.gitkeep
-
-
 # Files in data folders that are not meant to be seen outside
-
 
 input/annotation/*
 !input/annotation/README.txt
@@ -102,5 +80,8 @@ input/kegg_pathways/*
 *.tsv
 *.RDS
 *.txt
-!**/README.txt
+*.psd
+*.gmt
 
+!**/README.txt
+!**/.gitkeep
