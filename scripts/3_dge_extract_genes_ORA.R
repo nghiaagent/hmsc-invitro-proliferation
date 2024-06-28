@@ -11,7 +11,7 @@
 # P13vsP7 @ D5 UT vs. P7vsP5 @ D5 T:          Coefs 20; 23
 # P13vsP5 @ D5 UT vs. P7vsP5 @ D5 T:          Coefs 21; 24
 
-tests <- decideTests(fit_contrasts[!is.na(fit_contrasts$genes$ENTREZID),])
+tests <- decideTests(fit_contrasts)
 
 # Between passages, untreated cells
 
