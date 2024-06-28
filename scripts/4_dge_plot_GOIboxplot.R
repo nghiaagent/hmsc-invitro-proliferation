@@ -11,7 +11,7 @@ conditions_interest <- c("P5D3Untreated",
 quant_DGE_small <-
   quant_DGE_voom[, quant_DGE_voom$targets$condition_ID %in% conditions_interest]
 
-plot_GOI <- function(gene_sel) {
+plot_GOI_passage <- function(gene_sel) {
   
   gene_sel_name <- mapIds(org.Hs.eg.db,
                                     keys = gene_sel,
@@ -36,26 +36,29 @@ ggplot(df_plot,
 
 }
 
-plots_inhouse <- map(geneIds_inhouse[geneIds_inhouse %in% as.character(quant_DGE_small$genes$ENTREZID)],
-                     plot_GOI)
+plots_inhouse_passage <- map(geneIds_inhouse[geneIds_inhouse %in% as.character(quant_DGE_small$genes$ENTREZID)],
+                     plot_GOI_passage)
 
-plots_Wnt <- map(geneIds_Wnt[geneIds_Wnt %in% as.character(quant_DGE_small$genes$ENTREZID)],
-                 plot_GOI)
+plots_Wnt_passage <- map(geneIds_Wnt[geneIds_Wnt %in% as.character(quant_DGE_small$genes$ENTREZID)],
+                 plot_GOI_passage)
 
-plots_HSPGs <- map(geneIds_HSPGs[geneIds_HSPGs %in% as.character(quant_DGE_small$genes$ENTREZID)],
-                   plot_GOI)
+plots_HSPGs_passage <- map(geneIds_HSPGs[geneIds_HSPGs %in% as.character(quant_DGE_small$genes$ENTREZID)],
+                   plot_GOI_passage)
 
-for (i in 1:length(plots_inhouse)) {
+plots_rt2array_passage <- map(geneIds_rt2array[geneIds_rt2array %in% as.character(quant_DGE_small$genes$ENTREZID)],
+                           plot_GOI_passage)
+
+for (i in 1:length(plots_inhouse_passage)) {
   
   message(str_c("drawing plot for ",
-                names(plots_inhouse)[[i]],
+                names(plots_inhouse_passage)[[i]],
                 sep = ""))
   
   ggsave(
-    filename = str_c(names(plots_inhouse)[[i]],
+    filename = str_c(names(plots_inhouse_passage)[[i]],
                            ".png",
                            sep = ""),
-    plot = plots_inhouse[[i]],
+    plot = plots_inhouse_passage[[i]],
     path = file.path(
       '.',
       'output',
@@ -70,17 +73,17 @@ for (i in 1:length(plots_inhouse)) {
   )
 }
 
-for (i in 1:length(plots_Wnt)) {
+for (i in 1:length(plots_Wnt_passage)) {
   
   message(str_c("drawing plot for ",
-                names(plots_Wnt)[[i]],
+                names(plots_Wnt_passage)[[i]],
                 sep = ""))
   
   ggsave(
-    filename = str_c(names(plots_Wnt)[[i]],
+    filename = str_c(names(plots_Wnt_passage)[[i]],
                      ".png",
                      sep = ""),
-    plot = plots_Wnt[[i]],
+    plot = plots_Wnt_passage[[i]],
     path = file.path(
       '.',
       'output',
@@ -95,22 +98,47 @@ for (i in 1:length(plots_Wnt)) {
   )
 }
 
-for (i in 1:length(plots_HSPGs)) {
+for (i in 1:length(plots_HSPGs_passage)) {
   
   message(str_c("drawing plot for ",
-                names(plots_HSPGs)[[i]],
+                names(plots_HSPGs_passage)[[i]],
                 sep = ""))
   
   ggsave(
-    filename = str_c(names(plots_HSPGs)[[i]],
+    filename = str_c(names(plots_HSPGs_passage)[[i]],
                      ".png",
                      sep = ""),
-    plot = plots_HSPGs[[i]],
+    plot = plots_HSPGs_passage[[i]],
     path = file.path(
       '.',
       'output',
       'plots_boxplot_logCPM',
       'HSPG_extra'
+    ),
+    scale = 0.7,
+    width = 8,
+    height = 8,
+    units = "in",
+    dpi = 144
+  )
+}
+
+for (i in 1:length(plots_rt2array_passage)) {
+  
+  message(str_c("drawing plot for ",
+                names(plots_rt2array_passage)[[i]],
+                sep = ""))
+  
+  ggsave(
+    filename = str_c(names(plots_rt2array_passage)[[i]],
+                     ".png",
+                     sep = ""),
+    plot = plots_rt2array_passage[[i]],
+    path = file.path(
+      '.',
+      'output',
+      'plots_boxplot_logCPM',
+      'rt2array'
     ),
     scale = 0.7,
     width = 8,
