@@ -6,11 +6,11 @@
 
 ## How to run
 
--   Clone this repository
+1.  Clone this repository
 
     -   ⚠️ cloning via RStudio highly recommended
 
--   Add required data to specified folders under `/input`
+2.  Add required data to specified folders under `/input`
 
     -   Mandatory:
 
@@ -26,10 +26,10 @@
 
             -   `genesets`
 
--   Open `2023-Transcriptome-hMSC.Rproj` in RStudio
+3.  Open `2023-Transcriptome-hMSC.Rproj` in RStudio
 
     -   If this repo was cloned using RStudio, this project is already open.
 
--   Source pipeline scripts at `/scripts/9_*` to perform analysis
+4.  Source pipeline scripts at `/scripts/9_*` to perform analysis
 
--   Knit files in `/markdown` to view results.
+5.  Knit files in `/markdown` to view results.
