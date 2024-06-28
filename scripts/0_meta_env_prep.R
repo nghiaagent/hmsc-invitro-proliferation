@@ -43,8 +43,7 @@ list_Bioc_Pkg <- c(
   "GSEABase",
   "BiocStyle",
   "CEMiTool",
-  "HDO.db",
-  "SBGNview"
+  "HDO.db"
 )
 
 # Install Bioconductor packages, if they are not yet installed
@@ -57,8 +56,9 @@ BiocManager::install(
 
 # Load Bioconductor packages
 
-invisible(lapply(list_Bioc_Pkg, function(x)
-  library(x, character.only = TRUE)))
+invisible(lapply(list_Bioc_Pkg, function(x) {
+  library(x, character.only = TRUE)
+}))
 
 # Load all CRAN packages
 
@@ -87,7 +87,8 @@ p_load(
   future,
   shinybusy,
   WGCNA,
-  data.table
+  data.table,
+  DT
 )
 
 # Clean up package list
@@ -97,7 +98,7 @@ rm(list_Bioc_Pkg)
 # Limit number of cores used due to memory issues on laptops.
 
 BiocParallel::register(SnowParam(workers = 8),
-                       default = T)
+                       default = TRUE)
 bpparam()
 
 # TO ADD: Create folders needed for outputting files
