@@ -54,7 +54,7 @@ run_GSEA <- function(genes_list,
                 sep = " "))
   
   if (!dir.exists(path_output)) {
-    dir.create(path_output)
+    dir.create(path_output, recursive = TRUE)
   }
   
   # Run GSEA on GO gene sets
