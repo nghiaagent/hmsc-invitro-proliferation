@@ -77,8 +77,14 @@ The following databases were used:
 
 ```{r}
 
-glimmaVolcano(x = fit_GSVA$GOBP,
-              coef = 13)
+glimmaVolcano(
+  x = fit_GSVA$GOBP,
+  counts = quant_GSVA$GOBP[, quant_GSVA$GOBP@phenoData@data$condition_ID %in% conditions_interest]@assayData[["exprs"]],
+  groups = quant_GSVA$GOBP[, quant_GSVA$GOBP@phenoData@data$condition_ID %in% conditions_interest]@phenoData@data$condition_ID,
+  xlab = "logFC",
+  transform.counts = "none",
+  coef = 13
+)
 
 ```
 
@@ -86,8 +92,14 @@ glimmaVolcano(x = fit_GSVA$GOBP,
 
 ```{r}
 
-glimmaVolcano(x = fit_GSVA$GOCC,
-              coef = 13)
+glimmaVolcano(
+  x = fit_GSVA$GOCC,
+  counts = quant_GSVA$GOCC[, quant_GSVA$GOCC@phenoData@data$condition_ID %in% conditions_interest]@assayData[["exprs"]],
+  groups = quant_GSVA$GOCC[, quant_GSVA$GOCC@phenoData@data$condition_ID %in% conditions_interest]@phenoData@data$condition_ID,
+  xlab = "logFC",
+  transform.counts = "none",
+  coef = 13
+)
 
 ```
 
@@ -95,8 +107,14 @@ glimmaVolcano(x = fit_GSVA$GOCC,
 
 ```{r}
 
-glimmaVolcano(x = fit_GSVA$GOMF,
-              coef = 13)
+glimmaVolcano(
+  x = fit_GSVA$GOMF,
+  counts = quant_GSVA$GOMF[, quant_GSVA$GOMF@phenoData@data$condition_ID %in% conditions_interest]@assayData[["exprs"]],
+  groups = quant_GSVA$GOMF[, quant_GSVA$GOMF@phenoData@data$condition_ID %in% conditions_interest]@phenoData@data$condition_ID,
+  xlab = "logFC",
+  transform.counts = "none",
+  coef = 13
+)
 
 ```
 
@@ -106,8 +124,14 @@ glimmaVolcano(x = fit_GSVA$GOMF,
 
 ```{r}
 
-glimmaVolcano(x = fit_GSVA$h,
-              coef = 13)
+glimmaVolcano(
+  x = fit_GSVA$h,
+  counts = quant_GSVA$h[, quant_GSVA$h@phenoData@data$condition_ID %in% conditions_interest]@assayData[["exprs"]],
+  groups = quant_GSVA$h[, quant_GSVA$h@phenoData@data$condition_ID %in% conditions_interest]@phenoData@data$condition_ID,
+  xlab = "logFC",
+  transform.counts = "none",
+  coef = 13
+)
 
 ```
 
@@ -115,8 +139,14 @@ glimmaVolcano(x = fit_GSVA$h,
 
 ```{r}
 
-glimmaVolcano(x = fit_GSVA$c2,
-              coef = 13)
+glimmaVolcano(
+  x = fit_GSVA$c2,
+  counts = quant_GSVA$c2[, quant_GSVA$c2@phenoData@data$condition_ID %in% conditions_interest]@assayData[["exprs"]],
+  groups = quant_GSVA$c2[, quant_GSVA$c2@phenoData@data$condition_ID %in% conditions_interest]@phenoData@data$condition_ID,
+  xlab = "logFC",
+  transform.counts = "none",
+  coef = 13
+)
 
 ```
 
@@ -124,17 +154,29 @@ glimmaVolcano(x = fit_GSVA$c2,
 
 ```{r}
 
-glimmaVolcano(x = fit_GSVA$c3,
-              coef = 13)
+glimmaVolcano(
+  x = fit_GSVA$c3,
+  counts = quant_GSVA$c3[, quant_GSVA$c3@phenoData@data$condition_ID %in% conditions_interest]@assayData[["exprs"]],
+  groups = quant_GSVA$c3[, quant_GSVA$c3@phenoData@data$condition_ID %in% conditions_interest]@phenoData@data$condition_ID,
+  xlab = "logFC",
+  transform.counts = "none",
+  coef = 13
+)
 
 ```
 
-## ReactomePA
+## Reactome
 
 ```{r}
 
-glimmaVolcano(x = fit_GSVA$Reactome,
-              coef = 13)
+glimmaVolcano(
+  x = fit_GSVA$Reactome,
+  counts = quant_GSVA$Reactome[, quant_GSVA$Reactome@phenoData@data$condition_ID %in% conditions_interest]@assayData[["exprs"]],
+  groups = quant_GSVA$Reactome[, quant_GSVA$Reactome@phenoData@data$condition_ID %in% conditions_interest]@phenoData@data$condition_ID,
+  xlab = "logFC",
+  transform.counts = "none",
+  coef = 13
+)
 
 ```
 
@@ -142,8 +184,14 @@ glimmaVolcano(x = fit_GSVA$Reactome,
 
 ```{r}
 
-glimmaVolcano(x = fit_GSVA$KEGG,
-              coef = 13)
+glimmaVolcano(
+  x = fit_GSVA$KEGG,
+  counts = quant_GSVA$KEGG[, quant_GSVA$KEGG@phenoData@data$condition_ID %in% conditions_interest]@assayData[["exprs"]],
+  groups = quant_GSVA$KEGG[, quant_GSVA$KEGG@phenoData@data$condition_ID %in% conditions_interest]@phenoData@data$condition_ID,
+  xlab = "logFC",
+  transform.counts = "none",
+  coef = 13
+)
 
 ```
 
@@ -151,13 +199,19 @@ glimmaVolcano(x = fit_GSVA$KEGG,
 
 ```{r}
 
-glimmaVolcano(x = fit_GSVA$GCN,
-              coef = 13)
+glimmaVolcano(
+  x = fit_GSVA$GCN,
+  counts = quant_GSVA$GCN[, quant_GSVA$GCN@phenoData@data$condition_ID %in% conditions_interest]@assayData[["exprs"]],
+  groups = quant_GSVA$GCN[, quant_GSVA$GCN@phenoData@data$condition_ID %in% conditions_interest]@phenoData@data$condition_ID,
+  xlab = "logFC",
+  transform.counts = "none",
+  coef = 13
+)
 
 ```
 
 
-# P13 vs P7
+# P13vsP7
 
 ## GO
 
@@ -165,8 +219,14 @@ glimmaVolcano(x = fit_GSVA$GCN,
 
 ```{r}
 
-glimmaVolcano(x = fit_GSVA$GOBP,
-              coef = 14)
+glimmaVolcano(
+  x = fit_GSVA$GOBP,
+  counts = quant_GSVA$GOBP[, quant_GSVA$GOBP@phenoData@data$condition_ID %in% conditions_interest]@assayData[["exprs"]],
+  groups = quant_GSVA$GOBP[, quant_GSVA$GOBP@phenoData@data$condition_ID %in% conditions_interest]@phenoData@data$condition_ID,
+  xlab = "logFC",
+  transform.counts = "none",
+  coef = 14
+)
 
 ```
 
@@ -174,8 +234,14 @@ glimmaVolcano(x = fit_GSVA$GOBP,
 
 ```{r}
 
-glimmaVolcano(x = fit_GSVA$GOCC,
-              coef = 14)
+glimmaVolcano(
+  x = fit_GSVA$GOCC,
+  counts = quant_GSVA$GOCC[, quant_GSVA$GOCC@phenoData@data$condition_ID %in% conditions_interest]@assayData[["exprs"]],
+  groups = quant_GSVA$GOCC[, quant_GSVA$GOCC@phenoData@data$condition_ID %in% conditions_interest]@phenoData@data$condition_ID,
+  xlab = "logFC",
+  transform.counts = "none",
+  coef = 14
+)
 
 ```
 
@@ -183,8 +249,14 @@ glimmaVolcano(x = fit_GSVA$GOCC,
 
 ```{r}
 
-glimmaVolcano(x = fit_GSVA$GOMF,
-              coef = 14)
+glimmaVolcano(
+  x = fit_GSVA$GOMF,
+  counts = quant_GSVA$GOMF[, quant_GSVA$GOMF@phenoData@data$condition_ID %in% conditions_interest]@assayData[["exprs"]],
+  groups = quant_GSVA$GOMF[, quant_GSVA$GOMF@phenoData@data$condition_ID %in% conditions_interest]@phenoData@data$condition_ID,
+  xlab = "logFC",
+  transform.counts = "none",
+  coef = 14
+)
 
 ```
 
@@ -194,8 +266,14 @@ glimmaVolcano(x = fit_GSVA$GOMF,
 
 ```{r}
 
-glimmaVolcano(x = fit_GSVA$h,
-              coef = 14)
+glimmaVolcano(
+  x = fit_GSVA$h,
+  counts = quant_GSVA$h[, quant_GSVA$h@phenoData@data$condition_ID %in% conditions_interest]@assayData[["exprs"]],
+  groups = quant_GSVA$h[, quant_GSVA$h@phenoData@data$condition_ID %in% conditions_interest]@phenoData@data$condition_ID,
+  xlab = "logFC",
+  transform.counts = "none",
+  coef = 14
+)
 
 ```
 
@@ -203,8 +281,14 @@ glimmaVolcano(x = fit_GSVA$h,
 
 ```{r}
 
-glimmaVolcano(x = fit_GSVA$c2,
-              coef = 14)
+glimmaVolcano(
+  x = fit_GSVA$c2,
+  counts = quant_GSVA$c2[, quant_GSVA$c2@phenoData@data$condition_ID %in% conditions_interest]@assayData[["exprs"]],
+  groups = quant_GSVA$c2[, quant_GSVA$c2@phenoData@data$condition_ID %in% conditions_interest]@phenoData@data$condition_ID,
+  xlab = "logFC",
+  transform.counts = "none",
+  coef = 14
+)
 
 ```
 
@@ -212,17 +296,29 @@ glimmaVolcano(x = fit_GSVA$c2,
 
 ```{r}
 
-glimmaVolcano(x = fit_GSVA$c3,
-              coef = 14)
+glimmaVolcano(
+  x = fit_GSVA$c3,
+  counts = quant_GSVA$c3[, quant_GSVA$c3@phenoData@data$condition_ID %in% conditions_interest]@assayData[["exprs"]],
+  groups = quant_GSVA$c3[, quant_GSVA$c3@phenoData@data$condition_ID %in% conditions_interest]@phenoData@data$condition_ID,
+  xlab = "logFC",
+  transform.counts = "none",
+  coef = 14
+)
 
 ```
 
-## ReactomePA
+## Reactome
 
 ```{r}
 
-glimmaVolcano(x = fit_GSVA$Reactome,
-              coef = 14)
+glimmaVolcano(
+  x = fit_GSVA$Reactome,
+  counts = quant_GSVA$Reactome[, quant_GSVA$Reactome@phenoData@data$condition_ID %in% conditions_interest]@assayData[["exprs"]],
+  groups = quant_GSVA$Reactome[, quant_GSVA$Reactome@phenoData@data$condition_ID %in% conditions_interest]@phenoData@data$condition_ID,
+  xlab = "logFC",
+  transform.counts = "none",
+  coef = 14
+)
 
 ```
 
@@ -230,8 +326,14 @@ glimmaVolcano(x = fit_GSVA$Reactome,
 
 ```{r}
 
-glimmaVolcano(x = fit_GSVA$KEGG,
-              coef = 14)
+glimmaVolcano(
+  x = fit_GSVA$KEGG,
+  counts = quant_GSVA$KEGG[, quant_GSVA$KEGG@phenoData@data$condition_ID %in% conditions_interest]@assayData[["exprs"]],
+  groups = quant_GSVA$KEGG[, quant_GSVA$KEGG@phenoData@data$condition_ID %in% conditions_interest]@phenoData@data$condition_ID,
+  xlab = "logFC",
+  transform.counts = "none",
+  coef = 14
+)
 
 ```
 
@@ -239,13 +341,19 @@ glimmaVolcano(x = fit_GSVA$KEGG,
 
 ```{r}
 
-glimmaVolcano(x = fit_GSVA$GCN,
-              coef = 14)
+glimmaVolcano(
+  x = fit_GSVA$GCN,
+  counts = quant_GSVA$GCN[, quant_GSVA$GCN@phenoData@data$condition_ID %in% conditions_interest]@assayData[["exprs"]],
+  groups = quant_GSVA$GCN[, quant_GSVA$GCN@phenoData@data$condition_ID %in% conditions_interest]@phenoData@data$condition_ID,
+  xlab = "logFC",
+  transform.counts = "none",
+  coef = 14
+)
 
 ```
 
 
-# P13 vs P5
+# P13vsP5
 
 ## GO
 
@@ -253,8 +361,14 @@ glimmaVolcano(x = fit_GSVA$GCN,
 
 ```{r}
 
-glimmaVolcano(x = fit_GSVA$GOBP,
-              coef = 15)
+glimmaVolcano(
+  x = fit_GSVA$GOBP,
+  counts = quant_GSVA$GOBP[, quant_GSVA$GOBP@phenoData@data$condition_ID %in% conditions_interest]@assayData[["exprs"]],
+  groups = quant_GSVA$GOBP[, quant_GSVA$GOBP@phenoData@data$condition_ID %in% conditions_interest]@phenoData@data$condition_ID,
+  xlab = "logFC",
+  transform.counts = "none",
+  coef = 15
+)
 
 ```
 
@@ -262,8 +376,14 @@ glimmaVolcano(x = fit_GSVA$GOBP,
 
 ```{r}
 
-glimmaVolcano(x = fit_GSVA$GOCC,
-              coef = 15)
+glimmaVolcano(
+  x = fit_GSVA$GOCC,
+  counts = quant_GSVA$GOCC[, quant_GSVA$GOCC@phenoData@data$condition_ID %in% conditions_interest]@assayData[["exprs"]],
+  groups = quant_GSVA$GOCC[, quant_GSVA$GOCC@phenoData@data$condition_ID %in% conditions_interest]@phenoData@data$condition_ID,
+  xlab = "logFC",
+  transform.counts = "none",
+  coef = 15
+)
 
 ```
 
@@ -271,8 +391,14 @@ glimmaVolcano(x = fit_GSVA$GOCC,
 
 ```{r}
 
-glimmaVolcano(x = fit_GSVA$GOMF,
-              coef = 15)
+glimmaVolcano(
+  x = fit_GSVA$GOMF,
+  counts = quant_GSVA$GOMF[, quant_GSVA$GOMF@phenoData@data$condition_ID %in% conditions_interest]@assayData[["exprs"]],
+  groups = quant_GSVA$GOMF[, quant_GSVA$GOMF@phenoData@data$condition_ID %in% conditions_interest]@phenoData@data$condition_ID,
+  xlab = "logFC",
+  transform.counts = "none",
+  coef = 15
+)
 
 ```
 
@@ -282,8 +408,14 @@ glimmaVolcano(x = fit_GSVA$GOMF,
 
 ```{r}
 
-glimmaVolcano(x = fit_GSVA$h,
-              coef = 15)
+glimmaVolcano(
+  x = fit_GSVA$h,
+  counts = quant_GSVA$h[, quant_GSVA$h@phenoData@data$condition_ID %in% conditions_interest]@assayData[["exprs"]],
+  groups = quant_GSVA$h[, quant_GSVA$h@phenoData@data$condition_ID %in% conditions_interest]@phenoData@data$condition_ID,
+  xlab = "logFC",
+  transform.counts = "none",
+  coef = 15
+)
 
 ```
 
@@ -291,8 +423,14 @@ glimmaVolcano(x = fit_GSVA$h,
 
 ```{r}
 
-glimmaVolcano(x = fit_GSVA$c2,
-              coef = 15)
+glimmaVolcano(
+  x = fit_GSVA$c2,
+  counts = quant_GSVA$c2[, quant_GSVA$c2@phenoData@data$condition_ID %in% conditions_interest]@assayData[["exprs"]],
+  groups = quant_GSVA$c2[, quant_GSVA$c2@phenoData@data$condition_ID %in% conditions_interest]@phenoData@data$condition_ID,
+  xlab = "logFC",
+  transform.counts = "none",
+  coef = 15
+)
 
 ```
 
@@ -300,17 +438,29 @@ glimmaVolcano(x = fit_GSVA$c2,
 
 ```{r}
 
-glimmaVolcano(x = fit_GSVA$c3,
-              coef = 15)
+glimmaVolcano(
+  x = fit_GSVA$c3,
+  counts = quant_GSVA$c3[, quant_GSVA$c3@phenoData@data$condition_ID %in% conditions_interest]@assayData[["exprs"]],
+  groups = quant_GSVA$c3[, quant_GSVA$c3@phenoData@data$condition_ID %in% conditions_interest]@phenoData@data$condition_ID,
+  xlab = "logFC",
+  transform.counts = "none",
+  coef = 15
+)
 
 ```
 
-## ReactomePA
+## Reactome
 
 ```{r}
 
-glimmaVolcano(x = fit_GSVA$Reactome,
-              coef = 15)
+glimmaVolcano(
+  x = fit_GSVA$Reactome,
+  counts = quant_GSVA$Reactome[, quant_GSVA$Reactome@phenoData@data$condition_ID %in% conditions_interest]@assayData[["exprs"]],
+  groups = quant_GSVA$Reactome[, quant_GSVA$Reactome@phenoData@data$condition_ID %in% conditions_interest]@phenoData@data$condition_ID,
+  xlab = "logFC",
+  transform.counts = "none",
+  coef = 15
+)
 
 ```
 
@@ -318,8 +468,14 @@ glimmaVolcano(x = fit_GSVA$Reactome,
 
 ```{r}
 
-glimmaVolcano(x = fit_GSVA$KEGG,
-              coef = 15)
+glimmaVolcano(
+  x = fit_GSVA$KEGG,
+  counts = quant_GSVA$KEGG[, quant_GSVA$KEGG@phenoData@data$condition_ID %in% conditions_interest]@assayData[["exprs"]],
+  groups = quant_GSVA$KEGG[, quant_GSVA$KEGG@phenoData@data$condition_ID %in% conditions_interest]@phenoData@data$condition_ID,
+  xlab = "logFC",
+  transform.counts = "none",
+  coef = 15
+)
 
 ```
 
@@ -327,7 +483,14 @@ glimmaVolcano(x = fit_GSVA$KEGG,
 
 ```{r}
 
-glimmaVolcano(x = fit_GSVA$GCN,
-              coef = 15)
+glimmaVolcano(
+  x = fit_GSVA$GCN,
+  counts = quant_GSVA$GCN[, quant_GSVA$GCN@phenoData@data$condition_ID %in% conditions_interest]@assayData[["exprs"]],
+  groups = quant_GSVA$GCN[, quant_GSVA$GCN@phenoData@data$condition_ID %in% conditions_interest]@phenoData@data$condition_ID,
+  xlab = "logFC",
+  transform.counts = "none",
+  coef = 15
+)
 
 ```
+
