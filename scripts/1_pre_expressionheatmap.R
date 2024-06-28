@@ -1,13 +1,15 @@
 # Call DGE scripts first before calling this script
-# Plots normalised log2CPM (quant_DGE_voom) as a heatmap. Use ?voom to check how it's made.
-# limma authors recommend using logCPM from cpm() or voom() for heatmap vis https://www.biostars.org/p/9511346/
+# Plots normalised log2CPM (quant_DGE_voom) as a heatmap. 
+# Use ?voom to check how it's made.
+# limma authors recommend using logCPM from cpm() or voom()
+# https://www.biostars.org/p/9511346/
 
 source("./scripts/dge_cellpops_as_fixed.R")
 
 siggenes <- topTable(fit_contrasts, number = Inf, sort.by = "F") %>%
   filter(adj.P.Val < 0.05)
 
-quant_heatmap <- quant_DGE_voom[siggenes$GENEID,]
+quant_heatmap <- quant_DGE_voom[siggenes$GENEID, ]
 
 E_heatmap <- t(scale(t(quant_heatmap$E)))
 
