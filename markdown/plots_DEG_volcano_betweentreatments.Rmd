@@ -1,0 +1,72 @@
+---
+title: "Volcano Plots - between treatments"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+## Switch working directory to project dir
+
+knitr::opts_knit$set(root.dir = '..')
+```
+
+```{r Setup, include=FALSE}
+# Load data
+source("./scripts/0_meta_env_prep.R")
+source("./scripts/2_dge.R")
+
+# Define conditions of interest
+
+conditions_interest <- c(
+  "P5D3Untreated",
+  "P7D3Untreated",
+  "P13D3Untreated",
+  "P5D3Treated",
+  "P7D3Treated",
+  "P13D3Treated"
+)
+
+```
+
+## At P+5 D3
+
+```{r}
+
+glimmaVolcano(x = fit_contrasts,
+              counts = quant_DGE_voom[,quant_DGE_voom$targets$condition_ID %in% conditions_interest]$E,
+              groups = quant_DGE_voom[,quant_DGE_voom$targets$condition_ID %in% conditions_interest]$targets$condition_ID,
+              xlab = "logFC",
+              transform.counts = "none",
+              coef = 1)
+
+```
+
+## At P+7 D3
+
+```{r}
+
+glimmaVolcano(x = fit_contrasts,
+              counts = quant_DGE_voom[,quant_DGE_voom$targets$condition_ID %in% conditions_interest]$E,
+              groups = quant_DGE_voom[,quant_DGE_voom$targets$condition_ID %in% conditions_interest]$targets$condition_ID,
+              xlab = "logFC",
+              transform.counts = "none",
+              coef = 3)
+
+```
+
+## At P+13 D3
+
+```{r}
+
+glimmaVolcano(x = fit_contrasts,
+              counts = quant_DGE_voom[,quant_DGE_voom$targets$condition_ID %in% conditions_interest]$E,
+              groups = quant_DGE_voom[,quant_DGE_voom$targets$condition_ID %in% conditions_interest]$targets$condition_ID,
+              xlab = "logFC",
+              transform.counts = "none",
+              coef = 5)
+
+```

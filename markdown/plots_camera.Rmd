@@ -1,0 +1,281 @@
+---
+title: "Camera"
+date: "`r Sys.Date()`"
+output:
+  rmdformats::robobook:
+    highlight: kate
+---
+
+<style type="text/css">
+.book .book-body .page-inner {
+  max-width: 1200px;
+}
+</style>
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+## Switch working directory to project dir
+
+knitr::opts_knit$set(root.dir = '..')
+```
+
+```{r Setup, include=FALSE}
+# Load data
+source("./scripts/0_meta_env_prep.R")
+source("./scripts/2_dge.R")
+enrichments_camera <- readRDS(file.path('output', 'data_enrichment', 'camera', "camera_all.RDS"))
+
+
+```
+
+```{r Define table functions, include = FALSE}
+
+draw_camera_combined_tbl <- function(table) {
+  datatable(
+    table,
+    filter = "top",
+    extensions = c("FixedColumns"),
+    options = list(
+      autoWidth = TRUE,
+      fixedColumns = TRUE,
+      columnDefs = list(list(
+        targets = 0,
+        render = JS(
+          "function(data, type, row, meta) {",
+          "return type === 'display' && data.length > 30 ?",
+          "'<span title=\"' + data + '\">' + data.substr(0, 30) + '...</span>' : data;",
+          "}"
+        )
+      ))
+    )
+  ) %>%
+    
+    # Round p-values to 2 decimal places
+    formatRound(c(2, 4, 6), 2) %>%
+    
+    # Color direction of regulation - up = red, blue = down
+    formatStyle(c(1, 3, 5),
+                backgroundColor = styleEqual(c("Down", "Up"), c("blue", "red")),
+                color = "white") %>%
+    
+    # Color FDR - 0.05 = green
+    formatStyle(c(2, 4, 6),
+                backgroundColor = styleInterval(0.05, c("green", "black")),
+                color = "white")
+}
+
+```
+
+
+
+```{r Combine table of pairwise enrichments, include=FALSE}
+
+# Change between treatment at each passages
+
+combined_treatment <- pmap(list(
+  enrichments_camera$Trt_P5_D3,
+  enrichments_camera$Trt_P7_D3,
+  enrichments_camera$Trt_P13_D3
+), function(first, second, third) {
+  base::cbind(
+    first[, c(2, 4)] %>% rename_with(~ paste0("P5.", .x, recycle0 = TRUE)),
+    second[, c(2, 4)] %>% rename_with(~ paste0("P7.", .x, recycle0 = TRUE)),
+    third[, c(2, 4)] %>% rename_with(~ paste0("P13.", .x, recycle0 = TRUE))
+  )
+})
+
+# Change over passages
+
+combined_passages <- pmap(list(
+  enrichments_camera$P7vsP5_UT_D3,
+  enrichments_camera$P13vsP7_UT_D3,
+  enrichments_camera$P13vsP5_UT_D3
+), function(first, second, third) {
+  base::cbind(
+    first[, c(2, 4)] %>% rename_with(~ paste0("7vs5.", .x, recycle0 = TRUE)),
+    second[, c(2, 4)] %>% rename_with(~ paste0("13vs7.", .x, recycle0 = TRUE)),
+    third[, c(2, 4)] %>% rename_with(~ paste0("13vs5.", .x, recycle0 = TRUE))
+  )
+})
+
+# Change of effect of treatment over passages
+
+combined_interaction <- pmap(list(
+  enrichments_camera$P7vsP5_TvsUT_D3,
+  enrichments_camera$P13vsP7_TvsUT_D3,
+  enrichments_camera$P13vsP5_TvsUT_D3
+), function(first, second, third) {
+  base::cbind(
+    first[, c(2, 4)] %>% rename_with(~ paste0("7vs5_int.", .x, recycle0 = TRUE)),
+    second[, c(2, 4)] %>% rename_with(~ paste0("13vs7_int.", .x, recycle0 = TRUE)),
+    third[, c(2, 4)] %>% rename_with(~ paste0("13vs5_int.", .x, recycle0 = TRUE))
+  )
+})
+
+
+```
+
+
+# Changes between passages
+
+## GO
+
+### BP
+
+```{r echo=FALSE, warning=FALSE}
+draw_camera_combined_tbl(combined_passages$GOBP)
+```
+
+### CC
+
+```{r echo=FALSE, warning=FALSE}
+draw_camera_combined_tbl(combined_passages$GOCC)
+```
+
+### MF
+
+```{r echo=FALSE, warning=FALSE}
+draw_camera_combined_tbl(combined_passages$GOMF)
+```
+
+## MSigDB
+
+### h
+
+```{r echo=FALSE, warning=FALSE}
+draw_camera_combined_tbl(combined_passages$MSigDB_h)
+```
+
+### c2
+
+```{r echo=FALSE, warning=FALSE}
+draw_camera_combined_tbl(combined_passages$MSigDB_c2)
+```
+
+### c3
+
+```{r echo=FALSE, warning=FALSE}
+draw_camera_combined_tbl(combined_passages$MSigDB_c3)
+```
+
+## Reactome
+
+```{r echo=FALSE, warning=FALSE}
+draw_camera_combined_tbl(combined_passages$Reactome)
+```
+
+## KEGG
+
+```{r echo=FALSE, warning=FALSE}
+draw_camera_combined_tbl(combined_passages$KEGG)
+```
+
+# Changes between treatments at each passage
+
+## GO
+
+### BP
+
+```{r echo=FALSE, warning=FALSE}
+draw_camera_combined_tbl(combined_treatment$GOBP)
+```
+
+### CC
+
+```{r echo=FALSE, warning=FALSE}
+draw_camera_combined_tbl(combined_treatment$GOCC)
+```
+
+### MF
+
+```{r echo=FALSE, warning=FALSE}
+draw_camera_combined_tbl(combined_treatment$GOMF)
+```
+
+## MSigDB
+
+### h
+
+```{r echo=FALSE, warning=FALSE}
+draw_camera_combined_tbl(combined_treatment$MSigDB_h)
+```
+
+### c2
+
+```{r echo=FALSE, warning=FALSE}
+draw_camera_combined_tbl(combined_treatment$MSigDB_c2)
+```
+
+### c3
+
+```{r echo=FALSE, warning=FALSE}
+draw_camera_combined_tbl(combined_treatment$MSigDB_c3)
+```
+
+## Reactome
+
+```{r echo=FALSE, warning=FALSE}
+draw_camera_combined_tbl(combined_treatment$Reactome)
+```
+
+## KEGG
+
+```{r echo=FALSE, warning=FALSE}
+draw_camera_combined_tbl(combined_treatment$KEGG)
+```
+
+# Change in effect of treatment between passages
+
+## GO
+
+### BP
+
+```{r echo=FALSE, warning=FALSE}
+draw_camera_combined_tbl(combined_interaction$GOBP)
+```
+
+### CC
+
+```{r echo=FALSE, warning=FALSE}
+draw_camera_combined_tbl(combined_interaction$GOCC)
+```
+
+### MF
+
+```{r echo=FALSE, warning=FALSE}
+draw_camera_combined_tbl(combined_interaction$GOMF)
+```
+
+## MSigDB
+
+### h
+
+```{r echo=FALSE, warning=FALSE}
+draw_camera_combined_tbl(combined_interaction$MSigDB_h)
+```
+
+### c2
+
+```{r echo=FALSE, warning=FALSE}
+draw_camera_combined_tbl(combined_interaction$MSigDB_c2)
+```
+
+### c3
+
+```{r echo=FALSE, warning=FALSE}
+draw_camera_combined_tbl(combined_interaction$MSigDB_c3)
+```
+
+## Reactome
+
+```{r echo=FALSE, warning=FALSE}
+draw_camera_combined_tbl(combined_interaction$Reactome)
+```
+
+## KEGG
+
+```{r echo=FALSE, warning=FALSE}
+draw_camera_combined_tbl(combined_interaction$KEGG)
+```
