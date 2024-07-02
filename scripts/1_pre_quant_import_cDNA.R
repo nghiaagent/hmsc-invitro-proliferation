@@ -5,117 +5,69 @@
 # Construct sample table
 
 table_samples <-
-  read_csv("./input/annotation/Cell_sample_table.csv") %>%
-  mutate(ID = name,
-         .keep = "unused") %>%
-  mutate(ID = str_replace(ID, "hMSC_", "hMSC-")) %>%
-  mutate(ID = str_replace(ID, "(?<=0)_(?=[:digit:])", "-")) %>%
-  mutate(cell_line = factor(cell_line,
-                            levels = c("hMSC-20176", "hMSC-21558"))) %>%
-  mutate(Passage = factor(Passage,
-                          levels = c("P5", "P7", "P13"))) %>%
-  mutate(Day = factor(Day,
-                      levels = c("D3", "D5"))) %>%
-  mutate(Treatment = factor(Treatment,
-                            levels = c("Untreated", "Treated"))) %>%
-  mutate(run_date = str_replace_all(run_date,
-                                    "_", "")) %>%
-  mutate(timepoint_ID = factor(
-    str_c(Passage, Day, sep = ""),
-    levels = c(
-      "P5D3",
-      "P5D5",
-      "P7D3",
-      "P7D5",
-      "P13D3",
-      "P13D5"
-    )
+  read_csv("./input/annotation/sample_table.csv") %>%
+  mutate(cell_line = factor(
+    cell_line,
+    levels = c("WT HepG2-C3A cells", "ATP7B-KO HepG2-C3A cells")
+  )) %>%
+  mutate(genotype = factor(genotype, levels = c("WT", "ATP7B-KO"))) %>%
+  mutate(treatment1 = factor(treatment1, levels = c("Untreated", "Cu"))) %>%
+  mutate(treatment2 = factor(
+    treatment2,
+    levels = c("Untreated", "D-penicilamine", "trientine")
+  )) %>%
+  mutate(treatment_combined = factor(
+    treatment_combined,
+    levels = c("Untreated", "Cu", "Cu_D-penicilamine", "Cu_trientine")
   )) %>%
   mutate(condition_ID = factor(
-    str_c(Passage, Day, Treatment, sep = ""),
+    str_c(genotype, treatment_combined, sep = "_"),
     levels = c(
-      "P5D3Untreated",
-      "P5D3Treated",
-      "P5D5Untreated",
-      "P5D5Treated",
-      "P7D3Untreated",
-      "P7D3Treated",
-      "P7D5Untreated",
-      "P7D5Treated",
-      "P13D3Untreated",
-      "P13D3Treated",
-      "P13D5Untreated",
-      "P13D5Treated"
+      "WT_Untreated",
+      "WT_Cu",
+      "WT_Cu_D-penicilamine",
+      "WT_Cu_trientine",
+      "ATP7B-KO_Untreated",
+      "ATP7B-KO_Cu",
+      "ATP7B-KO_Cu_D-penicilamine",
+      "ATP7B-KO_Cu_trientine"
     )
   )) %>%
-  subset(included_in_dataset == TRUE) %>%
-  arrange(ID, cell_line, Passage, Day, Treatment) %>%
-  mutate(ID = factor(ID)) %>%
-  mutate(ID = fct_inorder(ID))
-
-# Grab data from ENSEMBL109
-
-ah <- AnnotationHub()
-ensembl109 <- ah[["AH109606"]]
+  arrange(condition_ID,
+          genotype,
+          treatment1,
+          treatment2,
+          treatment_combined,
+          cell_line) %>%
+  mutate(ID = factor(ID) %>% fct_inorder())
 
 # Construct transcriptome dataset for limma-voom
-## Construct this for cDNA + ncRNA data from ENSEMBL
 
-files_tx_quant <- table_samples$filename
+## List files
+## Make sure that all transcript files exist
 
-files_tx_quant <- str_c("./input/cDNA/",
-      files_tx_quant,
-      "_quant/quant.sf")
+list_files <- tibble(
+  files = table_samples$ID %>%
+    str_c("./input/cDNA/", ., ".genes.results"),
+  names = table_samples$ID
+)
 
-names_tx_quant <-
-  str_replace(files_tx_quant, pattern = "IonXpress.*$", "") %>%
-  str_replace(pattern = "./input/cDNA/", "") %>%
-  str_replace(pattern = "_$", "")
-
-
-list_files <- tibble(files = files_tx_quant,
-                     names = names_tx_quant)
-
-all(file.exists(list_files$files)) # Make sure that all transcript files exist
+all(file.exists(list_files$files))
 
 # Import quantification results
 
-quant_cDNA_tx <-
-  tximeta(list_files,
-          type = "salmon")
-
-# No issues
-
-# Show dataset metadata
-## Imported matrices
-assayNames(quant_cDNA_tx)
-
-## Transcripts imported
-rowRanges(quant_cDNA_tx)
-
-## Genomic information
-seqinfo(quant_cDNA_tx)
-
-## Database information
-retrieveDb(quant_cDNA_tx) %>% class()
-
-## The database originates from ENSEMBL
-
-# Summarise transcripts quantification to genes
-
 quant_cDNA_gene <-
-  summarizeToGene(quant_cDNA_tx,
-                  countsFromAbundance = "lengthScaledTPM")
+  tximeta(list_files, type = "rsem")
 
-# Create object for DGE with edgeR
-## Add sample data
+# Create object for DGE with edgeR/limma
 
 quant_cDNA_DGE <-
   DGEList(assays(quant_cDNA_gene)[["counts"]])
 
+## Add sample data
+
 quant_cDNA_DGE$samples <-
   cbind(quant_cDNA_DGE$samples, table_samples)
-
 
 ## Add annotation data
 
@@ -123,29 +75,26 @@ geneid <- rownames(quant_cDNA_DGE)
 
 genes <-
   AnnotationDbi::select(
-    ensembl109,
+    org.Hs.eg.db,
     keys = geneid,
-    keytype = "GENEID",
-    columns = c(
-      "ENTREZID",
-      "GENENAME",
-      "DESCRIPTION",
-      "GENEBIOTYPE",
-      "SEQNAME"
-    )
+    keytype = "ENSEMBL",
+    columns = c("ENSEMBL",
+                "ENTREZID",
+                "GENENAME",
+                "SYMBOL",
+                "GENETYPE")
   ) %>%
-  dplyr::distinct(GENEID,
-                  .keep_all = TRUE)
+  dplyr::distinct(ENSEMBL, .keep_all = TRUE)
 
 ### Add inclusion of genes in MSigDB h
 
 msigdb_h  <-
   read.gmt("./input/genesets/msigdb_v2023.2.Hs_GMTs/h.all.v2023.2.Hs.entrez.gmt") %>%
   mutate(term = as.character(term)) %>%
-  mutate(ENTREZID = as.integer(gene)) %>%
+  mutate(ENTREZID = as.character(gene)) %>%
   mutate(gene = NULL) %>%
   nest_by(ENTREZID) %>%
-  rowwise() %>% 
+  rowwise() %>%
   mutate(data = list(deframe(data))) %>%
   mutate(data = str_flatten_comma(data)) %>%
   mutate(msigdb_h = data) %>%
@@ -158,7 +107,5 @@ quant_cDNA_DGE$genes <- genes
 # Export quantification results
 
 saveRDS(quant_cDNA_DGE, file = "./output/data_expression/pre_DGE/quant_cDNA_DGE.RDS")
-
-saveRDS(quant_cDNA_tx, file = "./output/data_expression/pre_DGE/quant_cDNA_tx.RDS")
 
 saveRDS(quant_cDNA_gene, file = "./output/data_expression/pre_DGE/quant_cDNA_gene.RDS")
