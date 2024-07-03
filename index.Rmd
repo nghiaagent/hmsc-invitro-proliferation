@@ -1,0 +1,60 @@
+---
+title: "HepG2 TXome Report"
+author: "Mitchell Nguyen"
+date: "`r Sys.Date()`"
+output: bookdown::gitbook
+documentclass: book
+geometry: margin=3cm
+biblio-style: apalike
+link-citations: yes
+bibliography: references.bib
+---
+
+# Preface
+
+## Methods
+
+### Exploratory analysis and QC
+
+Gene counts produced by the nf-core/rnaseq Nextflow pipeline were imported to R using tximeta and annotated using the org.Hs.eg.db Bioconductor package. Lowly expressed genes were filtered using the filterByExpr() function implemented in edgeR, with the minimum count threshold set to 40 counts. This filtering benefits the estimation of mean-variance relationship in the data, removes genes that were too lowly expressed to be accurately quantified, and reduces multiple testing burden [@10.12688/f1000research.9005.3]. The trimmed mean of M-values (TMM) method was used to normalise all gene counts for library size and count biases between samples.
+
+### Data exploration
+
+Unsupervised clustering using Principal Component Analysis (PCA) was used for data exploration. In this context, PCA reduces the dimensionality of our datasets from thousands of genes to a smaller number of principal components (PCs). Here, each PC is uncorrelated from each other, the first PCs (PC1, PC2, etc.) are composed of the most highly variable genes in the dataset, and together, the PCs retain most of the original dataset’s variance. Additionally, expression heatmaps using DEGs to summarise differential expression in the dataset.
+
+### Differential expression analysis
+
+The normalised transcriptome data was used to build a model in limma-voom [@ritchie2015] with the necessary experimental conditions (genotype, treatment) coded in the model matrix. The voom function was used to convert RNA-seq counts to logCPM and estimate the mean-variance relationship in the dataset prior to linear model fit using the voomLmFit function in edgeR. A contrast matrix was used to define desired comparisons between genotypes and treatments and timepoints to discover differentially expressed genes (DEGs) for each comparison. Comparisons were made to determine (a) the effect of ATP7B knockout status on gene expression (b) the effect of treatment of cells with copper and copper chelators on gene expression, and (c) the effect of of ATP7B knockout status on gene expression changes in response to copper and chelators treatment. Genes with FDR \< 0.05 were considered as differentially expressed.
+
+### Functional enrichment analysis
+
+Functional enrichment analysis describes a class of bioinformatics methods that identifies biological functions significantly overrepresented in a list of genes. Multiple gene set databases are employed in this study to gauge a complete picture of biological changes across the experimental conditions. Information from these databases were used to determine functional enrichment by the camera algorithm [@wu2012].
+
+#### Gene set databases
+
+Table (x) lists the gene set databases used in our study. Two main databases utilised were MSigDB Hallmark and Gene Ontology. All gene sets were downloaded from the Broad Institute Molecular Signatures Database version 2023.2 as GMT files and imported to the R environment.
+
+| Source        | DL from | Name                                  |
+|---------------|---------|---------------------------------------|
+| MSigDB        | MSigDB  | H:                                    |
+| Gene Ontology | MSigDB  | C5/GO/BP: Biological Process ontology |
+| Gene Ontology | MSigDB  | C5/GO/CC: Cellular Component ontology |
+| Gene Ontology | MSigDB  | C5/GO/MF: Molecular Function ontology |
+
+#### Correlation adjusted mean rank (camera) gene set enrichment analysis
+
+A gene set enrichment-type analysis was performed using camera with the gene sets described above. This method was used to perform functional enrichment on gene lists derived directly from differential expression analysis, with the primary benefit of being able to detect functional enrichment when differential expression was not significant. Camera improves on previously implemented gene set enrichment analysis algorithms by correcting for inter-gene correlation to prevent false positives. The test was performed with the inter-gene correlation factor set to 0.01 (as suggested by the original authors); gene sets with FDR \< 0.05 were considered significantly enriched.
+
+### Protein-protein interaction analysis
+
+[
+
+Placeholder; in short:
+
+-   DEGs are extracted with t-statistics (think expression fold change but normalised for dataset standard deviation)
+
+-   List of ranked DEGs are provided to STRING database with strict (\> 0.8) connectivity thresholds
+
+-   Highly connected proteins are selected as markers.
+
+]
