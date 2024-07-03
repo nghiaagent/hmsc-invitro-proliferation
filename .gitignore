@@ -31,6 +31,7 @@ vignettes/*.pdf
 # knitr and R markdown default cache directories
 *_cache/
 *_files/
+*_book/
 /cache/
 
 # Temporary files created by R markdown
@@ -82,6 +83,7 @@ input/kegg_pathways/*
 *.txt
 *.psd
 *.gmt
+*.bib
 
 !**/README.txt
 !**/.gitkeep
