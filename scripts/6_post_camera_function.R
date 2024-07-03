@@ -133,7 +133,8 @@ run_camera <- function(fit = NULL, coef = NULL, inter.gene.cor = 0.01, sort = TR
     fit$contrasts[, coef],
     sort = sort,
     inter.gene.cor = inter.gene.cor
-  )
+  ) %>%
+    mutate(name = rownames(.)) 
   
   camera_GOCC <- camera(
     fit$EList$E,
@@ -142,7 +143,8 @@ run_camera <- function(fit = NULL, coef = NULL, inter.gene.cor = 0.01, sort = TR
     fit$contrasts[, coef],
     sort = sort,
     inter.gene.cor = inter.gene.cor
-  )
+  ) %>%
+    mutate(name = rownames(.)) 
   
   camera_GOMF <- camera(
     fit$EList$E,
@@ -151,7 +153,8 @@ run_camera <- function(fit = NULL, coef = NULL, inter.gene.cor = 0.01, sort = TR
     fit$contrasts[, coef],
     sort = sort,
     inter.gene.cor = inter.gene.cor
-  )
+  ) %>%
+    mutate(name = rownames(.)) 
   
   message(str_c("Running MSigDB enrichment for", name_output, sep = " "))
   
@@ -162,7 +165,8 @@ run_camera <- function(fit = NULL, coef = NULL, inter.gene.cor = 0.01, sort = TR
     fit$contrasts[, coef],
     sort = sort,
     inter.gene.cor = inter.gene.cor
-  )
+  ) %>%
+    mutate(name = rownames(.)) 
   
   camera_c2 <- camera(
     fit$EList$E,
@@ -171,7 +175,8 @@ run_camera <- function(fit = NULL, coef = NULL, inter.gene.cor = 0.01, sort = TR
     fit$contrasts[, coef],
     sort = sort,
     inter.gene.cor = inter.gene.cor
-  )
+  ) %>%
+    mutate(name = rownames(.)) 
   
   camera_c3 <- camera(
     fit$EList$E,
@@ -180,7 +185,8 @@ run_camera <- function(fit = NULL, coef = NULL, inter.gene.cor = 0.01, sort = TR
     fit$contrasts[, coef],
     sort = sort,
     inter.gene.cor = inter.gene.cor
-  )
+  ) %>%
+    mutate(name = rownames(.)) 
   
   message(str_c("Running Reactome enrichment for", name_output, sep = " "))
   
@@ -191,7 +197,8 @@ run_camera <- function(fit = NULL, coef = NULL, inter.gene.cor = 0.01, sort = TR
     fit$contrasts[, coef],
     sort = sort,
     inter.gene.cor = inter.gene.cor
-  )
+  ) %>%
+    mutate(name = rownames(.)) 
   
   message(str_c("Running KEGG enrichment for", name_output, sep = " "))
   
@@ -202,7 +209,8 @@ run_camera <- function(fit = NULL, coef = NULL, inter.gene.cor = 0.01, sort = TR
     fit$contrasts[, coef],
     sort = sort,
     inter.gene.cor = inter.gene.cor
-  )
+  ) %>%
+    mutate(name = rownames(.)) 
   
   camera_list <- list(
     "GOBP" = camera_GOBP,
