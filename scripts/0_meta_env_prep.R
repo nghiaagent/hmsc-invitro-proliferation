@@ -88,7 +88,8 @@ p_load(
   shinybusy,
   WGCNA,
   data.table,
-  DT
+  DT,
+  downlit
 )
 
 # Clean up package list
