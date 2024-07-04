@@ -1,4 +1,4 @@
-# Changes in baseline expression between WT and ATP7B-KO cells {#genotype}
+# KO: Cu vs UT {#cu_vs_ut_KO}
 
 ```{r include=FALSE}
 
@@ -21,9 +21,12 @@ fit_contrasts <- readRDS(file = file.path("output",
                                           "data_expression",
                                           "post_DGE",
                                           "fit_contrasts.RDS"))
+
+coef <- 7
+
 ```
 
-```{r Define table functions, include = FALSE}
+```{r include = FALSE}
 
 draw_camera_tbl <- function(table) {
   datatable(
@@ -55,7 +58,7 @@ glimmaVolcano(x = fit_contrasts,
               counts = fit_contrasts$EList$E,
               groups = fit_contrasts$targets$condition_ID,
               transform.counts = "none",
-              coef = 1,
+              coef = coef,
               width = 750,
               height = 900)
 
@@ -67,7 +70,7 @@ glimmaVolcano(x = fit_contrasts,
 
 ```{r out.width = "80%"}
 
-draw_camera_tbl(enrichments_camera[[1]]$MSigDB_h)
+draw_camera_tbl(enrichments_camera[[coef]]$MSigDB_h)
 
 ```
 
@@ -75,7 +78,7 @@ draw_camera_tbl(enrichments_camera[[1]]$MSigDB_h)
 
 ```{r out.width = "80%"}
 
-draw_camera_tbl(enrichments_camera[[1]]$GOBP)
+draw_camera_tbl(enrichments_camera[[coef]]$GOBP)
 
 ```
 
@@ -83,7 +86,7 @@ draw_camera_tbl(enrichments_camera[[1]]$GOBP)
 
 ```{r out.width = "80%"}
 
-draw_camera_tbl(enrichments_camera[[1]]$GOCC)
+draw_camera_tbl(enrichments_camera[[coef]]$GOCC)
 
 ```
 
@@ -91,6 +94,6 @@ draw_camera_tbl(enrichments_camera[[1]]$GOCC)
 
 ```{r out.width = "80%"}
 
-draw_camera_tbl(enrichments_camera[[1]]$GOMF)
+draw_camera_tbl(enrichments_camera[[coef]]$GOMF)
 
 ```

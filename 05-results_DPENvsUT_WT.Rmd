@@ -1,0 +1,160 @@
+# WT: Cu + D-penicilamine vs untreated {#dpen_vs_ut_WT}
+
+```{r include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE, cache = FALSE)
+
+```
+
+```{r include=FALSE}
+
+# Load data
+source("./scripts/0_meta_env_prep.R")
+
+
+enrichments_camera <- readRDS(file.path('output',
+                                      'data_enrichment',
+                                      'camera',
+                                      "camera_all.RDS"))
+
+fit_contrasts <- readRDS(file = file.path("output",
+                                          "data_expression",
+                                          "post_DGE",
+                                          "fit_contrasts.RDS"))
+
+coef <- 5
+
+```
+
+```{r include = FALSE}
+
+draw_camera_tbl <- function(table) {
+  datatable(
+    table,
+    options = list(
+      columnDefs = list(list(
+        targets = 0,
+        render = JS(
+          "function(data, type, row, meta) {",
+          "return type === 'display' && data.length > 30 ?",
+          "'<span title=\"' + data + '\">' + data.substr(0, 30) + '...</span>' : data;",
+          "}"
+        )
+      ))
+    )
+  ) %>%
+    
+    # Round p-values to 5 decimal places
+    formatRound(c(3, 4), 5)
+}
+
+```
+
+## Volcano plots
+
+```{r out.width = "80%"}
+
+glimmaVolcano(x = fit_contrasts,
+              counts = fit_contrasts$EList$E,
+              groups = fit_contrasts$targets$condition_ID,
+              transform.counts = "none",
+              coef = coef,
+              width = 750,
+              height = 900)
+
+```
+
+## 3D volcano plots
+
+3D volcano plots compare expression changes between `untreated`, `Cu` treatment, and `Cu + D-penicilamine` treatment in WT cells
+
+```{r echo=FALSE}
+
+outcome <- factor(fit_contrasts$targets$condition_ID,
+          levels = c("WT_Untreated",
+                     "WT_Cu",
+                     "WT_Cu_D-penicilamine"),
+          labels = c("UT",
+                     "CU",
+                     "DPEN"))
+
+# Coefs:
+## CU_vs_UT_WT - 2
+## DPEN_vs_UT_WT - 5
+## DPEN_vs_CU_WT - 3
+
+polar_pvals <- cbind(
+  topTable(fit_contrasts,           number = Inf, sort.by = "none")$P.Value,
+  topTable(fit_contrasts, coef = 2, number = Inf, sort.by = "none")$P.Value,
+  topTable(fit_contrasts, coef = 5, number = Inf, sort.by = "none")$P.Value,
+  topTable(fit_contrasts, coef = 3, number = Inf, sort.by = "none")$P.Value
+)
+
+polar_padj <- cbind(
+  topTable(fit_contrasts,           number = Inf, sort.by = "none")$adj.P.Val,
+  topTable(fit_contrasts, coef = 2, number = Inf, sort.by = "none")$adj.P.Val,
+  topTable(fit_contrasts, coef = 5, number = Inf, sort.by = "none")$adj.P.Val,
+  topTable(fit_contrasts, coef = 3, number = Inf, sort.by = "none")$adj.P.Val
+)
+
+quant_volcano3D <- fit_contrasts$EList$E
+
+rownames(quant_volcano3D) <- fit_contrasts$genes$SYMBOL
+
+polar_manual <- polar_coords(
+  outcome = outcome,
+  data = t(quant_volcano3D),
+  pvals = polar_pvals,
+  padj = polar_padj
+)
+
+rownames(polar_manual@pvals) <- fit_contrasts$genes$SYMBOL
+colnames(polar_manual@pvals) <- c("ANOVA", "CUvUT", "DPENvUT", "DPENvCU")
+rownames(polar_manual@padj)  <- fit_contrasts$genes$SYMBOL
+colnames(polar_manual@padj)  <- c("ANOVA", "CUvUT", "DPENvUT", "DPENvCU")
+
+# Plot
+
+volcano3D(
+  polar_manual,
+  type = 2,
+  label_size = 20,
+  z_axis_title_size  = 20,
+  radial_axis_title_size  = 20
+)
+
+```
+
+## Camera test results
+
+### MSigDB Hallmark
+
+```{r out.width = "80%"}
+
+draw_camera_tbl(enrichments_camera[[coef]]$MSigDB_h)
+
+```
+
+### GO Biological Process
+
+```{r out.width = "80%"}
+
+draw_camera_tbl(enrichments_camera[[coef]]$GOBP)
+
+```
+
+### GO Cellular Component
+
+```{r out.width = "80%"}
+
+draw_camera_tbl(enrichments_camera[[coef]]$GOCC)
+
+```
+
+### GO Molecular Function
+
+```{r out.width = "80%"}
+
+draw_camera_tbl(enrichments_camera[[coef]]$GOMF)
+
+```

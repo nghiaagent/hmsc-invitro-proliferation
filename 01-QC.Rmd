@@ -44,12 +44,12 @@ quant_DGE_clean <-
                            "quant_cDNA_DGE_filter.RDS"))
 
 glimmaMDS(quant_DGE_clean,
-          width = 750,
-          height = 400)
+          width = 800,
+          height = 500)
 
 ```
 
-Suggeted settings:
+Suggested settings:
 
 -   `x_axis`: dim1
 
@@ -72,3 +72,11 @@ PCA plot demonstrates:
         -   The Cu treated group is further to the right in KO cells compared to WT cells. This suggest that differential expression in response to Cu is stronger in KO cells compared to WT cells.
 
 ### Heatmap
+
+#### No clustering
+
+![](output/plots_heatmap/normalised_expression_genes_unclustered.png){width="100%"}
+
+#### With sample clustering
+
+![](output/plots_heatmap/normalised_expression_genes_clustered.png){width="100%"}
