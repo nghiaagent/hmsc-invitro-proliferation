@@ -147,10 +147,10 @@ ggsave(
 
 log.cutoff <- log2(expr_cutoff)
 
-png("./output/plots_QC/Density of count values - cDNA.png", width = 10, height = 30, units = 'cm', res = 600) 
+png("./output/plots_QC/Density of count values - cDNA.png", width = 20, height = 15, units = 'cm', res = 600) 
 nsamples <- ncol(quant_cDNA_DGE) 
 col <- rainbow(nsamples) 
-par(mfrow=c(2,1)) 
+par(mfrow=c(1,2)) 
 lcpm.Raw <- cpm(quant_cDNA_DGE$counts, log=TRUE) 
 plot(density(lcpm.Raw[,1]), col=col[1], 
      xlim=c(-10,20), ylim=c(0,0.3), main="", xlab="") 
