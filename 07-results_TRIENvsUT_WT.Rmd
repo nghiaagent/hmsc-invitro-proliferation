@@ -65,7 +65,7 @@ glimmaVolcano(x = fit_contrasts,
 
 ## 3D volcano plots
 
-3D volcano plots compare expression changes between `untreated`, `Cu` treatment, and `Cu + D-penicilamine` treatment in WT cells
+3D volcano plots compare expression changes between `untreated`, `Cu` treatment, and `Cu + trientine` treatment in WT cells
 
 ```{r echo=FALSE}
 
