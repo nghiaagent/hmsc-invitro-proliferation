@@ -11,17 +11,12 @@ table_samples <-
     levels = c("WT HepG2-C3A cells", "ATP7B-KO HepG2-C3A cells")
   )) %>%
   mutate(genotype = factor(genotype, levels = c("WT", "ATP7B-KO"))) %>%
-  mutate(treatment1 = factor(treatment1, levels = c("Untreated", "Cu"))) %>%
-  mutate(treatment2 = factor(
-    treatment2,
-    levels = c("Untreated", "D-penicilamine", "trientine")
-  )) %>%
-  mutate(treatment_combined = factor(
-    treatment_combined,
+  mutate(treatment = factor(
+    treatment,
     levels = c("Untreated", "Cu", "Cu_D-penicilamine", "Cu_trientine")
   )) %>%
   mutate(condition_ID = factor(
-    str_c(genotype, treatment_combined, sep = "_"),
+    str_c(genotype, treatment, sep = "_"),
     levels = c(
       "WT_Untreated",
       "WT_Cu",
@@ -35,9 +30,7 @@ table_samples <-
   )) %>%
   arrange(condition_ID,
           genotype,
-          treatment1,
-          treatment2,
-          treatment_combined,
+          treatment,
           cell_line) %>%
   mutate(ID = factor(ID) %>% fct_inorder())
 
