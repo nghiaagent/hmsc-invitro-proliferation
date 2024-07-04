@@ -89,7 +89,8 @@ p_load(
   WGCNA,
   data.table,
   DT,
-  downlit
+  downlit,
+  openxlsx
 )
 
 # Clean up package list
