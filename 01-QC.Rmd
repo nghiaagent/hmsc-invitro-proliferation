@@ -19,15 +19,15 @@ Quality control plots revealed no problems with dataset quality.
 
 ### Counts distribution
 
-![](output/plots_QC/distribution.png){width="80%"}
+![](output/plots_QC/distribution.png){width="100%"}
 
 Library composition was highly similar between samples, both before and after TMM normalisation.
 
 ### Counts density, before and after removal of lowly-expressed genes
 
-![](output/plots_QC/Density%20of%20count%20values%20-%20cDNA.png){width="80%"}
+![](output/plots_QC/Density%20of%20count%20values%20-%20cDNA.png){width="100%"}
 
-![](output/plots_QC/voom%20mean-variance%20trend.png){width="80%"}
+![](output/plots_QC/voom%20mean-variance%20trend.png){width="100%"}
 
 Genes with low expression (determined using `edgeR::filterByExpr(min.count = 40)`) were successfully removed. After filtering, the voom mean-variance plot showed a downwards trend characteristic of filtered RNA-seq data.
 
@@ -35,7 +35,7 @@ Genes with low expression (determined using `edgeR::filterByExpr(min.count = 40)
 
 ### PCA
 
-```{r out.width = "80%"}
+```{r out.width = "100%"}
 
 quant_DGE_clean <-
   readRDS(file = file.path("output",
