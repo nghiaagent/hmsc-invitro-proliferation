@@ -1,0 +1,45 @@
+# Interact (cont.): Cu + Trientine vs untreated {#cu_vs_ut_interaction_2}
+
+```{r include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE, cache = FALSE)
+
+```
+
+```{r include=FALSE}
+
+# Load data
+source("./scripts/0_meta_env_prep.R")
+source("./scripts/0_bookdown_helper.R")
+
+enrichments_camera <- readRDS(file.path('output',
+                                      'data_enrichment',
+                                      'camera',
+                                      "camera_all.RDS"))
+
+fit_contrasts <- readRDS(file = file.path("output",
+                                          "data_expression",
+                                          "post_DGE",
+                                          "fit_contrasts.RDS"))
+
+# Set comparison coefficient
+
+coef_x <- 5
+coef_y <- 10
+
+```
+
+## XY plot
+
+WT on x-axis, KO on y-axis
+
+```{r out.width = "80%"}
+
+plot_XY(fit_contrasts,
+        coef_x = coef_x,
+        coef_y = coef_y,
+        xlab = colnames(fit_contrasts$contrasts)[coef_x],
+        ylab = colnames(fit_contrasts$contrasts)[coef_y]
+        )
+
+```

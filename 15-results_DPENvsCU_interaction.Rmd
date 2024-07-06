@@ -1,0 +1,77 @@
+# Interact: Cu + D-penicilamine vs Cu {#dpen_vs_cu_interaction}
+
+```{r include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE, cache = FALSE)
+
+```
+
+```{r include=FALSE}
+
+# Load data
+source("./scripts/0_meta_env_prep.R")
+source("./scripts/0_bookdown_helper.R")
+
+enrichments_camera <- readRDS(file.path('output',
+                                      'data_enrichment',
+                                      'camera',
+                                      "camera_all.RDS"))
+
+fit_contrasts <- readRDS(file = file.path("output",
+                                          "data_expression",
+                                          "post_DGE",
+                                          "fit_contrasts.RDS"))
+
+# Set comparison coefficient
+
+coef <- 13
+
+```
+
+## Volcano plots
+
+```{r out.width = "80%"}
+
+glimmaVolcano(x = fit_contrasts,
+              counts = fit_contrasts$EList$E,
+              groups = fit_contrasts$targets$condition_ID,
+              transform.counts = "none",
+              coef = coef,
+              width = 750,
+              height = 900)
+
+```
+
+## Camera test results
+
+### MSigDB Hallmark
+
+```{r out.width = "80%"}
+
+draw_camera_tbl(enrichments_camera[[coef]]$MSigDB_h)
+
+```
+
+### GO Biological Process
+
+```{r out.width = "80%"}
+
+draw_camera_tbl(enrichments_camera[[coef]]$GOBP)
+
+```
+
+### GO Cellular Component
+
+```{r out.width = "80%"}
+
+draw_camera_tbl(enrichments_camera[[coef]]$GOCC)
+
+```
+
+### GO Molecular Function
+
+```{r out.width = "80%"}
+
+draw_camera_tbl(enrichments_camera[[coef]]$GOMF)
+
+```
