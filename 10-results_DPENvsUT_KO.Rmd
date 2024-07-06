@@ -10,6 +10,7 @@ knitr::opts_chunk$set(echo = TRUE, cache = FALSE)
 
 # Load data
 source("./scripts/0_meta_env_prep.R")
+source("./scripts/0_bookdown_helper.R")
 
 
 enrichments_camera <- readRDS(file.path('output',
@@ -47,20 +48,6 @@ draw_camera_tbl <- function(table) {
     # Round p-values to 5 decimal places
     formatRound(c(3, 4), 5)
 }
-
-```
-
-## Volcano plots
-
-```{r out.width = "80%"}
-
-glimmaVolcano(x = fit_contrasts,
-              counts = fit_contrasts$EList$E,
-              groups = fit_contrasts$targets$condition_ID,
-              transform.counts = "none",
-              coef = coef,
-              width = 750,
-              height = 900)
 
 ```
 

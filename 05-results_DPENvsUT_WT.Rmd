@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE, cache = FALSE)
 
 # Load data
 source("./scripts/0_meta_env_prep.R")
-
+source("./scripts/0_bookdown_helper.R")
 
 enrichments_camera <- readRDS(file.path('output',
                                       'data_enrichment',
@@ -23,30 +23,6 @@ fit_contrasts <- readRDS(file = file.path("output",
                                           "fit_contrasts.RDS"))
 
 coef <- 5
-
-```
-
-```{r include = FALSE}
-
-draw_camera_tbl <- function(table) {
-  datatable(
-    table,
-    options = list(
-      columnDefs = list(list(
-        targets = 0,
-        render = JS(
-          "function(data, type, row, meta) {",
-          "return type === 'display' && data.length > 30 ?",
-          "'<span title=\"' + data + '\">' + data.substr(0, 30) + '...</span>' : data;",
-          "}"
-        )
-      ))
-    )
-  ) %>%
-    
-    # Round p-values to 5 decimal places
-    formatRound(c(3, 4), 5)
-}
 
 ```
 
