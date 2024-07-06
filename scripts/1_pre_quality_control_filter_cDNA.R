@@ -27,7 +27,7 @@ plot_libsize <- ggplot(quant_libsize,
        y = "Library size (million)",
        colour = "Condition",
        fill = "Condition") +
-  scale_y_continuous(breaks = seq(0, 40, 5)) +
+  scale_y_continuous(breaks = seq(0, 80, 5)) +
   theme_bw() +
   theme(
     legend.position = "none",
@@ -164,7 +164,7 @@ plot(density(lcpm.Filt1[,1]), col=col[1], xlim=c(-10,20), ylim=c(0,0.3), main=""
 for (i in 2:nsamples){ den <-density(lcpm.Filt1[,i]) 
 lines(den$x, den$y, col=col[i]) } 
 abline(v=log.cutoff, col="red", lwd=1, lty=2, main="") 
-title("Filtered data (filterByExpr min.count 40)",xlab="log2-CPM") 
+title("Filtered data (edgeR min.count 40)",xlab="log2-CPM") 
 
 dev.off()
 
