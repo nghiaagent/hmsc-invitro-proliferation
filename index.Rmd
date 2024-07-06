@@ -47,6 +47,27 @@ fit_contrasts[["design"]]
 fit_contrasts[["contrasts"]]
 ```
 
+#### List of comparisons
+
+| Comparison           | logFC formula                                                                |
+|----------------------|------------------------------------------------------------------------------|
+| KO_vs_WT_UT          | $logFC_{KO \_ vs \_ WT \_ UT} = {Untreated}_{ATP7B-KO} - {Untreated}_{WT}$   |
+| CU_vs_UT_WT          | $logFC_{CU \_ vs \_ UT \_ WT} = {Cu}_{WT} - {Untreated}_{WT}$                |
+| DPEN_vs_CU_WT        | $logFC_{DPEN \_ vs \_ CU \_ WT} = {Cu \_ DPEN}_{WT} - {Cu}_{WT}$             |
+| TRIEN_vs_Cu_WT       | $logFC_{TRIEN \_ vs \_ CU \_ WT} = {Cu \_ TRIEN}_{WT} - {Cu}_{WT}$           |
+| DPEN_vs_UT_WT        | $logFC_{DPEN \_ vs \_ UT \_ WT} = {Cu \_ DPEN}_{WT} - {Untreated}_{WT}$      |
+| TRIEN_vs_UT_WT       | $logFC_{TRIEN \_ vs \_ UT \_ WT} = {Cu \_ TRIEN}_{WT} - {Untreated}_{WT}$    |
+| CU_vs_UT_KO          | $logFC_{CU \_ vs \_ UT \_ KO} = {Cu}_{KO} - {Untreated}_{KO}$                |
+| DPEN_vs_CU_KO        | $logFC_{DPEN \_ vs \_ CU \_ KO} = {Cu \_ DPEN}_{KO} - {Cu}_{KO}$             |
+| TRIEN_vs_CU_KO       | $logFC_{TRIEN \_ vs \_ CU \_ KO} = {Cu \_ TRIEN}_{KO} - {Cu}_{KO}$           |
+| DPEN_vs_UT_KO        | $logFC_{DPEN \_ vs \_ UT \_ KO} = {Cu \_ DPEN}_{KO} - {Untreated}_{KO}$      |
+| TRIEN_vs_UT_KO       | $logFC_{TRIEN \_ vs \_ UT \_ KO} = {Cu \_ TRIEN}_{KO} - {Untreated}_{KO}$    |
+| CU_vs_UT_KO_vs_WT    | $logFC = logFC_{CU \_ vs \_ UT \_ KO} - logFC_{CU \_ vs \_ UT \_ WT}$        |
+| DPEN_vs_CU_KO_vs_WT  | $logFC = logFC_{DPEN \_ vs \_ CU \_ KO} - logFC_{DPEN \_ vs \_ CU \_ WT}$    |
+| TRIEN_vs_CU_KO_vs_WT | $logFC = logFC_{TRIEN \_ vs \_ CU \_ KO}  - logFC_{TRIEN \_ vs \_ CU \_ WT}$ |
+| DPEN_vs_UT_KO_vs_WT  | $logFC = logFC_{DPEN \_ vs \_ UT \_ KO} - logFC_{DPEN \_ vs \_ UT \_ WT}$    |
+| TRIEN_vs_UT_KO_vs_WT | $logFC = logFC_{TRIEN \_ vs \_ UT \_ KO} - logFC_{TRIEN \_ vs \_ UT \_ WT}$  |
+
 ### Visualisation of DEGs
 
 #### Volcano plots
