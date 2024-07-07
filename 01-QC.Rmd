@@ -55,20 +55,20 @@ Suggested settings:
 
 -   `y_axis`: dim2
 
--   `colour_by`: treatment_combined
+-   `colour_by`: treatment
 
 -   `shape_by`: genotype
 
-PCA plot demonstrates:
+MDS plot demonstrates:
 
 -   No outliers except in `ATP7B-KO_Cu_trientine` group.
     -   This is likely caused by high rRNA content in one of the samples.
 -   Strong clustering of samples by both treatment and genotype
-    -   Differences between treatments are captured by PC1 (dim1 / x-axis)
+    -   Differences between treatments are captured by dim1
         -   Untreated and Cu treated samples are on opposite sides of dim 1.
         -   Cu + trientine treated samples cluster very closely with untreated samples, suggesting highly similar gene expression profile
         -   The Cu + D-penicilamine samples cluster is closer to the untreated cluster than the Cu cluster.
-    -   Differences between genotypes are captured by PC2 (dim2 / y-axis)
+    -   Differences between genotypes are captured by dim2
         -   The Cu treated group is further to the right in KO cells compared to WT cells. This suggest that differential expression in response to Cu is stronger in KO cells compared to WT cells.
 
 ### Heatmap
