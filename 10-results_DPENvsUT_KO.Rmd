@@ -51,6 +51,20 @@ draw_camera_tbl <- function(table) {
 
 ```
 
+## Volcano plots
+
+```{r out.width = "80%"}
+
+glimmaVolcano(x = fit_contrasts,
+              counts = fit_contrasts$EList$E,
+              groups = fit_contrasts$targets$condition_ID,
+              transform.counts = "none",
+              coef = coef,
+              width = 750,
+              height = 900)
+
+```
+
 ## 3D volcano plots
 
 3D volcano plots compare expression changes between `untreated`, `Cu` treatment, and `Cu + D-penicilamine` treatment in KO cells
