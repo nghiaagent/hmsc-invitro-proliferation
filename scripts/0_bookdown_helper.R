@@ -75,7 +75,7 @@ plot_XY <- function(fit,
     status.cols = c("#1052bd",
                     "#9951A4",
                     "#cc212f"),
-    main = "Blue - KO only, Purple - Both, Red - WT only",
+    main = "Blue - WT only, Purple - Both, Red - KO only",
     width = 750,
     height = 900
   )
