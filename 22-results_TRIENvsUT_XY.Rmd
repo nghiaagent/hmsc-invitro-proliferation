@@ -1,4 +1,4 @@
-# Interact (cont.): Cu + Trientine vs untreated {#cu_vs_ut_interaction_2}
+# Interact (cont.): Cu + Trientine vs untreated {#trien_vs_ut_interaction_2}
 
 ```{r include=FALSE}
 

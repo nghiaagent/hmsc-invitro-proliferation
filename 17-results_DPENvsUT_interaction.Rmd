@@ -1,4 +1,4 @@
-# Interact: Cu + D-penicilamine vs Cu {#dpen_vs_cu_interaction}
+# Interact: Cu + D-penicilamine vs untreated {#dpen_vs_UT_interaction}
 
 ```{r include=FALSE}
 
