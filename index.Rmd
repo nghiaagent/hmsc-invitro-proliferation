@@ -50,7 +50,7 @@ fit_contrasts[["contrasts"]]
 #### List of comparisons
 
 | Comparison           | logFC formula                                                                |
-|----------------------|------------------------------------------------------------------------------|
+|------------------|------------------------------------------------------|
 | KO_vs_WT_UT          | $logFC_{KO \_ vs \_ WT \_ UT} = {Untreated}_{ATP7B-KO} - {Untreated}_{WT}$   |
 | CU_vs_UT_WT          | $logFC_{CU \_ vs \_ UT \_ WT} = {Cu}_{WT} - {Untreated}_{WT}$                |
 | DPEN_vs_CU_WT        | $logFC_{DPEN \_ vs \_ CU \_ WT} = {Cu \_ DPEN}_{WT} - {Cu}_{WT}$             |
@@ -78,6 +78,10 @@ Volcano plots implemented in the Glimma package were used for visualising change
 
 3D cylindrical volcano plots implemented in the Volcano3D package (Lewis et al., 2019) were used for visualising changes across the whole genome between 3 conditions. In this plot, gene expression (as logCPM) was projected on to a two-dimensional polar coordinate system and coloured based on the condition where they were considered as significantly upregulated. The vertical axis represents $-log_{10}(p.value)$.
 
+#### XY plot
+
+XY plots were used for visualising correlation in gene expression changes in response to treatments between WT and ATP7B-KO cells. In this this plot, log-fold change for WT cells were plotted on the x-axis and log-fold change for KO cells were plotted on the y-axis. Colors were used to colour genes based on statistical significance of differential expression (Blue: significant in WT only; Red: significant in KO only; Purple: significant in both).
+
 ### Functional enrichment analysis
 
 Functional enrichment analysis describes a class of bioinformatics methods that identifies biological functions significantly overrepresented in a list of genes. Multiple gene set databases are employed in this study to gauge a complete picture of biological changes across the experimental conditions. Information from these databases were used to determine functional enrichment by the camera algorithm [@wu2012].
@@ -96,17 +100,3 @@ Table (x) lists the gene set databases used in our study. Two main databases uti
 #### Correlation adjusted mean rank (camera) gene set enrichment analysis
 
 A gene set enrichment-type analysis was performed using camera with the gene sets described above. This method was used to perform functional enrichment on gene lists derived directly from differential expression analysis, with the primary benefit of being able to detect functional enrichment when differential expression was not significant. Camera improves on previously implemented gene set enrichment analysis algorithms by correcting for inter-gene correlation to prevent false positives. The test was performed with the inter-gene correlation factor set to 0.01 (as suggested by the original authors); gene sets with FDR \< 0.05 were considered significantly enriched.
-
-### Protein-protein interaction analysis
-
-[
-
-Placeholder methods; in short:
-
--   DEGs are ranked by their t-statistics.
-
--   List of ranked DEGs are provided to STRING database with strict (\> 0.8) connectivity thresholds
-
--   Highly connected proteins are selected as markers.
-
-]
