@@ -1,12 +1,8 @@
-<<<<<<< HEAD
-# Perform camera on logCPM produced by limma-voom
-=======
-# Perform camera on t-statistics produced by limma-voom
+
 # Load data
 
 quant_DGE_voom <- readRDS("./output/data_expression/post_DGE/quant_DGE_voom.RDS")
 fit_contrasts <- readRDS("./output/data_expression/post_DGE/fit_contrasts.RDS")
->>>>>>> parent of eb2997d (Revert "Add loading of data")
 
 # List of gene sets to be used for camera
 # GO (CC, BP, MF)
@@ -79,7 +75,7 @@ run_camera <- function(fit = NULL, coef = NULL, inter.gene.cor = 0.01, sort = TR
   # Check for errors in input
   ## Check errors in fit object
   
-  if (!class(fit) == "MArrayLM" | is.null(fit$EList) | is.null(fit$contrasts)) {
+  if (!class(fit) == "MArrayLM" | is.null(fit$contrasts)) {
     stop("Fit object is not a contrasted MArrayLM object provided by voomLmFit.\nIs keep.EList = TRUE? Have you run contrasts.fit after voomLmFit?")
   }
   
@@ -121,21 +117,15 @@ run_camera <- function(fit = NULL, coef = NULL, inter.gene.cor = 0.01, sort = TR
   
   
   if (!dir.exists(path_output)) {
-    
     dir.create(path_output, recursive = TRUE)
-    
   }
-  
-  # Get design matrix
-  
-  design <- fit$design
   
   # Run camera on GO gene sets
   
   message(str_c("Running GO enrichment for", name_output, sep = " "))
   
   camera_GOBP <- camera(
-    fit$EList$E,
+    quant_DGE_voom$E,
     msigdb_GOBP,
     fit$design,
     fit$contrasts[, coef],
@@ -144,7 +134,7 @@ run_camera <- function(fit = NULL, coef = NULL, inter.gene.cor = 0.01, sort = TR
   )
   
   camera_GOCC <- camera(
-    fit$EList$E,
+    quant_DGE_voom$E,
     msigdb_GOCC,
     fit$design,
     fit$contrasts[, coef],
@@ -153,7 +143,7 @@ run_camera <- function(fit = NULL, coef = NULL, inter.gene.cor = 0.01, sort = TR
   )
   
   camera_GOMF <- camera(
-    fit$EList$E,
+    quant_DGE_voom$E,
     msigdb_GOMF,
     fit$design,
     fit$contrasts[, coef],
@@ -164,7 +154,7 @@ run_camera <- function(fit = NULL, coef = NULL, inter.gene.cor = 0.01, sort = TR
   message(str_c("Running MSigDB enrichment for", name_output, sep = " "))
   
   camera_h <- camera(
-    fit$EList$E,
+    quant_DGE_voom$E,
     msigdb_h,
     fit$design,
     fit$contrasts[, coef],
@@ -173,7 +163,7 @@ run_camera <- function(fit = NULL, coef = NULL, inter.gene.cor = 0.01, sort = TR
   )
   
   camera_c2 <- camera(
-    fit$EList$E,
+    quant_DGE_voom$E,
     msigdb_c2,
     fit$design,
     fit$contrasts[, coef],
@@ -182,7 +172,7 @@ run_camera <- function(fit = NULL, coef = NULL, inter.gene.cor = 0.01, sort = TR
   )
   
   camera_c3 <- camera(
-    fit$EList$E,
+    quant_DGE_voom$E,
     msigdb_c3,
     fit$design,
     fit$contrasts[, coef],
@@ -193,7 +183,7 @@ run_camera <- function(fit = NULL, coef = NULL, inter.gene.cor = 0.01, sort = TR
   message(str_c("Running Reactome enrichment for", name_output, sep = " "))
   
   camera_reactome <- camera(
-    fit$EList$E,
+    quant_DGE_voom$E,
     msigdb_reactome,
     fit$design,
     fit$contrasts[, coef],
@@ -203,24 +193,14 @@ run_camera <- function(fit = NULL, coef = NULL, inter.gene.cor = 0.01, sort = TR
   
   message(str_c("Running KEGG enrichment for", name_output, sep = " "))
   
-<<<<<<< HEAD
   camera_KEGG <- camera(
-    fit$EList$E,
+    quant_DGE_voom$E,
     msigdb_KEGG,
     fit$design,
     fit$contrasts[, coef],
     sort = sort,
     inter.gene.cor = inter.gene.cor
   )
-=======
-  camera_KEGG <- camera(quant_DGE_voom$E,
-                        msigdb_KEGG,
-                        design, 
-                        matrix_contrasts[, coefficient],
-                        sort = FALSE,
-                        inter.gene.cor = NULL) %>%
-    mutate(name = rownames(.))
->>>>>>> parent of eb2997d (Revert "Add loading of data")
   
   camera_list <- list(
     "GOBP" = camera_GOBP,
