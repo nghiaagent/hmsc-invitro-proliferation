@@ -100,5 +100,3 @@ rm(list_Bioc_Pkg)
 BiocParallel::register(SnowParam(workers = 8),
                        default = TRUE)
 bpparam()
-
-# TO ADD: Create folders needed for outputting files
