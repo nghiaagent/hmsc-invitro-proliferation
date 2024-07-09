@@ -5,6 +5,8 @@
 ## 3: A vs C (P5 vs P13)
 ## 4: B vs C (P7 vs P13)
 
+table_design <- quant_DGE_voom$targets
+
 table_design$condition_ID <- factor(table_design$condition_ID,
           levels = c("P5D3Untreated",
                      "P7D3Untreated",
@@ -47,14 +49,7 @@ colnames(polar_manual@padj) <- c("ANOVA", "P7vsP5", "P13vsP5", "P13vsP7")
 ## Plot
 
 volcano3D(polar_manual,
-              axis_angle = 3/6,
               label_size = 30,
           z_axis_title_size  = 30,
-          radial_axis_title_size  = 30)
-
-radial_plotly(polar_manual,
-          axis_angle = 3/6,
-          label_size = 30,
-          axis_title_size  = 30)
-
-
+          radial_axis_title_size  = 30) %>%
+  add_animation()
