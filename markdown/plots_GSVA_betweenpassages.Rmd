@@ -494,3 +494,149 @@ glimmaVolcano(
 
 ```
 
+# Volcano3D
+
+```{r}
+# Define volcano3D function
+
+draw_volcano3D <- function(fit, quant) {
+  
+fit_sel <- fit
+quant_sel <- quant
+
+table_design <- quant_sel@phenoData@data
+
+table_design$condition_ID <- factor(table_design$condition_ID,
+          levels = c("P5D3Untreated",
+                     "P7D3Untreated",
+                     "P13D3Untreated"),
+          labels = c("5",
+                     "7",
+                     "13"))
+
+polar_pvals <- cbind(
+  topTable(fit_sel,           number = Inf, sort.by = "none")$P.Value,
+  topTable(fit_sel, coef = 13, number = Inf, sort.by = "none")$P.Value,
+  topTable(fit_sel, coef = 15, number = Inf, sort.by = "none")$P.Value,
+  topTable(fit_sel, coef = 14, number = Inf, sort.by = "none")$P.Value
+)
+
+polar_padj <- cbind(
+  topTable(fit_sel,           number = Inf, sort.by = "none")$adj.P.Val,
+  topTable(fit_sel, coef = 13, number = Inf, sort.by = "none")$adj.P.Val,
+  topTable(fit_sel, coef = 15, number = Inf, sort.by = "none")$adj.P.Val,
+  topTable(fit_sel, coef = 14, number = Inf, sort.by = "none")$adj.P.Val
+)
+
+## Construct volcano3d object
+
+polar_manual <- polar_coords(
+  outcome = table_design$condition_ID,
+  data = t(quant_sel@assayData$exprs),
+  pvals = polar_pvals,
+  padj = polar_padj
+)
+
+
+rownames(polar_manual@pvals) <- rownames(quant_sel@assayData$exprs)
+colnames(polar_manual@pvals) <- c("ANOVA", "P7vsP5", "P13vsP5", "P13vsP7")
+rownames(polar_manual@padj) <- rownames(quant_sel@assayData$exprs)
+colnames(polar_manual@padj) <- c("ANOVA", "P7vsP5", "P13vsP5", "P13vsP7")
+
+## Plot
+
+volcano3D(polar_manual,
+              axis_angle = 3/6,
+              label_size = 18,
+          z_axis_title_size  = 18,
+          radial_axis_title_size  = 18) %>%
+  add_animation()
+}
+
+```
+
+
+## GO
+
+### BP
+
+```{r}
+
+draw_volcano3D(fit_GSVA[["GOBP"]],
+               quant_GSVA[["GOBP"]])
+
+```
+
+### CC
+
+```{r}
+
+draw_volcano3D(fit_GSVA[["GOCC"]],
+               quant_GSVA[["GOCC"]])
+
+```
+
+### MF
+
+```{r}
+
+draw_volcano3D(fit_GSVA[["GOMF"]],
+               quant_GSVA[["GOMF"]])
+
+```
+
+## MSigDB
+
+### h
+
+```{r}
+
+draw_volcano3D(fit_GSVA[["h"]],
+               quant_GSVA[["h"]])
+
+```
+
+### c2
+
+```{r}
+
+draw_volcano3D(fit_GSVA[["c2"]],
+               quant_GSVA[["c2"]])
+
+```
+
+### c3
+
+```{r}
+
+draw_volcano3D(fit_GSVA[["c3"]],
+               quant_GSVA[["c3"]])
+
+```
+
+## Reactome
+
+```{r}
+
+draw_volcano3D(fit_GSVA[["Reactome"]],
+               quant_GSVA[["Reactome"]])
+
+```
+
+## KEGG
+
+```{r}
+
+draw_volcano3D(fit_GSVA[["KEGG"]],
+               quant_GSVA[["KEGG"]])
+
+```
+
+## GCN
+
+```{r}
+
+draw_volcano3D(fit_GSVA[["GCN"]],
+               quant_GSVA[["GCN"]])
+
+```
