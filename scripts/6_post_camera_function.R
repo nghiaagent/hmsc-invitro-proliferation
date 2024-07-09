@@ -1,6 +1,8 @@
 # Perform camera on t-statistics produced by limma-voom
-# Run relevant scripts beforehand
-# 2_dge
+# Load data
+
+quant_DGE_voom <- readRDS("./output/data_expression/post_DGE/quant_DGE_voom.RDS")
+fit_contrasts <- readRDS("./output/data_expression/post_DGE/fit_contrasts.RDS")
 
 # List of gene sets to be used for camera
 # GO (CC, BP, MF)
@@ -146,7 +148,7 @@ run_camera <- function(fit, coefficient) {
   
   camera_KEGG <- camera(quant_DGE_voom$E,
                         msigdb_KEGG,
-                        design,
+                        design, 
                         matrix_contrasts[, coefficient],
                         sort = FALSE,
                         inter.gene.cor = NULL) %>%
