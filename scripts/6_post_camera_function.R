@@ -1,4 +1,12 @@
+<<<<<<< HEAD
 # Perform camera on logCPM produced by limma-voom
+=======
+# Perform camera on t-statistics produced by limma-voom
+# Load data
+
+quant_DGE_voom <- readRDS("./output/data_expression/post_DGE/quant_DGE_voom.RDS")
+fit_contrasts <- readRDS("./output/data_expression/post_DGE/fit_contrasts.RDS")
+>>>>>>> parent of eb2997d (Revert "Add loading of data")
 
 # List of gene sets to be used for camera
 # GO (CC, BP, MF)
@@ -195,6 +203,7 @@ run_camera <- function(fit = NULL, coef = NULL, inter.gene.cor = 0.01, sort = TR
   
   message(str_c("Running KEGG enrichment for", name_output, sep = " "))
   
+<<<<<<< HEAD
   camera_KEGG <- camera(
     fit$EList$E,
     msigdb_KEGG,
@@ -203,6 +212,15 @@ run_camera <- function(fit = NULL, coef = NULL, inter.gene.cor = 0.01, sort = TR
     sort = sort,
     inter.gene.cor = inter.gene.cor
   )
+=======
+  camera_KEGG <- camera(quant_DGE_voom$E,
+                        msigdb_KEGG,
+                        design, 
+                        matrix_contrasts[, coefficient],
+                        sort = FALSE,
+                        inter.gene.cor = NULL) %>%
+    mutate(name = rownames(.))
+>>>>>>> parent of eb2997d (Revert "Add loading of data")
   
   camera_list <- list(
     "GOBP" = camera_GOBP,
