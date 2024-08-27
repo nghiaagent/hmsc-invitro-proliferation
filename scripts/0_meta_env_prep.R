@@ -24,6 +24,7 @@ list_Bioc_Pkg <- c(
   "EnsDb.Hsapiens.v75",
   "ComplexHeatmap",
   "tximeta",
+  "tximport",
   "SummarizedExperiment",
   "PCAtools",
   "sva",
@@ -43,7 +44,11 @@ list_Bioc_Pkg <- c(
   "GSEABase",
   "BiocStyle",
   "CEMiTool",
-  "HDO.db"
+  "HDO.db",
+  "DESeq2",
+  "pcaExplorer",
+  "IHW",
+  "RUVSeq"
 )
 
 # Install Bioconductor packages, if they are not yet installed
@@ -65,6 +70,7 @@ invisible(lapply(list_Bioc_Pkg, function(x) {
 p_load(
   tibble,
   tidyverse,
+  magrittr,
   ggrepel,
   ggpubr,
   rstatix,
@@ -88,7 +94,9 @@ p_load(
   shinybusy,
   WGCNA,
   data.table,
-  DT
+  DT,
+  UpSetR,
+  reactable
 )
 
 # Clean up package list
