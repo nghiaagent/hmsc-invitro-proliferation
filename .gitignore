@@ -59,13 +59,19 @@ input/cDNA/*
 input/cDNA_ncRNA_ENSEMBL/*
 !input/cDNA_ncRNA_ENSEMBL/README.txt
 
+input/cDNA_refseq/*
+!input/cDNA_refseq/README.txt
+
+input/cDNA_refseq_filter/*
+!input/cDNA_refseq_filter/README.txt
+
 input/genesets/*
 !input/genesets/README.txt
 
 input/kegg_pathways/*
 !input/kegg_pathways/.gitkeep
 
-# All data files that must stay secret
+# All data files
 *.csv
 *.tsv
 *.xls
@@ -82,6 +88,15 @@ input/kegg_pathways/*
 *.txt
 *.psd
 *.gmt
+*.gz
+*.css
+*.gif
+*.ico
+*.js
+
+# Bookdown output folders
+_book/*
+_main_cache/*
 
 !**/README.txt
 !**/.gitkeep
