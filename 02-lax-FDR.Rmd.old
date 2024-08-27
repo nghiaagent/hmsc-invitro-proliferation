@@ -1,0 +1,262 @@
+# Finding more DEGs by relaxing FDR threshold
+
+## Intro
+
+False discovery rate (FDR) control in DGE analysis is applied using R's implementation `stats::p.adjust(method = "fdr")` of the Benjamini-Hochberg procedure. The procedure aims to keep the proportion of false positives compared to all positives below the defined FDR threshold. For example, with 200 positives at FDR 5%, it ensures that no more than 10 are false positives.
+
+The FDR can be relaxed, at the risk of increasing false positives. For example, at FDR 10%, the procedure only controls for 20/200 false positives. At 20%; only 40/200, etc.
+
+## Methods
+
+The number of DEGs was compared between FDRs ranging from 5% to 20%.
+
+Changes in the number of DEGs was visualised using UpSet plots , which systematically visualises the degree of overlap between arbitrary numbers of sets. Here, each set is defined as the set of genes deemed significantly regulated at a given FDR.
+
+```{r include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE, cache = FALSE)
+
+```
+
+```{r include=FALSE}
+
+# Load data
+source("./scripts/0_meta_env_prep.R")
+source("./scripts/0_bookdown_helper.R")
+source("./scripts/3_dge_extract_genes_lax_fdr.R")
+source("./scripts/6_post_camera_function.R")
+
+fit_contrasts <- readRDS(file = file.path("output",
+                                          "data_expression",
+                                          "post_DGE",
+                                          "fit_contrasts.RDS"))
+
+enrichments_camera <- readRDS(file.path('output', 'data_enrichment', 'camera', "camera_all.RDS"))
+
+```
+
+## Results
+
+### All comparisons
+
+```{r}
+datatable(tests_summary_compact, options = list(scrollX = TRUE))
+```
+
+### Unaffected comparisons
+
+Some comparisons yielded few more DEGs in spite of the relaxed FDR:
+
+-   Between treatments, at:
+    -   P+5, Day 5
+    -   P+7, Day 3
+    -   P+7, Day 5
+    -   P+13, Day 3
+-   Interaction between passage and treatment (all)
+    -   This comparison represents the long-term effect of Heparin treatment
+-   Interaction between day and treatment (all)
+    -   This comparison represents the how Heparin treatment affects cells at the "decision point".
+
+These comparisons won't be further examined.
+
+### Between treatments
+
+#### P+5 Day 3
+
+```{r}
+upset(fromList(signif_genes_indices[["Trt_P5_D3"]]), nsets = 9)
+```
+
+#### P+13 Day 5
+
+```{r}
+upset(fromList(signif_genes_indices[["Trt_P13_D5"]]), nsets = 9)
+```
+
+### Between passages
+
+#### At day 3
+
+##### P+5 vs. P+7
+
+```{r}
+upset(fromList(signif_genes_indices[["P7vsP5_UT_D3"]]), nsets = 9)
+```
+
+##### P+7 vs. P+13
+
+```{r}
+upset(fromList(signif_genes_indices[["P13vsP7_UT_D3"]]), nsets = 9)
+```
+
+##### P+5 vs. P+13
+
+```{r}
+upset(fromList(signif_genes_indices[["P13vsP5_UT_D3"]]), nsets = 9)
+```
+
+#### At day 5
+
+##### P+5 vs. P+7
+
+```{r}
+upset(fromList(signif_genes_indices[["P7vsP5_UT_D5"]]), nsets = 9)
+```
+
+##### P+7 vs. P+13
+
+```{r}
+upset(fromList(signif_genes_indices[["P13vsP7_UT_D5"]]), nsets = 9)
+```
+
+##### P+5 vs. P+13
+
+```{r}
+upset(fromList(signif_genes_indices[["P13vsP5_UT_D5"]]), nsets = 9)
+```
+
+### Between days
+
+#### At P+5
+
+```{r}
+upset(fromList(signif_genes_indices[["D5vsD3_UT_P5"]]), nsets = 9)
+```
+
+#### At P+7
+
+```{r}
+upset(fromList(signif_genes_indices[["D5vsD3_UT_P7"]]), nsets = 9)
+```
+
+#### At P+13
+
+```{r}
+upset(fromList(signif_genes_indices[["D5vsD3_UT_P13"]]), nsets = 9)
+```
+
+### Interaction between day and passage
+
+#### P+7 vs P+5 and Day 5 vs Day 3
+
+```{r}
+upset(fromList(signif_genes_indices[["P7vsP5_D5vsD3_UT"]]), nsets = 9)
+```
+
+#### P+13 vs P+7 and Day 5 vs Day 3
+
+```{r}
+upset(fromList(signif_genes_indices[["P13vsP7_D5vsD3_UT"]]), nsets = 9)
+```
+
+#### P+13 vs P+5 and Day 5 vs Day 3
+
+```{r}
+upset(fromList(signif_genes_indices[["P13vsP5_D5vsD3_UT"]]), nsets = 9)
+```
+
+## Discovered genes
+
+### Between treatments, at P+5 Day 3
+
+At FDR 0.05:
+
+```{r}
+datatable(signif_genes[["Trt_P5_D3"]][["test_0.05"]], options = list(scrollX = TRUE))
+```
+
+At FDR 0.075:
+
+```{r}
+datatable(signif_genes[["Trt_P5_D3"]][["test_0.075"]], options = list(scrollX = TRUE))
+```
+At FDR 0.1:
+
+```{r}
+datatable(signif_genes[["Trt_P5_D3"]][["test_0.1"]], options = list(scrollX = TRUE))
+```
+
+At FDR 0.125:
+
+```{r}
+datatable(signif_genes[["Trt_P5_D3"]][["test_0.125"]], options = list(scrollX = TRUE))
+```
+
+At FDR 0.15:
+
+```{r include=FALSE}
+datatable(signif_genes[["Trt_P5_D3"]][["test_0.15"]], options = list(scrollX = TRUE))
+```
+
+## Biological relevance of DEGs 
+
+### Between treatments at P+5 Day 3
+
+At FDR 0.15, g:Profiler revealed 1 over-represented gene set (Reactome ROS and RNS production in phagocytes, p = 0.027). No over-represented gene sets at lower FDRs.
+
+```{r include=FALSE}
+
+coef <- 1
+
+```
+
+#### Camera gene set test
+
+##### MSigDB Hallmark
+
+```{r out.width = "80%"}
+
+draw_camera_tbl(enrichments_camera[[coef]]$MSigDB_h)
+
+```
+
+##### GO Biological Process
+
+```{r out.width = "80%"}
+
+draw_camera_tbl(enrichments_camera[[coef]]$GOBP)
+
+```
+
+###### Plot of top pathway
+
+```{r}
+
+index_sel <- msigdb_GOBP[[rownames(enrichments_camera[[coef]]$GOBP)[1]]]
+
+barcodeplot(topTable(fit_contrasts,
+                     coef = coef,
+                     number = Inf,
+                     sort.by = "none")$t,
+            index = index_sel)
+
+```
+
+```{r}
+
+glimmaVolcano(x = fit_contrasts[index_sel,],
+              counts = quant_DGE_voom[index_sel,]$E,
+              groups = quant_DGE_voom[index_sel,]$targets$condition_ID,
+              xlab = "logFC",
+              transform.counts = "none",
+              coef = coef)
+
+```
+
+
+##### GO Cellular Component
+
+```{r out.width = "80%"}
+
+draw_camera_tbl(enrichments_camera[[coef]]$GOCC)
+
+```
+
+##### GO Molecular Function
+
+```{r out.width = "80%"}
+
+draw_camera_tbl(enrichments_camera[[coef]]$GOMF)
+
+```
+
