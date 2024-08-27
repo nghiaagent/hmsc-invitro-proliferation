@@ -499,7 +499,7 @@ glimmaVolcano(
 ```{r}
 # Define volcano3D function
 
-draw_volcano3D <- function(fit, quant) {
+draw_volcano3D <- function(fit, quant, highlights = NULL) {
   
 fit_sel <- fit
 quant_sel <- quant
@@ -549,7 +549,8 @@ volcano3D(polar_manual,
               axis_angle = 3/6,
               label_size = 18,
           z_axis_title_size  = 18,
-          radial_axis_title_size  = 18) %>%
+          radial_axis_title_size  = 18,
+          label_rows = highlights) %>%
   add_animation()
 }
 
@@ -592,7 +593,11 @@ draw_volcano3D(fit_GSVA[["GOMF"]],
 ```{r}
 
 draw_volcano3D(fit_GSVA[["h"]],
-               quant_GSVA[["h"]])
+               quant_GSVA[["h"]],
+               highlights = c("HALLMARK_TGF_BETA_SIGNALING", "HALLMARK_TNFA_SIGNALING_VIA_NFKB",
+                              "HALLMARK_MYC_TARGETS_V1",
+                              "HALLMARK_ESTROGEN_RESPONSE_LATE",
+                              "HALLMARK_SPERMATOGENESIS"))
 
 ```
 
