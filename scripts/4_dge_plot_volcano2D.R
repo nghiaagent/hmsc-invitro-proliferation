@@ -659,3 +659,10 @@ ggsave(
   units = "in",
   dpi = 300
 )
+
+glimmaVolcano(x = fit_contrasts[fit_contrasts$genes$ENTREZID %in% geneIds_inhouse,],
+              counts = quant_DGE_voom[fit_contrasts$genes$ENTREZID %in% geneIds_inhouse,quant_DGE_voom$targets$condition_ID %in% conditions_interest]$E,
+              groups = quant_DGE_voom[fit_contrasts$genes$ENTREZID %in% geneIds_inhouse,quant_DGE_voom$targets$condition_ID %in% conditions_interest]$targets$condition_ID,
+              xlab = "logFC",
+              transform.counts = "none",
+              coef = 14)
