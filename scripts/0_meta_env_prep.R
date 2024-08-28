@@ -96,7 +96,8 @@ p_load(
   data.table,
   DT,
   UpSetR,
-  reactable
+  reactable,
+  here
 )
 
 # Clean up package list
