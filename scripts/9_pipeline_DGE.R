@@ -7,6 +7,7 @@ list_files_limma <- c(
   "2_ensembl_voom_dge.R"
 )
 
+# Run scripts of DESeq2 pipeline
 
 list_files_deseq2 <- c(
   "0_meta_env_prep.R",
