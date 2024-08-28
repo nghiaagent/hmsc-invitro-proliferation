@@ -14,6 +14,8 @@ list_files_deseq2 <- c(
   "2_ensembl_deseq2_dge.R"
 )
 
-walk(list_files_limma, \ (x) source(here::here("scripts", x)))
+walk(list_files_limma,
+     \ (x) source(here::here("scripts", x)))
 
-walk(list_files_deseq2, \ (x) source(here::here("scripts", x)))
+walk(list_files_deseq2,
+     \ (x) source(here::here("scripts", x)))
