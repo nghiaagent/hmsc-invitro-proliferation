@@ -37,7 +37,9 @@ design <- model.matrix(~ condition_ID + cell_line,
 # Batch fx corrected while considering: condition, cell population
 
 quant_DGE_clean_batchcor <- quant_DGE_clean
-quant_DGE_clean_batchcor$counts <- sva::ComBat_seq(quant_DGE_clean$counts, batch = quant_DGE_clean$samples$run_date)
+quant_DGE_clean_batchcor$counts <- sva::ComBat_seq(quant_DGE_clean$counts,
+                                                   batch = quant_DGE_clean$samples$run_date,
+                                                   covar_mod = design)
 
 # Define design matrix for limma
 ## Include batch as an additive factor
