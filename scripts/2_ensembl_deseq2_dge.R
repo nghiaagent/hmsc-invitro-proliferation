@@ -17,8 +17,8 @@ counts(quant_deseq2_batchcor) <- quant_deseq2_batchcor %$%
     batch = colData(.)$run_date
     ## Uncomment the below to preserve covariates in batch correction.
     ## Currently this produces NAs due to unbalanced design.
-    ,
-    covar_mod = model.matrix( ~ condition_ID + cell_line, data = colData(.))
+    # ,
+    # covar_mod = model.matrix( ~ condition_ID + cell_line, data = colData(.))
   ) %>%
   `storage.mode<-`(., "integer")
 
