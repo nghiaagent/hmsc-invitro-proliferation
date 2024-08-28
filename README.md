@@ -2,7 +2,7 @@
 
 ## About
 
--   Files suffixed with `_dep` are superceded.
+-   Files suffixed with `.old` are superceded.
 
 ## How to run
 
@@ -31,5 +31,3 @@
     -   If this repo was cloned using RStudio, this project is already open.
 
 4.  Source pipeline scripts at `/scripts/9_*` to perform analysis
-
-5.  Knit files in `/markdown` to view results.
