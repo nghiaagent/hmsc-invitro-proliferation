@@ -19,7 +19,9 @@ list_pvals <- c(
   test_0.125 = 0.125,
   test_0.15  = 0.15,
   test_0.175 = 0.175,
-  test_0.2   = 0.2
+  test_0.2   = 0.2,
+  test_0.225 = 0.225,
+  test_0.25  = 0.25
 )
 
 ## Get TestMatrix lists
@@ -46,15 +48,23 @@ tests_summary_compact <- tests_summary %>%
            unname())
 
 # Get names of significant genes at each comparison, each FDR
-# Done using nested map:
-# Inner map: Get names of significant genes for every contrasts
-# Outer map: Performs inner map on every FDR chosen
+# Done using nested purrr::map loops:
+# Inner map: Get names of significant genes for every FDR at chosen contrast
+# Outer map: Performs inner map on every contrast
 
-signif_genes <- map(.x = tests_matrix,
-                    .f = \(tests) {
-  map(.x = list_contrasts,
-      .f = \(coef) {fit_contrasts$genes[which(tests[, coef] != 0), ]$GENENAME})
-}
+signif_genes_indices <- map(.x = list_contrasts,
+                    .f = \(coef) {
+                      map(.x = tests_matrix,
+                          .f = \(tests) {fit_contrasts$genes[which(tests[, coef] != 0), ]$GENEID}) %>%
+                        ids2indices(., fit_contrasts$genes$GENEID, remove.empty = FALSE)
+                    }
+)
+
+signif_genes <- map(.x = list_contrasts,
+                            .f = \(coef) {
+                              map(.x = tests_matrix,
+                                  .f = \(tests) {fit_contrasts$genes[which(tests[, coef] != 0), ]})
+                            }
 )
 
 # Export data
