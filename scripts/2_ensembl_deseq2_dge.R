@@ -6,21 +6,20 @@
 quant_deseq2 <- readRDS("output/data_expression/pre_DGE/quant_cDNA_deseq.RDS")
 
 # Try batch correction
-## Change 
 
 quant_deseq2_batchcor <- quant_deseq2
 
-design(quant_deseq2_batchcor) <- ~ condition_ID + run_date + cell_line
+design(quant_deseq2_batchcor) <- ~ condition_ID + cell_line
 
 counts(quant_deseq2_batchcor) <- quant_deseq2_batchcor %$%
-  sva::ComBat_seq(counts(.),
-                  batch = colData(.)$run_date,
-                  
-                  ## Uncomment the below to preserve covariates in batch correction.
-                  ## Currently this produces NAs due to unbalanced design.
-                  # covar_mod = model.matrix(~ condition_ID + cell_line,
-                  #                          data = colData(.))
-                  ) %>%
+  sva::ComBat_seq(
+    counts(.),
+    batch = colData(.)$run_date
+    ## Uncomment the below to preserve covariates in batch correction.
+    ## Currently this produces NAs due to unbalanced design.
+    ,
+    covar_mod = model.matrix( ~ condition_ID + cell_line, data = colData(.))
+  ) %>%
   `storage.mode<-`(., "integer")
 
 # Run DESeq2 on datasets
@@ -30,44 +29,22 @@ quant_deseq2 %<>% DESeq()
 
 # Obtain results
 
-results(
-  quant_deseq2,
-  contrast = c("condition_ID", "P5D3Untreated", "P5D3Treated"),
-  filterFun = ihw,
-  alpha = 0.05
-) %>% summary()
+results <- map(
+  list_contrasts_deseq2,
+  \ (x) results(
+    quant_deseq2,
+    contrast = x,
+    filterFun = ihw,
+    alpha = 0.05
+  )
+)
 
-results(
-  quant_deseq2,
-  contrast = c("condition_ID", "P5D3Untreated", "P7D3Untreated"),
-  filterFun = ihw,
-  alpha = 0.05
-) %>% summary()
-
-results(
-  quant_deseq2,
-  contrast = c("condition_ID", "P5D3Untreated", "P13D3Untreated"),
-  filterFun = ihw,
-  alpha = 0.05
-) %>% summary()
-
-results(
-  quant_deseq2_batchcor,
-  contrast = c("condition_ID", "P5D3Untreated", "P5D3Treated"),
-  filterFun = ihw,
-  alpha = 0.05
-) %>% summary()
-
-results(
-  quant_deseq2_batchcor,
-  contrast = c("condition_ID", "P5D3Untreated", "P7D3Untreated"),
-  filterFun = ihw,
-  alpha = 0.05
-) %>% summary()
-
-results(
-  quant_deseq2_batchcor,
-  contrast = c("condition_ID", "P5D3Untreated", "P13D3Untreated"),
-  filterFun = ihw,
-  alpha = 0.05
-) %>% summary()
+results_batchcor <- map(
+  list_contrasts_deseq2,
+  \ (x) results(
+    quant_deseq2_batchcor,
+    contrast = x,
+    filterFun = ihw,
+    alpha = 0.05
+  )
+)
