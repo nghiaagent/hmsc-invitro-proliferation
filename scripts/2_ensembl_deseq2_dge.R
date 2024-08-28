@@ -30,7 +30,7 @@ quant_deseq2 %<>% DESeq()
 # Obtain results
 
 results <- map(
-  list_contrasts_deseq2,
+  list_contrasts_deseq2[c(1,3,5,13,14,15)],
   \ (x) results(
     quant_deseq2,
     contrast = x,
@@ -40,7 +40,7 @@ results <- map(
 )
 
 results_batchcor <- map(
-  list_contrasts_deseq2,
+  list_contrasts_deseq2[c(1,3,5,13,14,15)],
   \ (x) results(
     quant_deseq2_batchcor,
     contrast = x,
