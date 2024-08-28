@@ -4,6 +4,7 @@
 
 quant_DGE_clean <-
   readRDS(file = "./output/data_expression/pre_DGE/quant_cDNA_DGE_filter.RDS")
+quant_DGE_clean_batchcor <- quant_DGE_clean
 
 # Define design matrix for batch correction
 
@@ -24,8 +25,7 @@ design <- model.matrix(~ condition_ID + cell_line,
 
 quant_DGE_batchcor_E <-
   sva::ComBat_seq(quant_DGE_clean$counts,
-                  batch = table_design$run_date,
-                  covar_mod = design)
+                  batch = table_design$run_date)
 
 quant_DGE_clean_batchcor <- quant_DGE_clean
 quant_DGE_clean_batchcor$counts <- quant_DGE_batchcor_E
@@ -64,13 +64,13 @@ table_design <- quant_DGE_clean_batchcor$samples %>%
 ## Treat cell line as an additive factor
 ## Include batch as an additive factor
 
-design <- model.matrix(~ condition_ID + run_date + cell_line,
+design <- model.matrix(~ condition_ID + cell_line + run_date,
                        data = table_design)
 
 colnames(design) <- make.names(colnames(design))
 
 # Apply voom transformation, data are now logCPM
-# Output mean-variance trend plot
+# Output mean-variance trend plot 
 
 png(
   "./output/plots_QC/voom mean-variance trend.png",
@@ -164,6 +164,8 @@ matrix_contrasts <- makeContrasts(
 fit_contrasts <- contrasts.fit(fit,
                                matrix_contrasts) %>%
   eBayes()
+
+summary(decideTests(fit_contrasts))
 
 # Save data
 
