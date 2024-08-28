@@ -92,10 +92,16 @@ quant_cDNA_tx <-
 
 # Summarise transcripts quantification to genes
 # Create object for DGE with DESeq2
-quant_cDNA_deseq2 <-
+quant_deseq2 <-
   summarizeToGene(quant_cDNA_tx,
                   assignRanges="abundant") %>%
   DESeqDataSet(design = ~ condition_ID + run_date + cell_line)
+
+# Filter lowly-expressed genes
+# Keep only genes with higher than 10 counts in at least 3 samples
+# Doesn't affect results; but speeds up computation
+
+quant_deseq2 %<>% .[rowSums(counts(.) >= 10) >= 3,]
 
 # Export quantification results
 
