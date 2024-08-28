@@ -1,45 +1,15 @@
-### Don't source this file by itself; call in from another file after running env_prep.R
+### Don't source this file by itself
 
 # Load dataset
 
-quant_DGE_clean <-
-  readRDS(file = "./output/data_expression/pre_DGE/quant_cDNA_DGE_filter.RDS")
-quant_DGE_clean_batchcor <- quant_DGE_clean
+quant_DGE_clean <- readRDS(file = "./output/data_expression/pre_DGE/quant_cDNA_DGE_filter.RDS")
 
-# Define design matrix for batch correction
+# Fix samples table in object
 
-## Treat time points and treatments as fixed effects
-## Treat cell line as an additive factor
-
-table_design <- quant_DGE_clean$samples %>%
-  mutate(Passage = factor(Passage,
-                          levels = c("P5", "P7", "P13"))) %>%
-  mutate(Treatment = factor(Treatment,
-                            levels = c("Untreated", "Treated")))
-
-design <- model.matrix(~ condition_ID + cell_line,
-                       data = table_design)
-
-# Use ComBat-seq to correct for batch fx
-# Batch fx corrected while considering: condition, cell population
-
-quant_DGE_batchcor_E <-
-  sva::ComBat_seq(quant_DGE_clean$counts,
-                  batch = table_design$run_date)
-
-quant_DGE_clean_batchcor <- quant_DGE_clean
-quant_DGE_clean_batchcor$counts <- quant_DGE_batchcor_E
-rm(quant_DGE_batchcor_E)
-
-# Define factors for design matrix
-
-table_design <- quant_DGE_clean_batchcor$samples %>%
-  mutate(Day = factor(Day,
-                      levels = c("D3", "D5"))) %>%
-  mutate(Passage = factor(Passage,
-                          levels = c("P5", "P7", "P13"))) %>%
-  mutate(Treatment = factor(Treatment,
-                            levels = c("Untreated", "Treated"))) %>%
+quant_DGE_clean$samples %<>%
+  mutate(Day = factor(Day, levels = c("D3", "D5"))) %>%
+  mutate(Passage = factor(Passage, levels = c("P5", "P7", "P13"))) %>%
+  mutate(Treatment = factor(Treatment, levels = c("Untreated", "Treated"))) %>%
   mutate(condition_ID = factor(
     condition_ID,
     levels = c(
@@ -58,50 +28,26 @@ table_design <- quant_DGE_clean_batchcor$samples %>%
     )
   ))
 
-# Define design matrix for limma
+# Define design matrix for batch correction
 
-## Treat time points and treatments (condition) as fixed effects
-## Treat cell line as an additive factor
+design <- model.matrix(~ condition_ID + cell_line,
+                       data = quant_DGE_clean$samples)
+
+# Use ComBat-seq to correct for batch fx
+# Batch fx corrected while considering: condition, cell population
+
+quant_DGE_clean_batchcor <- quant_DGE_clean
+quant_DGE_clean_batchcor$counts <- sva::ComBat_seq(quant_DGE_clean$counts, batch = quant_DGE_clean$samples$run_date)
+
+# Define design matrix for limma
 ## Include batch as an additive factor
 
 design <- model.matrix(~ condition_ID + cell_line + run_date,
-                       data = table_design)
+                       data = quant_DGE_clean$samples)
 
-colnames(design) <- make.names(colnames(design))
-
-# Apply voom transformation, data are now logCPM
-# Output mean-variance trend plot 
-
-png(
-  "./output/plots_QC/voom mean-variance trend.png",
-  width = 18,
-  height = 12,
-  units = 'cm',
-  res = 400
-)
-
-quant_DGE_voom <-
-  voom(quant_DGE_clean_batchcor,
-       design,
-       plot = TRUE)
-
-dev.off()
-
-# Apply limma model fit
-
-fit <- lmFit(quant_DGE_voom,
-             design) %>%
-  eBayes()
-
-summary(decideTests(fit))
+colnames(design) %<>% make.names()
 
 # Define contrasts
-## Coefs 1 - 6: Treatment at each timepoint
-## Coefs 7 - 12: Day at each timepoint x treatment
-## Coefs 13 - 24: Passage at each day x treatment
-## Coefs 25 - 30: Passage x Treatment at each day
-## Coefs 31 - 36: Passage x Day at treatment
-## Coefs 37 - 39: Day x Treatment at Passage
 
 matrix_contrasts <- makeContrasts(
   
@@ -157,23 +103,36 @@ matrix_contrasts <- makeContrasts(
   D5vsD3_TvsUT_P13 = (condition_IDP13D5Treated - condition_IDP13D5Untreated) - (condition_IDP13D3Treated - condition_IDP13D3Untreated),
   
   levels = design
+  )
+
+# Apply voom transformation, data are now logCPM
+# Output mean-variance trend plot
+
+png(
+  "./output/plots_QC/voom mean-variance trend.png",
+  width = 18,
+  height = 12,
+  units = 'cm',
+  res = 400
 )
 
+quant_DGE_voom <-
+  voom(quant_DGE_clean_batchcor, design, plot = TRUE)
+
+dev.off()
+
+# Apply limma model fit
 # Test for desired contrasts
 
-fit_contrasts <- contrasts.fit(fit,
-                               matrix_contrasts) %>%
+fit_contrasts <- lmFit(quant_DGE_voom, design) %>%
+  eBayes() %>%
+  contrasts.fit(matrix_contrasts) %>%
   eBayes()
 
 summary(decideTests(fit_contrasts))
 
 # Save data
 
-saveRDS(quant_DGE_voom,
-        file = "./output/data_expression/post_DGE/quant_DGE_voom.RDS")
+saveRDS(quant_DGE_voom, file = "./output/data_expression/post_DGE/quant_DGE_voom.RDS")
 
-saveRDS(fit_contrasts,
-        file = "./output/data_expression/post_DGE/fit_contrasts.RDS")
-
-saveRDS(fit,
-        file = "./output/data_expression/post_DGE/fit.RDS")
+saveRDS(fit_contrasts, file = "./output/data_expression/post_DGE/fit_contrasts.RDS")
