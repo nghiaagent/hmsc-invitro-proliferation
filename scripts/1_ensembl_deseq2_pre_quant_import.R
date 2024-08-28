@@ -105,4 +105,4 @@ quant_deseq2 %<>% .[rowSums(counts(.) >= 10) >= 3,]
 
 # Export quantification results
 
-saveRDS(quant_cDNA_deseq2, file = "./output/data_expression/pre_DGE/quant_cDNA_deseq.RDS")
+saveRDS(quant_deseq2, file = "./output/data_expression/pre_DGE/quant_cDNA_deseq.RDS")
