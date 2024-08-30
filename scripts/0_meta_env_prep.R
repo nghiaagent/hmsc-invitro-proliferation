@@ -106,7 +106,7 @@ rm(list_Bioc_Pkg)
 
 # Limit number of cores used due to memory issues on laptops.
 
-BiocParallel::register(SnowParam(workers = 8),
+BiocParallel::register(SnowParam(workers = 6),
                        default = TRUE)
 bpparam()
 
