@@ -1,7 +1,10 @@
+# Run script to load and install packages
+
+source("scripts/0_meta_env_prep.R")
+
 # Run scripts of limma::voom pipeline
 
 list_files_limma <- c(
-  "0_meta_env_prep.R",
   "1_ensembl_voom_pre_quant_import.R",
   "1_ensembl_voom_pre_quality_control_filter.R",
   "2_ensembl_voom_dge.R"
@@ -10,7 +13,6 @@ list_files_limma <- c(
 # Run scripts of DESeq2 pipeline
 
 list_files_deseq2 <- c(
-  "0_meta_env_prep.R",
   "1_ensembl_deseq2_pre_quant_import.R",
   "2_ensembl_deseq2_dge.R"
 )
