@@ -61,13 +61,7 @@ df_stats_cDNA <- rowMeans(quant_cDNA_DGE$counts) %>%
 head(df_stats_cDNA, 50) %>%
   write_csv("./output/QC/Top_20_Expressed_Genes_cDNA.csv")
 
-## Filter genes
-
-
-
-### comment out method that isn't used
-
-## Filter genes with low expression using edgeR function, default threshold
+## Filter genes with low expression using edgeR function
 
 expr_cutoff <- 40
 
@@ -79,47 +73,34 @@ keep_cDNA_edgeRfiter <- filterByExpr(quant_cDNA_DGE,
 quant_cDNA_DGE_filter <- quant_cDNA_DGE[keep_cDNA_edgeRfiter, , keep.lib.sizes=FALSE] %>%
   calcNormFactors()
 
-## Filter genes based on CPM 0.5 threshold
-# 
-# expr_cutoff <- 0.5 # in cpm sum(median_cpm > expr_cutoff)
-# 
-# median_cpm <- apply(cpm(quant_cDNA_ncRNA_ENSEMBL_DGE), 1, median)
-# 
-# quant_cDNA_ncRNA_ENSEMBL_DGE_filter <- quant_cDNA_ncRNA_ENSEMBL_DGE[median_cpm > expr_cutoff, ] %>%
-#   calcNormFactors()
-
 # Per sample distribution; before and after adding TMM scaling factor
 
-lcpm_pre_TMM <-
-  cpm(quant_cDNA_DGE[keep_cDNA_edgeRfiter, , keep.lib.sizes=FALSE],
-      log = TRUE) %>%
-  as_tibble() %>%
-  mutate(GENEID = rownames(quant_cDNA_DGE_filter)) %>%
-  pivot_longer(cols = !GENEID,
-               names_to = "ID",
-               values_to = "lcpm") %>%
-  mutate(type = "Before normalisation")
-
-lcpm_post_TMM <- cpm(quant_cDNA_DGE_filter,
-                     log = TRUE) %>%
-  as_tibble() %>%
-  mutate(GENEID = rownames(quant_cDNA_DGE_filter)) %>%
-  pivot_longer(cols = !GENEID,
-               names_to = "ID",
-               values_to = "lcpm") %>%
-  mutate(type = "After normalisation")
-
-lcpm <- rbind(lcpm_pre_TMM, lcpm_post_TMM) %>%
-  mutate(type = factor(type,
-                       levels = c(
-                         "Before normalisation",
-                         "After normalisation"
-                       ))) %>%
-  left_join(y = select(quant_cDNA_DGE_filter$samples,
-                       c("ID", "condition_ID")),
+lcpm <- list("Before normalisation" = quant_cDNA_DGE[keep_cDNA_edgeRfiter, ,
+                                                     keep.lib.sizes=FALSE],
+             "After normalisation" = quant_cDNA_DGE_filter) %>%
+  map2(
+    .x = .,
+    .y = names(.),
+    \ (x, y) {
+    cpm(x, log = TRUE) %>%
+      as_tibble() %>%
+      mutate(GENEID = rownames(quant_cDNA_DGE_filter)) %>%
+      pivot_longer(
+        cols = !GENEID,
+        names_to = "ID",
+        values_to = "lcpm"
+      ) %>%
+      mutate(type = y)
+      }
+  ) %>%
+  bind_rows() %>%
+  mutate(type = factor(type, levels = c(
+    "Before normalisation",
+    "After normalisation"
+  ))) %>%
+  left_join(y = select(quant_cDNA_DGE_filter$samples, c("ID", "condition_ID")),
             by = join_by(ID == ID)) %>%
-  mutate(ID = factor(ID,
-                     levels = levels(quant_cDNA_DGE$samples$ID)))
+  mutate(ID = factor(ID, levels = levels(quant_cDNA_DGE_filter$samples$ID)))
 
 plot_distribution_preTMM <- ggplot(lcpm,
                                    aes(x = ID,
@@ -151,48 +132,75 @@ ggsave(
   scale = 0.7
 )
 
-
 # Density plots - copied from Sofia's pipeline
 
 log.cutoff <- log2(expr_cutoff)
-
-png("./output/plots_QC/Density of count values - cDNA and ncRNA.png", width = 10, height = 30, units = 'cm', res = 600) 
 nsamples <- ncol(quant_cDNA_DGE) 
 col <- rainbow(nsamples) 
-par(mfrow=c(2,1)) 
 lcpm.Raw <- cpm(quant_cDNA_DGE$counts, log=TRUE) 
-plot(density(lcpm.Raw[,1]), col=col[1], 
-     xlim=c(-10,20), ylim=c(0,0.3), main="", xlab="") 
-for (i in 2:nsamples){ den <-density(lcpm.Raw[,i]) 
-lines(den$x, den$y, col=col[i]) } 
-abline(v=log.cutoff, col="red", lwd=1, lty=2, main="") 
-title("Raw data",xlab="log2-CPM")
-
 lcpm.Filt1 <- cpm(quant_cDNA_DGE_filter$counts, log=TRUE) 
-plot(density(lcpm.Filt1[,1]), col=col[1], xlim=c(-10,20), ylim=c(0,0.3), main="", xlab="") 
-for (i in 2:nsamples){ den <-density(lcpm.Filt1[,i]) 
-lines(den$x, den$y, col=col[i]) } 
-abline(v=log.cutoff, col="red", lwd=1, lty=2, main="") 
-title("Filtered data (median CPM > 0.5)",xlab="log2-CPM") 
+
+png("./output/plots_QC/Density of count values - cDNA and ncRNA.png", width = 8, height = 4, units = 'in', res = 300) 
+layout(matrix(1:2, nrow=1))
+
+plot(density(lcpm.Raw[,1]),
+     col=col[1], 
+     xlim=c(-10,20),
+     ylim=c(0,0.3),
+     main="",
+     xlab="") 
+
+for (i in 2:nsamples){ 
+  den <- density(lcpm.Raw[,i]) 
+  lines(den$x, den$y, col=col[i])
+} 
+
+abline(v=log.cutoff,
+       col="red",
+       lwd=1,
+       lty=2,
+       main="") 
+
+title("Raw data",
+      xlab="log2-CPM")
+
+plot(density(lcpm.Filt1[,1]),
+     col=col[1],
+     xlim=c(-10,20),
+     ylim=c(0,0.3),
+     main="",
+     xlab="") 
+
+for (i in 2:nsamples){
+  den <- density(lcpm.Filt1[,i]) 
+  lines(den$x, den$y, col=col[i])
+} 
+
+abline(v=log.cutoff,
+       col="red",
+       lwd=1,
+       lty=2,
+       main="") 
+
+title("Filtered data (median CPM > 0.5)",
+      xlab="log2-CPM") 
 
 dev.off()
 
-# Heatmap - copied from Sofia's file
+# Correlation heatmap - copied from Sofia's file
 
 png(
   "./output/plots_QC/Sample correlation heatmap - cDNA.png",
-  width = 60,
-  height = 60,
-  units = 'cm',
+  width = 10,
+  height = 10,
+  units = 'in',
   res = 300
 )
-par(mfrow = c(1, 2))
-lcpm.Raw <- cpm(quant_cDNA_DGE$counts, log = TRUE)
-heatmap(cor(lcpm.Raw))
-title("Raw data")
-lcpm.Filt <- cpm(quant_cDNA_DGE_filter$counts, log = TRUE)
-heatmap(cor(lcpm.Filt))
+par(mar = c(16, 16, 16, 16))
+
+heatmap(cor(lcpm.Filt1))
 title("Filtered data")
+
 dev.off()
 
 
