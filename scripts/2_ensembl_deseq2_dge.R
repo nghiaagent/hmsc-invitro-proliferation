@@ -9,7 +9,7 @@ quant_deseq2 <- readRDS("output/data_expression/pre_DGE/quant_cDNA_deseq.RDS")
 
 quant_deseq2_batchcor <- quant_deseq2
 
-design(quant_deseq2_batchcor) <- ~ condition_ID + cell_line
+design(quant_deseq2_batchcor) <- ~ condition_ID + cell_line + run_date
 
 counts(quant_deseq2_batchcor) <- quant_deseq2_batchcor %$%
   sva::ComBat_seq(
@@ -17,15 +17,17 @@ counts(quant_deseq2_batchcor) <- quant_deseq2_batchcor %$%
     batch = colData(.)$run_date
     ## Uncomment the below to preserve covariates in batch correction.
     ## Currently this produces NAs due to unbalanced design.
-    # ,
-    # covar_mod = model.matrix( ~ condition_ID + cell_line, data = colData(.))
+    ,
+    covar_mod = model.matrix( ~ condition_ID + cell_line, data = colData(.))
   ) %>%
   `storage.mode<-`(., "integer")
 
 # Run DESeq2 on datasets
 
-quant_deseq2_batchcor %<>% DESeq()
 quant_deseq2 %<>% DESeq()
+quant_deseq2_batchcor %<>% DESeq()
+
+# quant_deseq2 %<>% DESeq()
 
 # Obtain results
 
@@ -36,7 +38,8 @@ results <- map(
     contrast = x,
     filterFun = ihw,
     alpha = 0.05
-  )
+  ),
+  .progress = TRUE
 )
 
 results_batchcor <- map(
@@ -46,5 +49,6 @@ results_batchcor <- map(
     contrast = x,
     filterFun = ihw,
     alpha = 0.05
-  )
+  ),
+  .progress = TRUE
 )
