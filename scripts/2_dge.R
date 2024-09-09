@@ -38,13 +38,28 @@ results <- map(
   .progress = TRUE
 )
 
-results_batchcor <- map(
-  list_contrasts_deseq2[c(1,3,5,13,14,15)],
-  \ (x) results(
-    quant_deseq2_batchcor,
-    contrast = x,
-    filterFun = ihw,
-    alpha = 0.05
-  ),
-  .progress = TRUE
+# Export rlog for camera; WGCNA, etc.
+
+rlog_deseq2_batchcor <- rlog(quant_deseq2_batchcor)
+
+# Save data
+
+saveRDS(
+  quant_deseq2_batchcor,
+  file = here::here(
+    "output",
+    "data_expression",
+    "post_DGE",
+    "quant_deseq2_batchcor.RDS"
+  )
+)
+
+saveRDS(
+  rlog_deseq2_batchcor,
+  file = here::here("output", "data_expression", "post_DGE", "rlog_deseq2.RDS")
+)
+
+saveRDS(
+  results,
+  file = here::here("output", "data_expression", "post_DGE", "results_deseq2.RDS")
 )
