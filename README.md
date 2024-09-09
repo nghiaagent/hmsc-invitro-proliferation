@@ -2,7 +2,7 @@
 
 ## About
 
--   Files suffixed with `.old` are superceded.
+Last version of repo before fully committing to DESeq2 pipeline.
 
 ## How to run
 
