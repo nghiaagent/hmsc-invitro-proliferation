@@ -1,4 +1,4 @@
-# Install pacman, a package manager to install and load multiple packages at once
+# Install pacman, a package manager to install and load multiple packages
 
 if (!requireNamespace("pacman")) {
   install.packages("pacman")
@@ -7,14 +7,15 @@ library(pacman)
 
 # Install Bioconductor package manager
 
-if (!require("BiocManager", quietly = TRUE))
+if (!require("BiocManager", quietly = TRUE)) {
   install.packages("BiocManager")
+}
 
 library(BiocManager)
 
 # List Bioconductor packages to load/install
 
-list_Bioc_Pkg <- c(
+list_bioc_pkg <- c(
   "BiocHubsShiny",
   "AnnotationHub",
   "edgeR",
@@ -55,13 +56,13 @@ list_Bioc_Pkg <- c(
 # Swap update = TRUE / FALSE depending on need to update pkg
 
 BiocManager::install(
-  pkgs = list_Bioc_Pkg,
+  pkgs = list_bioc_pkg,
   update = FALSE
 )
 
 # Load Bioconductor packages
 
-invisible(lapply(list_Bioc_Pkg, function(x) {
+invisible(lapply(list_bioc_pkg, function(x) {
   library(x, character.only = TRUE)
 }))
 
@@ -102,48 +103,44 @@ p_load(
 
 # Clean up package list
 
-rm(list_Bioc_Pkg)
+rm(list_bioc_pkg)
 
 # Limit number of cores used due to memory issues on laptops.
 
-BiocParallel::register(SnowParam(workers = 6),
-                       default = TRUE)
+BiocParallel::register(SnowParam(workers = 2),
+  default = TRUE
+)
 bpparam()
 
 # Define contrasts for DESeq2
 ## No interactions yet...
 
 list_contrasts_deseq2 <- list(
-  
   ## Coefs 1 - 6: Treatment at each timepoint
-  Trt_P5_D3  = c("condition_ID", "P5D3Untreated" , "P5D3Treated" ),
-  Trt_P5_D5  = c("condition_ID", "P5D5Untreated" , "P5D5Treated" ),
-  Trt_P7_D3  = c("condition_ID", "P7D3Untreated" , "P7D3Treated" ),
-  Trt_P7_D5  = c("condition_ID", "P7D5Untreated" , "P7D5Treated" ),
-  Trt_P13_D3 = c("condition_ID", "P13D3Untreated", "P13D3Treated"),
-  Trt_P13_D5 = c("condition_ID", "P13D5Untreated", "P13D5Treated"),
-  
+  Trt_P5_D3 = c("condition_ID", "P5D3Treated", "P5D3Untreated"),
+  Trt_P5_D5 = c("condition_ID", "P5D5Treated", "P5D5Untreated"),
+  Trt_P7_D3 = c("condition_ID", "P7D3Treated", "P7D3Untreated"),
+  Trt_P7_D5 = c("condition_ID", "P7D5Treated", "P7D5Untreated"),
+  Trt_P13_D3 = c("condition_ID", "P13D3Treated", "P13D3Untreated"),
+  Trt_P13_D5 = c("condition_ID", "P13D5Treated", "P13D5Untreated"),
   ## Coefs 7 - 12: Day at each timepoint x treatment
-  D5vsD3_UT_P5  = c("condition_ID", "P5D3Untreated" , "P5D5Untreated" ),
-  D5vsD3_UT_P7  = c("condition_ID", "P7D3Untreated" , "P7D5Untreated" ),
-  D5vsD3_UT_P13 = c("condition_ID", "P13D3Untreated", "P13D5Untreated"),
-  D5vsD3_T_P5   = c("condition_ID", "P5D3Treated"   , "P5D5Treated" ),
-  D5vsD3_T_P7   = c("condition_ID", "P7D3Treated"   , "P7D5Treated" ),
-  D5vsD3_T_P13  = c("condition_ID", "P13D3Treated"  , "P13D5Treated"),
-  
+  D5vsD3_UT_P5 = c("condition_ID", "P5D5Untreated", "P5D3Untreated"),
+  D5vsD3_UT_P7 = c("condition_ID", "P7D5Untreated", "P7D3Untreated"),
+  D5vsD3_UT_P13 = c("condition_ID", "P13D5Untreated", "P13D3Untreated"),
+  D5vsD3_T_P5 = c("condition_ID", "P5D5Treated", "P5D3Treated"),
+  D5vsD3_T_P7 = c("condition_ID", "P7D5Treated", "P7D3Treated"),
+  D5vsD3_T_P13 = c("condition_ID", "P13D5Treated", "P13D3Treated"),
   ## Coefs 13 - 24: Passage at each day x treatment
-  P7vsP5_UT_D3  = c("condition_ID", "P5D3Untreated", "P7D3Untreated" ),
-  P13vsP7_UT_D3 = c("condition_ID", "P7D3Untreated", "P13D3Untreated"),
-  P13vsP5_UT_D3 = c("condition_ID", "P5D3Untreated", "P13D3Untreated"),
-  P7vsP5_T_D3   = c("condition_ID", "P5D3Treated", "P7D3Treated" ),
-  P13vsP7_T_D3  = c("condition_ID", "P7D3Treated", "P13D3Treated"),
-  P13vsP5_T_D3  = c("condition_ID", "P5D3Treated", "P13D3Treated"),
-  P7vsP5_UT_D5  = c("condition_ID", "P5D5Untreated", "P7D5Untreated" ),
-  P13vsP7_UT_D5 = c("condition_ID", "P7D5Untreated", "P13D5Untreated"),
-  P13vsP5_UT_D5 = c("condition_ID", "P5D5Untreated", "P13D5Untreated"),
-  P7vsP5_T_D5   = c("condition_ID", "P5D5Treated", "P7D5Treated" ),
-  P13vsP7_T_D5  = c("condition_ID", "P7D5Treated", "P13D5Treated"),
-  P13vsP5_T_D5  = c("condition_ID", "P5D5Treated", "P13D5Treated")
+  P7vsP5_UT_D3 = c("condition_ID", "P7D3Untreated", "P5D3Untreated"),
+  P13vsP7_UT_D3 = c("condition_ID", "P13D3Untreated", "P7D3Untreated"),
+  P13vsP5_UT_D3 = c("condition_ID", "P13D3Untreated", "P5D3Untreated"),
+  P7vsP5_T_D3 = c("condition_ID", "P7D3Treated", "P5D3Treated"),
+  P13vsP7_T_D3 = c("condition_ID", "P13D3Treated", "P7D3Treated"),
+  P13vsP5_T_D3 = c("condition_ID", "P13D3Treated", "P5D3Treated"),
+  P7vsP5_UT_D5 = c("condition_ID", "P7D5Untreated", "P5D5Untreated"),
+  P13vsP7_UT_D5 = c("condition_ID", "P13D5Untreated", "P7D5Untreated"),
+  P13vsP5_UT_D5 = c("condition_ID", "P13D5Untreated", "P5D5Untreated"),
+  P7vsP5_T_D5 = c("condition_ID", "P7D5Treated", "P5D5Treated"),
+  P13vsP7_T_D5 = c("condition_ID", "P13D5Treated", "P7D5Treated"),
+  P13vsP5_T_D5 = c("condition_ID", "P13D5Treated", "P5D5Treated")
 )
-
-# TODO: Define contrasts for limma::voom here instead of in each script...
