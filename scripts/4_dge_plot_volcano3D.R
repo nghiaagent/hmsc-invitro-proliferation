@@ -1,55 +1,148 @@
 # Supply p-values to the 3D volcano plot
 ## First column: ANOVA p-values
 ## Remaining columns: Comparisons
-## 2: A vs B (P5 vs P7)
-## 3: A vs C (P5 vs P13)
-## 4: B vs C (P7 vs P13)
+## 13: A vs B (P5 vs P7)
+## 15: A vs C (P5 vs P13)
+## 14: B vs C (P7 vs P13)
 
-table_design <- quant_DGE_voom$targets
+# Define axis specs
 
-table_design$condition_ID <- factor(table_design$condition_ID,
-          levels = c("P5D3Untreated",
-                     "P7D3Untreated",
-                     "P13D3Untreated"),
-          labels = c("5",
-                     "7",
-                     "13"))
+plotlist <- list(
+  z_score = 1,
+  logFC = 2
+)
+
+breaks <- seq(
+  from = 0,
+  to = 3.5,
+  by = 0.5
+)
+
+genes_highlight <- c()
+
+# Load data
+
+rlog_deseq2_batchcor <- readRDS(file = here::here(
+  "output",
+  "data_expression",
+  "post_DGE",
+  "rlog_deseq2.RDS"
+))
+
+results <- readRDS(file = here::here(
+  "output",
+  "data_expression",
+  "post_DGE",
+  "results_deseq2.RDS"
+))
+
+quant_deseq2_lrt <- readRDS(file = here::here(
+  "output",
+  "data_expression",
+  "post_DGE",
+  "quant_deseq2_LRT.RDS"
+))
+
+results_lrt <- results(quant_deseq2_lrt, filterFun = ihw, alpha = 0.05)
+
+# Supply pvalues
 
 polar_pvals <- cbind(
-  topTable(fit_contrasts,           number = Inf, sort.by = "none")$P.Value,
-  topTable(fit_contrasts, coef = 13, number = Inf, sort.by = "none")$P.Value,
-  topTable(fit_contrasts, coef = 15, number = Inf, sort.by = "none")$P.Value,
-  topTable(fit_contrasts, coef = 14, number = Inf, sort.by = "none")$P.Value
+  results_lrt$pvalue,
+  results[[13]]$pvalue,
+  results[[15]]$pvalue,
+  results[[14]]$pvalue
 )
 
 polar_padj <- cbind(
-  topTable(fit_contrasts,           number = Inf, sort.by = "none")$adj.P.Val,
-  topTable(fit_contrasts, coef = 13, number = Inf, sort.by = "none")$adj.P.Val,
-  topTable(fit_contrasts, coef = 15, number = Inf, sort.by = "none")$adj.P.Val,
-  topTable(fit_contrasts, coef = 14, number = Inf, sort.by = "none")$adj.P.Val
+  results_lrt$padj,
+  results[[13]]$padj,
+  results[[15]]$padj,
+  results[[14]]$padj
 )
 
 ## Construct volcano3d object
 
-rownames(quant_DGE_voom$E) <- quant_DGE_voom$genes$GENENAME
+outcome <- colData(rlog_deseq2_batchcor)$condition_ID %>%
+  factor(
+    levels = c(
+      "P5D3Untreated",
+      "P7D3Untreated",
+      "P13D3Untreated"
+    ),
+    labels = c(
+      "5",
+      "7",
+      "13"
+    )
+  )
 
 polar_manual <- polar_coords(
-  outcome = table_design$condition_ID,
-  data = t(quant_DGE_voom$E),
+  outcome = outcome,
+  data = rlog_deseq2_batchcor %>%
+    assay() %>%
+    set_rownames(rowRanges(rlog_deseq2_batchcor)$gene_name) %>%
+    t(),
   pvals = polar_pvals,
   padj = polar_padj
 )
 
-
-rownames(polar_manual@pvals) <- quant_DGE_voom$genes$GENENAME
-colnames(polar_manual@pvals) <- c("ANOVA", "P7vsP5", "P13vsP5", "P13vsP7")
-rownames(polar_manual@padj) <- quant_DGE_voom$genes$GENENAME
-colnames(polar_manual@padj) <- c("ANOVA", "P7vsP5", "P13vsP5", "P13vsP7")
+rownames(polar_manual@pvals) <- rownames(rlog_deseq2_batchcor)
+colnames(polar_manual@pvals) <- c("LRT", "P7vsP5", "P13vsP5", "P13vsP7")
+rownames(polar_manual@padj) <- rownames(rlog_deseq2_batchcor)
+colnames(polar_manual@padj) <- c("LRT", "P7vsP5", "P13vsP5", "P13vsP7")
 
 ## Plot
+### Generate list of
+### 3D volcano - Z-scores
+### 3D volcano - logFC
+### radial - Z-scores
+### radial - logFC
 
-volcano3D(polar_manual,
-              label_size = 30,
-          z_axis_title_size  = 30,
-          radial_axis_title_size  = 30) %>%
-  add_animation()
+volcano3d <- map(
+  plotlist,
+  \(x) {
+    volcano3D(
+      polar_manual,
+      type = x,
+      label_size = 24,
+      z_axis_title_size = 20,
+      radial_axis_title_size = 20
+    )
+  }
+)
+
+radial_plotly <- map(
+  plotlist,
+  \(x) {
+    radial_plotly(
+      polar_manual,
+      type = x,
+      r_axis_ticks = breaks
+    )
+  }
+)
+
+radial_ggplot <- map(
+  plotlist,
+  \(x) {
+    radial_ggplot(
+      polar_manual,
+      type = x,
+      r_axis_ticks = breaks
+    )
+  }
+)
+
+saveRDS(
+  list(
+    volcano3d,
+    radial_plotly,
+    radial_ggplot
+  ),
+  file = here::here(
+    "output",
+    "plots_volcano3D",
+    "volcano3d_passages_day3.RDS"
+  )
+)
