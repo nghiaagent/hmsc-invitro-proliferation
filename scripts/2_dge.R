@@ -48,9 +48,33 @@ results <- map(
   .progress = TRUE
 )
 
-# Export rlog for camera; WGCNA, etc.
+results_lfcshrink <- map2(
+  .x = list_contrasts_deseq2,
+  .y = results,
+  \(x, y) {
+    lfcShrink(
+      quant_deseq2_batchcor,
+      contrast = x,
+      res = y,
+      type = "ashr"
+    )
+  },
+  .progress = TRUE
+)
 
-rlog_deseq2_batchcor <- rlog(quant_deseq2_batchcor)
+results_lfcshrink_normal <- map2(
+  .x = list_contrasts_deseq2,
+  .y = results,
+  \(x, y) {
+    lfcShrink(
+      quant_deseq2_batchcor,
+      contrast = x,
+      res = y,
+      type = "normal"
+    )
+  },
+  .progress = TRUE
+)
 
 # Save data
 

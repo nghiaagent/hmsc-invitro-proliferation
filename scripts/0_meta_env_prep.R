@@ -22,10 +22,8 @@ list_bioc_pkg <- c(
   "Homo.sapiens",
   "limma",
   "Glimma",
-  "EnsDb.Hsapiens.v75",
   "ComplexHeatmap",
   "tximeta",
-  "tximport",
   "SummarizedExperiment",
   "PCAtools",
   "sva",
@@ -44,12 +42,12 @@ list_bioc_pkg <- c(
   "enrichplot",
   "GSEABase",
   "BiocStyle",
-  "CEMiTool",
   "HDO.db",
   "DESeq2",
   "pcaExplorer",
   "IHW",
-  "RUVSeq"
+  "RUVSeq",
+  "EnhancedVolcano"
 )
 
 # Install Bioconductor packages, if they are not yet installed
@@ -98,7 +96,8 @@ p_load(
   DT,
   UpSetR,
   reactable,
-  here
+  here,
+  ashr
 )
 
 # Clean up package list
