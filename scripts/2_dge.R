@@ -19,13 +19,18 @@ counts(quant_deseq2_batchcor) <- quant_deseq2_batchcor %$%
   ) %>%
   `storage.mode<-`(., "integer")
 
+# Export rlog
+
+rlog_deseq2_batchcor <- rlog(quant_deseq2_batchcor)
+
 # Run DESeq2
 ## Run once with full model
 ## Run again with reduced model and LRT
 ## to get ANOVA-like statistic for 3D volcano plot
 ## (i.e. chance of gene differentially expressed at all)
 
-quant_deseq2_batchcor %<>% DESeq() # nolint: assignment_linter.
+quant_deseq2_batchcor <- quant_deseq2_batchcor %>%
+  DESeq()
 
 quant_deseq2_lrt <- quant_deseq2_batchcor %>%
   DESeq(
@@ -62,21 +67,9 @@ results_lfcshrink <- map2(
   .progress = TRUE
 )
 
-results_lfcshrink_normal <- map2(
-  .x = list_contrasts_deseq2,
-  .y = results,
-  \(x, y) {
-    lfcShrink(
-      quant_deseq2_batchcor,
-      contrast = x,
-      res = y,
-      type = "normal"
-    )
-  },
-  .progress = TRUE
-)
-
 # Save data
+
+## DESeq datasets
 
 saveRDS(
   quant_deseq2_batchcor,
@@ -98,6 +91,8 @@ saveRDS(
   )
 )
 
+## Rlog
+
 saveRDS(
   rlog_deseq2_batchcor,
   file = here::here(
@@ -108,6 +103,8 @@ saveRDS(
   )
 )
 
+## Results (non-shrink and shrunken LFC)
+
 saveRDS(
   results,
   file = here::here(
@@ -115,5 +112,15 @@ saveRDS(
     "data_expression",
     "post_DGE",
     "results_deseq2.RDS"
+  )
+)
+
+saveRDS(
+  results_lfcshrink,
+  file = here::here(
+    "output",
+    "data_expression",
+    "post_DGE",
+    "results_deseq2_lfcshrink.RDS"
   )
 )
