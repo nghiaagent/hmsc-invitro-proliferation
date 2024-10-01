@@ -79,9 +79,7 @@ p_load(
   gridExtra,
   statmod,
   volcano3D,
-  writexl,
   msigdbr,
-  cowplot,
   viridis,
   palettetown,
   seriation,
@@ -89,7 +87,6 @@ p_load(
   magick,
   cluster,
   rmdformats,
-  future,
   shinybusy,
   WGCNA,
   data.table,
@@ -97,7 +94,8 @@ p_load(
   UpSetR,
   reactable,
   here,
-  ashr
+  ashr,
+  openxlsx
 )
 
 # Clean up package list
