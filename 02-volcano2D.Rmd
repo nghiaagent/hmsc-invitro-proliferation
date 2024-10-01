@@ -1,0 +1,27 @@
+# 2D volcano plots
+
+```{r include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = FALSE)
+```
+
+```{r include=FALSE}
+# Load packages and data
+
+source(here::here(
+    "scripts",
+    "0_meta_env_prep.R"
+))
+
+source(here::here(
+    "scripts",
+    "4_dge_plot_volcano2D.R"
+))
+```
+
+## All plots
+
+```{r}
+ls()
+
+walk(plots_volcano, plot)
+```

@@ -1,668 +1,110 @@
-# Extract logFC and p-vals for comparisons between passages at D3 and D5
+## Implement 2D volcano plots that support outliers
+# Load data
 
-top_P7vsP5_D3 <- topTable(fit_contrasts, coef = 13,
-                          number = Inf)
+quant_deseq2_batchcor <- readRDS(file = here::here(
+  "output",
+  "data_expression",
+  "post_DGE",
+  "quant_deseq2_batchcor.RDS"
+))
 
-top_P7vsP5_D5 <- topTable(fit_contrasts, coef = 16,
-                          number = Inf)
+results_lfcshrink <- readRDS(file = here::here(
+  "output",
+  "data_expression",
+  "post_DGE",
+  "results_deseq2_lfcshrink.RDS"
+))
 
-top_P13vsP5_D3 <- topTable(fit_contrasts, coef = 15,
-                           number = Inf)
+label_genes <- rowRanges(quant_deseq2_batchcor)$gene_name
 
-top_P13vsP5_D5 <- topTable(fit_contrasts, coef = 18,
-                           number = Inf)
+# Hardcode plot specs
 
-top_P13vsP7_D3 <- topTable(fit_contrasts, coef = 14,
-                           number = Inf)
+cutoff_logfc <- 3
+cutoff_padj <- 1e-15
 
-top_P13vsP7_D5 <- topTable(fit_contrasts, coef = 17,
-                           number = Inf)
+# Define function to clip logFC to desired point
+# And clip padj
 
-# Extract logFC and p-vals for Trt vs Ctrl
+clip_results <- function(results, cutoff_logfc = 2.5, cutoff_padj = 1e-20) {
+  cutoff_logfc_neg <- cutoff_logfc * -1
+  # Clip logFC to the threshold
+  results$log2FoldChange %<>% case_when(
+    . >= cutoff_logfc ~ cutoff_logfc,
+    . <= cutoff_logfc_neg ~ cutoff_logfc_neg,
+    .default = .
+  )
+  # Clip padj to the threshold
+  results$padj %<>% case_when(
+    . <= cutoff_padj ~ cutoff_padj,
+    .default = .
+  )
+  # Add custom shapes to dots to identify clipped genes
+  ## Normal dots: Shape 19
+  ## Clipped (positive): Shape -9658
+  ## Clipped (negative): Shape -9668
+  ## Add names for legend
+  results$volcano_shape <- case_when(
+    results$log2FoldChange >= cutoff_logfc ~ -9658,
+    results$log2FoldChange <= cutoff_logfc_neg ~ -9668,
+    results$padj <= cutoff_padj ~ 17,
+    .default = 19
+  )
+  names(results$volcano_shape) <- case_when(
+    results$volcano_shape == -9658 ~ str_c("logFC >", cutoff_logfc),
+    results$volcano_shape == -9668 ~ str_c("logFC < -", cutoff_logfc),
+    results$volcano_shape == 17 ~ str_c("padj <", cutoff_padj),
+    results$volcano_shape == 19 ~ "Unclipped"
+  )
+  # Make clipped genes larger
+  results$volcano_size <- case_when(
+    results$log2FoldChange >= cutoff_logfc ~ 4,
+    results$log2FoldChange <= cutoff_logfc_neg ~ 4,
+    results$padj <= cutoff_padj ~ 4,
+    .default = 2
+  )
+  return(results)
+}
 
-top_treat_P5_D3 <- topTable(fit_contrasts, coef = 1,
-                            number = Inf)
-
-top_treat_P5_D5 <- topTable(fit_contrasts, coef = 2,
-                            number = Inf)
-
-top_treat_P7_D3 <- topTable(fit_contrasts, coef = 3,
-                            number = Inf)
-
-top_treat_P7_D5 <- topTable(fit_contrasts, coef = 4,
-                            number = Inf)
-
-top_treat_P13_D3 <- topTable(fit_contrasts, coef = 5,
-                             number = Inf)
-
-top_treat_P13_D5 <- topTable(fit_contrasts, coef = 6,
-                             number = Inf)
-
-# Extract logFC and pvals for interaction term
-
-top_interaction_TvsUT_P7vsP5_D3 <-
-  topTable(fit_contrasts, coef = 25,
-           number = Inf)
-
-top_interaction_TvsUT_P13vsP5_D3 <-
-  topTable(fit_contrasts, coef = 27,
-           number = Inf)
-
-top_interaction_TvsUT_P13vsP7_D3 <-
-  topTable(fit_contrasts, coef = 26,
-           number = Inf)
-
-top_interaction_TvsUT_P7vsP5_D5 <-
-  topTable(fit_contrasts, coef = 28,
-           number = Inf)
-
-top_interaction_TvsUT_P13vsP5_D5 <-
-  topTable(fit_contrasts, coef = 30,
-           number = Inf)
-
-top_interaction_TvsUT_P13vsP7_D5 <-
-  topTable(fit_contrasts, coef = 29,
-           number = Inf)
-
-# Draw 2D volcano plot - between growth phases
-
-volcano_P7vsP5_D3 <- EnhancedVolcano::EnhancedVolcano(
-  top_P7vsP5_D3,
-  lab = top_P7vsP5_D3$GENENAME,
-  x = 'logFC',
-  y = 'adj.P.Val',
-  title = "Phase B - Phase A, after 3 days in culture",
-  subtitle = NULL,
-  xlim = c(-12, 14),
-  ylim = c(0, 17),
-  pCutoff = 0.05,
-  legendPosition = 'right',
-  boxedLabels = TRUE,
-  drawConnectors = TRUE,
-  widthConnectors = 1.0,
-  colConnectors = 'black',
-  caption = NULL,
-  legendDropLevels = F
+results_clipped <- map(
+  results_lfcshrink,
+  \(x) {
+    clip_results(
+      x,
+      cutoff_logfc = cutoff_logfc,
+      cutoff_padj = cutoff_padj
+    )
+  }
 )
 
+# Draw plots
 
-volcano_P7vsP5_D5 <- EnhancedVolcano::EnhancedVolcano(
-  top_P7vsP5_D5,
-  lab = top_P7vsP5_D5$GENENAME,
-  x = 'logFC',
-  y = 'adj.P.Val',
-  title = "Phase B - Phase A, after 5 days in culture",
-  subtitle = NULL,
-  xlim = c(-12, 28),
-  ylim = c(0, 14),
-  pCutoff = 0.05,
-  legendPosition = 'right',
-  boxedLabels = TRUE,
-  drawConnectors = TRUE,
-  widthConnectors = 1.0,
-  colConnectors = 'black',
-  caption = NULL,
-  legendDropLevels = F
+plots_volcano <- purrr::imap(
+  results_clipped,
+  \(x, idx) {
+    EnhancedVolcano(
+      x,
+      lab = label_genes,
+      x = "log2FoldChange",
+      y = "padj",
+      xlim = c(cutoff_logfc * -1, cutoff_logfc),
+      ylim = c(0, -log10(cutoff_padj)),
+      ylab = bquote(~ -Log[10] ~ "adjusted p-value"),
+      axisLabSize = 12,
+      title = idx,
+      titleLabSize = 12,
+      subtitle = NULL,
+      caption = NULL,
+      pCutoff = 0.05,
+      FCcutoff = 0.5,
+      pointSize = x$volcano_size,
+      labSize = 2,
+      boxedLabels = FALSE,
+      shapeCustom = x$volcano_shape,
+      legendPosition = "none",
+      drawConnectors = TRUE,
+      widthConnectors = 0,
+      arrowheads = FALSE
+    )
+  },
+  .progress = TRUE
 )
-
-
-volcano_P13vsP5_D3 <-
-  EnhancedVolcano::EnhancedVolcano(
-    top_P13vsP5_D3,
-    lab = top_P13vsP5_D3$GENENAME,
-    x = 'logFC',
-    y = 'adj.P.Val',
-    title = "Phase C - Phase A, after 3 days in culture",
-    subtitle = NULL,
-    xlim = c(-12, 14),
-    ylim = c(0, 17),
-    pCutoff = 0.05,
-    legendPosition = 'right',
-    boxedLabels = TRUE,
-    drawConnectors = TRUE,
-    widthConnectors = 1.0,
-    colConnectors = 'black',
-    caption = NULL,
-    legendDropLevels = F
-  )
-
-
-volcano_P13vsP5_D5 <-
-  EnhancedVolcano::EnhancedVolcano(
-    top_P13vsP5_D5,
-    lab = top_P13vsP5_D5$GENENAME,
-    x = 'logFC',
-    y = 'adj.P.Val',
-    title = "Phase C - Phase A, after 5 days in culture",
-    subtitle = NULL,
-    xlim = c(-12, 28),
-    ylim = c(0, 14),
-    pCutoff = 0.05,
-    legendPosition = 'right',
-    boxedLabels = TRUE,
-    drawConnectors = TRUE,
-    widthConnectors = 1.0,
-    colConnectors = 'black',
-    caption = NULL,
-    legendDropLevels = F
-  )
-
-volcano_P13vsP7_D3 <-
-  EnhancedVolcano::EnhancedVolcano(
-    top_P13vsP7_D3,
-    lab = top_P13vsP7_D3$GENENAME,
-    x = 'logFC',
-    y = 'adj.P.Val',
-    title = "Phase C - Phase B, after 3 days in culture",
-    subtitle = NULL,
-    xlim = c(-12, 14),
-    ylim = c(0, 17),
-    pCutoff = 0.05,
-    legendPosition = 'right',
-    boxedLabels = TRUE,
-    drawConnectors = TRUE,
-    widthConnectors = 1.0,
-    colConnectors = 'black',
-    caption = NULL,
-    legendDropLevels = F
-  )
-
-
-volcano_P13vsP7_D5 <-
-  EnhancedVolcano::EnhancedVolcano(
-    top_P13vsP7_D5,
-    lab = top_P13vsP7_D5$GENENAME,
-    x = 'logFC',
-    y = 'adj.P.Val',
-    title = "Phase C - Phase B, after 5 days in culture",
-    subtitle = NULL,
-    xlim = c(-12, 28),
-    ylim = c(0, 14),
-    pCutoff = 0.05,
-    legendPosition = 'right',
-    boxedLabels = TRUE,
-    drawConnectors = TRUE,
-    widthConnectors = 1.0,
-    colConnectors = 'black',
-    caption = NULL,
-    legendDropLevels = F
-  )
-# Draw 2D volcano plot - between treatments
-
-volcano_treat_P5_D3 <-
-  EnhancedVolcano::EnhancedVolcano(
-    top_treat_P5_D3,
-    lab = top_treat_P5_D3$GENENAME,
-    x = 'logFC',
-    y = 'adj.P.Val',
-    title = "Effect of Heparin treatment at Phase A, Day 3",
-    subtitle = NULL,
-    xlim = c(-10, 10),
-    ylim = c(0, 3.5),
-    pCutoff = 0.05,
-    legendPosition = 'right',
-    boxedLabels = TRUE,
-    drawConnectors = TRUE,
-    widthConnectors = 1.0,
-    colConnectors = 'black',
-    caption = NULL,
-    legendDropLevels = F
-  )
-
-volcano_treat_P7_D3 <-
-  EnhancedVolcano::EnhancedVolcano(
-    top_treat_P7_D3,
-    lab = top_treat_P7_D3$GENENAME,
-    x = 'logFC',
-    y = 'adj.P.Val',
-    title = "Effect of Heparin treatment at Phase B, Day 3",
-    subtitle = NULL,
-    xlim = c(-10, 10),
-    ylim = c(0, 3.5),
-    pCutoff = 0.05,
-    legendPosition = 'right',
-    boxedLabels = TRUE,
-    drawConnectors = TRUE,
-    widthConnectors = 1.0,
-    colConnectors = 'black',
-    caption = NULL,
-    legendDropLevels = F
-  )
-
-volcano_treat_P13_D3 <-
-  EnhancedVolcano::EnhancedVolcano(
-    top_treat_P13_D3,
-    lab = top_treat_P13_D3$GENENAME,
-    x = 'logFC',
-    y = 'adj.P.Val',
-    title = "Effect of Heparin treatment at Phase C, Day 3",
-    subtitle = NULL,
-    xlim = c(-10, 10),
-    ylim = c(0, 3.5),
-    pCutoff = 0.05,
-    legendPosition = 'right',
-    boxedLabels = TRUE,
-    drawConnectors = TRUE,
-    widthConnectors = 1.0,
-    colConnectors = 'black',
-    caption = NULL,
-    legendDropLevels = F
-  )
-
-
-volcano_treat_P5_D5 <-
-  EnhancedVolcano::EnhancedVolcano(
-    top_treat_P5_D5,
-    lab = top_treat_P5_D5$GENENAME,
-    x = 'logFC',
-    y = 'adj.P.Val',
-    title = "Effect of Heparin treatment at Phase A, Day 5",
-    subtitle = NULL,
-    xlim = c(-15, 7),
-    ylim = c(0, 5),
-    pCutoff = 0.05,
-    legendPosition = 'right',
-    boxedLabels = TRUE,
-    drawConnectors = TRUE,
-    widthConnectors = 1.0,
-    colConnectors = 'black',
-    caption = NULL,
-    legendDropLevels = F
-  )
-
-volcano_treat_P7_D5 <-
-  EnhancedVolcano::EnhancedVolcano(
-    top_treat_P7_D5,
-    lab = top_treat_P7_D5$GENENAME,
-    x = 'logFC',
-    y = 'adj.P.Val',
-    title = "Effect of Heparin treatment at Phase B, Day 5",
-    subtitle = NULL,
-    xlim = c(-15, 7),
-    ylim = c(0, 5),
-    pCutoff = 0.05,
-    legendPosition = 'right',
-    boxedLabels = TRUE,
-    drawConnectors = TRUE,
-    widthConnectors = 1.0,
-    colConnectors = 'black',
-    caption = NULL,
-    legendDropLevels = F
-  )
-
-volcano_treat_P13_D5 <-
-  EnhancedVolcano::EnhancedVolcano(
-    top_treat_P13_D5,
-    lab = top_treat_P13_D5$GENENAME,
-    x = 'logFC',
-    y = 'adj.P.Val',
-    title = "Effect of Heparin treatment at Phase C, Day 5",
-    subtitle = NULL,
-    xlim = c(-15, 7),
-    ylim = c(0, 5),
-    pCutoff = 0.05,
-    legendPosition = 'right',
-    boxedLabels = TRUE,
-    drawConnectors = TRUE,
-    widthConnectors = 1.0,
-    colConnectors = 'black',
-    caption = NULL,
-    legendDropLevels = F
-  )
-
-# Draw 2D volcano plot - interaction term
-## Day 3
-
-volcano_interaction_TvsUT_P7vsP5_D3 <-
-  EnhancedVolcano::EnhancedVolcano(
-    top_interaction_TvsUT_P7vsP5_D3,
-    lab = top_interaction_TvsUT_P7vsP5_D3$GENENAME,
-    x = 'logFC',
-    y = 'adj.P.Val',
-    title = "Change in effect of Heparin treatment between Phase A & B, Day 3",
-    subtitle = NULL,
-    xlim = c(-25, 12),
-    ylim = c(0, 5),
-    pCutoff = 0.05,
-    legendPosition = 'right',
-    boxedLabels = TRUE,
-    drawConnectors = TRUE,
-    widthConnectors = 1.0,
-    colConnectors = 'black',
-    caption = NULL,
-    legendDropLevels = F
-  )
-
-volcano_interaction_TvsUT_P13vsP5_D3 <-
-  EnhancedVolcano::EnhancedVolcano(
-    top_interaction_TvsUT_P13vsP5_D3,
-    lab = top_interaction_TvsUT_P13vsP5_D3$GENENAME,
-    x = 'logFC',
-    y = 'adj.P.Val',
-    title = "Change in effect of Heparin treatment between Phase A & C, Day 3",
-    subtitle = NULL,
-    xlim = c(-25, 12),
-    ylim = c(0, 5),
-    pCutoff = 0.05,
-    legendPosition = 'right',
-    boxedLabels = TRUE,
-    drawConnectors = TRUE,
-    widthConnectors = 1.0,
-    colConnectors = 'black',
-    caption = NULL,
-    legendDropLevels = F
-  )
-
-volcano_interaction_TvsUT_P13vsP7_D3 <-
-  EnhancedVolcano::EnhancedVolcano(
-    top_interaction_TvsUT_P13vsP7_D3,
-    lab = top_interaction_TvsUT_P13vsP7_D3$GENENAME,
-    x = 'logFC',
-    y = 'adj.P.Val',
-    title = "Change in effect of Heparin treatment between Phase A & C, Day 3",
-    subtitle = NULL,
-    xlim = c(-25, 12),
-    ylim = c(0, 5),
-    pCutoff = 0.05,
-    legendPosition = 'right',
-    boxedLabels = TRUE,
-    drawConnectors = TRUE,
-    widthConnectors = 1.0,
-    colConnectors = 'black',
-    caption = NULL,
-    legendDropLevels = F
-  )
-
-## Day 5
-
-volcano_interaction_TvsUT_P7vsP5_D5 <-
-  EnhancedVolcano::EnhancedVolcano(
-    top_interaction_TvsUT_P7vsP5_D5,
-    lab = top_interaction_TvsUT_P7vsP5_D5$GENENAME,
-    x = 'logFC',
-    y = 'adj.P.Val',
-    title = "Change in effect of Heparin treatment between Phase A & B, Day 5",
-    subtitle = NULL,
-    xlim = c(-15, 15),
-    ylim = c(0, 5),
-    pCutoff = 0.05,
-    legendPosition = 'right',
-    boxedLabels = TRUE,
-    drawConnectors = TRUE,
-    widthConnectors = 1.0,
-    colConnectors = 'black',
-    caption = NULL,
-    legendDropLevels = F
-  )
-
-volcano_interaction_TvsUT_P13vsP5_D5 <-
-  EnhancedVolcano::EnhancedVolcano(
-    top_interaction_TvsUT_P13vsP5_D5,
-    lab = top_interaction_TvsUT_P13vsP5_D5$GENENAME,
-    x = 'logFC',
-    y = 'adj.P.Val',
-    title = "Change in effect of Heparin treatment between Phase A & C, Day 5",
-    subtitle = NULL,
-    xlim = c(-15, 15),
-    ylim = c(0, 5),
-    pCutoff = 0.05,
-    legendPosition = 'right',
-    boxedLabels = TRUE,
-    drawConnectors = TRUE,
-    widthConnectors = 1.0,
-    colConnectors = 'black',
-    caption = NULL,
-    legendDropLevels = F
-  )
-
-volcano_interaction_TvsUT_P13vsP7_D5 <-
-  EnhancedVolcano::EnhancedVolcano(
-    top_interaction_TvsUT_P13vsP7_D5,
-    lab = top_interaction_TvsUT_P13vsP7_D5$GENENAME,
-    x = 'logFC',
-    y = 'adj.P.Val',
-    title = "Change in effect of Heparin treatment between Phase A & C, Day 5",
-    subtitle = NULL,
-    xlim = c(-15, 15),
-    ylim = c(0, 5),
-    pCutoff = 0.05,
-    legendPosition = 'right',
-    boxedLabels = TRUE,
-    drawConnectors = TRUE,
-    widthConnectors = 1.0,
-    colConnectors = 'black',
-    caption = NULL,
-    legendDropLevels = F
-  )
-
-
-# Arrange plots in a grid
-
-grid_day3 <-
-  plot_grid(
-    volcano_P7vsP5_D3  + theme(legend.position = "none"),
-    volcano_P13vsP5_D3  + theme(legend.position = "none"),
-    volcano_P13vsP7_D3 + theme(legend.position = "none"),
-    labels = "AUTO",
-    label_size = 28,
-    ncol = 1,
-    nrow = 3
-  )
-
-grid_day5 <-
-  plot_grid(
-    volcano_P7vsP5_D5  + theme(legend.position = "none"),
-    volcano_P13vsP5_D5  + theme(legend.position = "none"),
-    volcano_P13vsP7_D5 + theme(legend.position = "none"),
-    labels = "AUTO",
-    label_size = 28,
-    ncol = 1,
-    nrow = 3
-  )
-
-grid_treat_day3 <-
-  plot_grid(
-    volcano_treat_P5_D3  + theme(legend.position = "none"),
-    volcano_treat_P7_D3  + theme(legend.position = "none"),
-    volcano_treat_P13_D3 + theme(legend.position = "none"),
-    labels = "AUTO",
-    label_size = 28,
-    ncol = 1,
-    nrow = 3
-  )
-
-grid_treat_day5 <-
-  plot_grid(
-    volcano_treat_P5_D5  + theme(legend.position = "none"),
-    volcano_treat_P7_D5  + theme(legend.position = "none"),
-    volcano_treat_P13_D5 + theme(legend.position = "none"),
-    labels = "AUTO",
-    label_size = 28,
-    ncol = 1,
-    nrow = 3
-  )
-
-grid_interaction_day3 <- 
-  plot_grid(
-    volcano_interaction_TvsUT_P7vsP5_D3  + theme(legend.position = "none"),
-    volcano_interaction_TvsUT_P13vsP5_D3  + theme(legend.position = "none"),
-    volcano_interaction_TvsUT_P13vsP7_D3 + theme(legend.position = "none"),
-    labels = "AUTO",
-    label_size = 28,
-    ncol = 1,
-    nrow = 3
-  )
-
-grid_interaction_day5 <- 
-  plot_grid(
-    volcano_interaction_TvsUT_P7vsP5_D5  + theme(legend.position = "none"),
-    volcano_interaction_TvsUT_P13vsP5_D5  + theme(legend.position = "none"),
-    volcano_interaction_TvsUT_P13vsP7_D5 + theme(legend.position = "none"),
-    labels = "AUTO",
-    label_size = 28,
-    ncol = 1,
-    nrow = 3
-  )
-
-ggsave(
-  filename = "./output/plots_volcano/day3.png",
-  grid_day3,
-  scale = 1.5,
-  width = 6,
-  height = 10,
-  units = "in",
-  dpi = 300
-)
-
-ggsave(
-  filename = "./output/plots_volcano/day5.png",
-  grid_day5,
-  scale = 1.5,
-  width = 6,
-  height = 10,
-  units = "in",
-  dpi = 300
-)
-
-ggsave(
-  filename = "./output/plots_volcano/treat_day3.png",
-  grid_treat_day3,
-  scale = 1.5,
-  width = 6,
-  height = 10,
-  units = "in",
-  dpi = 300
-)
-
-ggsave(
-  filename = "./output/plots_volcano/treat_day5.png",
-  grid_treat_day5,
-  scale = 1.5,
-  width = 6,
-  height = 10,
-  units = "in",
-  dpi = 300
-)
-
-ggsave(
-  filename = "./output/plots_volcano/interaction_day3.png",
-  grid_interaction_day3,
-  scale = 1.5,
-  width = 6,
-  height = 10,
-  units = "in",
-  dpi = 300
-)
-
-ggsave(
-  filename = "./output/plots_volcano/interaction_day5.png",
-  grid_interaction_day5,
-  scale = 1.5,
-  width = 6,
-  height = 10,
-  units = "in",
-  dpi = 300
-)
-
-## Make fig for paper
-
-grid_paper_day3 <-
-  plot_grid(
-    ggdraw() + draw_text("P7vsP5", 
-                         angle = 90,
-                         fontface = "bold",
-                         size = 25),
-    volcano_P7vsP5_D3  + 
-      theme(legend.position = "right",
-            plot.title = element_blank()),
-    ggdraw() + draw_text("P13vsP7", 
-                         angle = 90,
-                         fontface = "bold",
-                         size = 25),
-    volcano_P13vsP5_D3  + 
-      theme(legend.position = "right",
-            plot.title = element_blank()),
-    ggdraw() + draw_text("P13vsP5", 
-                         angle = 90,
-                         fontface = "bold",
-                         size = 25),
-    volcano_P13vsP7_D3 + 
-      theme(legend.position = "right",
-            plot.title = element_blank()),
-    labels = NULL,
-    label_size = 28,
-    ncol = 2,
-    nrow = 3,
-    rel_widths = c(0.05,1)
-  )
-
-ggsave(
-  filename = "./output/plots_volcano/day3_paperver.png",
-  grid_paper_day3,
-  scale = 0.7,
-  width = 18,
-  height = 15,
-  units = "in",
-  dpi = 300
-)
-
-## Make fig for paper - between treatments
-
-grid_paper_treat <-
-  plot_grid(
-    ggdraw() + draw_text("P5D3", 
-                         angle = 90,
-                         fontface = "bold",
-                         size = 25),
-    volcano_treat_P5_D3  + 
-      theme(legend.position = "right",
-            plot.title = element_blank()),
-    ggdraw() + draw_text("P7D3", 
-                         angle = 90,
-                         fontface = "bold",
-                         size = 25),
-    volcano_treat_P7_D3  + 
-      theme(legend.position = "right",
-            plot.title = element_blank()),
-    ggdraw() + draw_text("P13D3", 
-                         angle = 90,
-                         fontface = "bold",
-                         size = 25),
-    volcano_treat_P13_D3 + 
-      theme(legend.position = "right",
-            plot.title = element_blank()),
-    labels = NULL,
-    label_size = 28,
-    ncol = 2,
-    nrow = 3,
-    rel_widths = c(0.05,1)
-  )
-
-ggsave(
-  filename = "./output/plots_volcano/treat_paperver.png",
-  grid_paper_treat,
-  scale = 0.7,
-  width = 18,
-  height = 15,
-  units = "in",
-  dpi = 300
-)
-
-### Extra fig for legend
-
-ggsave(
-  filename = "./output/plots_volcano/fig_for_legend.png",
-  volcano_P7vsP5_D3  + theme(legend.position = "right"),
-  scale = 1.5,
-  width = 12,
-  height = 6,
-  units = "in",
-  dpi = 300
-)
-
-glimmaVolcano(x = fit_contrasts[fit_contrasts$genes$ENTREZID %in% geneIds_inhouse,],
-              counts = quant_DGE_voom[fit_contrasts$genes$ENTREZID %in% geneIds_inhouse,quant_DGE_voom$targets$condition_ID %in% conditions_interest]$E,
-              groups = quant_DGE_voom[fit_contrasts$genes$ENTREZID %in% geneIds_inhouse,quant_DGE_voom$targets$condition_ID %in% conditions_interest]$targets$condition_ID,
-              xlab = "logFC",
-              transform.counts = "none",
-              coef = 14)

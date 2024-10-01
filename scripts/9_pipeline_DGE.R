@@ -1,24 +1,14 @@
 # Run script to load and install packages
 
-source("scripts/0_meta_env_prep.R")
-
-# Run scripts of limma::voom pipeline
-
-list_files_limma <- c(
-  "1_ensembl_voom_pre_quant_import.R",
-  "1_ensembl_voom_pre_quality_control_filter.R",
-  "2_ensembl_voom_dge.R"
-)
+source("scripts/0_meta_env_prep.R", echo = TRUE, verbose = TRUE)
 
 # Run scripts of DESeq2 pipeline
 
-list_files_deseq2 <- c(
-  "1_ensembl_deseq2_pre_quant_import.R",
-  "2_ensembl_deseq2_dge.R"
+walk(
+  c(
+    "1_pre_quant_import.R",
+    "2_dge.R",
+    "4_dge_plot_volcano2D.R"
+  ),
+  \(x) source(here::here("scripts", x), echo = TRUE, verbose = TRUE)
 )
-
-walk(list_files_limma,
-     \ (x) source(here::here("scripts", x)))
-
-walk(list_files_deseq2,
-     \ (x) source(here::here("scripts", x)))
