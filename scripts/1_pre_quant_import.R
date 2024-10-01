@@ -1,6 +1,8 @@
-### Don't source this file by itself; call in from another file after running env_prep.R
+### Don't source this file by itself;
+### call in from another file after running env_prep.R
 ### Source
-### Import salmon transcript quantification results to a single matrix, export that matrix.
+### Import salmon transcript quantification results
+### to a single matrix, export that matrix.
 
 # Construct sample table
 
@@ -110,7 +112,7 @@ all(file.exists(list_files$files)) # Make sure that all transcript files exist
 
 # Import quantification results
 
-quant_cDNA_tx <-
+quant_cdna_tx <-
   tximeta(
     list_files,
     type = "salmon"
@@ -120,7 +122,7 @@ quant_cDNA_tx <-
 # Create object for DGE with DESeq2
 quant_deseq2 <-
   summarizeToGene(
-    quant_cDNA_tx,
+    quant_cdna_tx,
     assignRanges = "abundant"
   ) %>%
   DESeqDataSet(design = ~ condition_ID + run_date + cell_line)
@@ -129,8 +131,24 @@ quant_deseq2 <-
 # Keep only genes with higher than 10 counts in at least 3 samples
 # Doesn't affect results; but speeds up computation
 
-quant_deseq2 %<>% .[rowSums(counts(.) >= 10) >= 6, ]
+keep <- quant_deseq2 %$%
+  filterByExpr(
+    y = counts(.),
+    group = colData(.)$condition_ID,
+    min.count = 40,
+    min.total.count = 60
+  )
+
+quant_deseq2 <- quant_deseq2[keep, ]
 
 # Export quantification results
 
-saveRDS(quant_deseq2, file = "./output/data_expression/pre_DGE/quant_cDNA_deseq.RDS")
+saveRDS(
+  quant_deseq2,
+  file = here::here(
+    "output",
+    "data_expression",
+    "pre_DGE",
+    "quant_cDNA_deseq.RDS"
+  )
+)
