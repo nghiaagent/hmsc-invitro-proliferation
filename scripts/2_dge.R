@@ -2,7 +2,12 @@
 # Remember that experimental design is already embedded
 # in the dataset and model - only need to extract comparisons
 
-quant_deseq2 <- readRDS("output/data_expression/pre_DGE/quant_cDNA_deseq.RDS")
+quant_deseq2 <- readRDS(here::here(
+  "output",
+  "data_expression",
+  "pre_DGE",
+  "quant_cDNA_deseq.RDS"
+))
 
 # Perform batch correction
 ## Batch correction + factor
