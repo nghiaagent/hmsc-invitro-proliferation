@@ -1,3 +1,5 @@
+# Define in-house GOIs
+
 genenames_inhouse <- c(
   "ENO2",
   "NANOG",
@@ -42,6 +44,14 @@ genenames_inhouse <- c(
   "S100B",
   "POU5F1"
 )
+
+geneids_inhouse <- mapIds(org.Hs.eg.db,
+  keys = genenames_inhouse,
+  column = "ENTREZID",
+  keytype = "SYMBOL"
+)
+
+# Define AD-related genes from QIAgen panel
 
 genenames_rt2array <- c(
   "A2M",
@@ -90,43 +100,70 @@ genenames_rt2array <- c(
   "GNG4"
 )
 
-geneIds_inhouse <- mapIds(org.Hs.eg.db,
-                          keys = genenames_inhouse,
-                          column = "ENTREZID",
-                          keytype = "SYMBOL")
+geneids_rt2array <- mapIds(org.Hs.eg.db,
+  keys = genenames_rt2array,
+  column = "ENTREZID",
+  keytype = "SYMBOL"
+)
 
-geneIds_rt2array <- mapIds(org.Hs.eg.db,
-                           keys = genenames_rt2array,
-                           column = "ENTREZID",
-                           keytype = "SYMBOL")
+
+# Load external GMTs
+
+msigdb_gobp <- getGmt(con = here::here(
+  "input",
+  "genesets",
+  "msigdb_v2023.2.Hs_GMTs",
+  "c5.go.bp.v2023.2.Hs.entrez.gmt"
+))
+
+msigdb_gomf <- getGmt(con = here::here(
+  "input",
+  "genesets",
+  "msigdb_v2023.2.Hs_GMTs",
+  "c5.go.mf.v2023.2.Hs.entrez.gmt"
+))
+
+msigdb_kegg <- getGmt(con = here::here(
+  "input",
+  "genesets",
+  "msigdb_v2023.2.Hs_GMTs",
+  "c2.cp.kegg_legacy.v2023.2.Hs.entrez.gmt"
+))
 
 ## Define genes in WNT signalling
 
-msigdb_GOBP <- getGmt(con = "./input/genesets/msigdb_v2023.2.Hs_GMTs/c5.go.bp.v2023.2.Hs.entrez.gmt")
+geneids_wnt <- msigdb_gobp %$% c(
+  .[["GOBP_CELL_CELL_SIGNALING_BY_WNT"]]@geneIds,
+  .[["GOBP_NON_CANONICAL_WNT_SIGNALING_PATHWAY"]]@geneIds,
+  .[["GOBP_CANONICAL_WNT_SIGNALING_PATHWAY"]]@geneIds
+)
 
-msigdb_GOMF <- getGmt(con = "./input/genesets/msigdb_v2023.2.Hs_GMTs/c5.go.mf.v2023.2.Hs.entrez.gmt")
-
-geneIds_Wnt <- c(msigdb_GOBP[["GOBP_CELL_CELL_SIGNALING_BY_WNT"]]@geneIds,
-                 msigdb_GOBP[["GOBP_NON_CANONICAL_WNT_SIGNALING_PATHWAY"]]@geneIds,
-                 msigdb_GOBP[["GOBP_CANONICAL_WNT_SIGNALING_PATHWAY"]]@geneIds) %>%
-  unique()
-
-names(geneIds_Wnt) <- mapIds(org.Hs.eg.db,
-                             keys = geneIds_Wnt,
-                             column = "SYMBOL",
-                             keytype = "ENTREZID")
+names(geneids_wnt) <- mapIds(
+  org.Hs.eg.db,
+  keys = geneids_wnt,
+  column = "SYMBOL",
+  keytype = "ENTREZID"
+)
 
 ## Define genes related to HSPGs (not already in in-house set)
 
-msigdb_KEGG <- getGmt(con = "./input/genesets/msigdb_v2023.2.Hs_GMTs/c2.cp.kegg_legacy.v2023.2.Hs.entrez.gmt")
 
-geneIds_HSPGs <- c(msigdb_KEGG[["KEGG_GLYCOSAMINOGLYCAN_BIOSYNTHESIS_HEPARAN_SULFATE"]]@geneIds,
-                   msigdb_GOBP[["GOBP_HEPARAN_SULFATE_PROTEOGLYCAN_BIOSYNTHETIC_PROCESS"]]@geneIds,
-                   msigdb_GOMF[["GOMF_HEPARAN_SULFATE_PROTEOGLYCAN_BINDING"]]@geneIds) %>%
-  unique() %>%
-  setdiff(geneIds_inhouse)
+geneids_hspgs <- c(
+  msigdb_kegg[["KEGG_GLYCOSAMINOGLYCAN_BIOSYNTHESIS_HEPARAN_SULFATE"]]@geneIds,
+  msigdb_gobp[["GOBP_HEPARAN_SULFATE_PROTEOGLYCAN_BIOSYNTHETIC_PROCESS"]]@geneIds,
+  msigdb_gomf[["GOMF_HEPARAN_SULFATE_PROTEOGLYCAN_BINDING"]]@geneIds
+)
 
-names(geneIds_HSPGs) <- mapIds(org.Hs.eg.db,
-                               keys = geneIds_HSPGs,
-                               column = "SYMBOL",
-                               keytype = "ENTREZID")
+names(geneids_hspgs) <- mapIds(org.Hs.eg.db,
+  keys = geneids_hspgs,
+  column = "SYMBOL",
+  keytype = "ENTREZID"
+)
+
+geneids_goi <- c(
+  geneids_inhouse,
+  geneids_rt2array,
+  geneids_wnt,
+  geneids_hspgs
+) %>%
+  unique()
