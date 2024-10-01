@@ -16,7 +16,6 @@ draw_camera_tbl <- function(table) {
       ))
     )
   ) %>%
-    
     # Round p-values to 5 decimal places
     formatRound(c(3, 4), 5)
 }
