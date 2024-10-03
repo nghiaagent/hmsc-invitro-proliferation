@@ -14,14 +14,37 @@ source(here::here(
 
 source(here::here(
     "scripts",
-    "4_dge_plot_volcano2D.R"
+    "4_dge_plot_volcano2d_and_ma.R"
 ))
+
+list_trio <- list(
+    treat_day3 = c(1, 3, 5),
+    treat_day5 = c(2, 4, 6),
+    days_untreat = c(7, 8, 9),
+    days_treat = c(10, 11, 12),
+    passage_day3 = c(13, 14, 15),
+    passage_day5 = c(19, 20, 21)
+)
 ```
 
-## All plots
+## All volcano + MA plots
 
 ```{r}
-ls()
+walk(plots_volcano_ma, plot)
+```
 
-walk(plots_volcano, plot)
+## Grouped plots for thesis
+
+```{r fig.width = 9, fig.height = 9}
+plots_trio <- list_trio %>%
+    map(\(x) plots_volcano_ma[x]) %>%
+    map(\(x) {
+        plot_grid(
+            plotlist = x,
+            ncol = 1,
+            labels = "AUTO"
+        )
+    })
+
+walk(plots_trio, plot)
 ```
