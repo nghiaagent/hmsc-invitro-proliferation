@@ -1,7 +1,7 @@
 # Volcano plots - Between passages, Day 3
 
 ```{r include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
+knitr::opts_chunk$set(echo = TRUE, cache = FALSE)
 ```
 
 ```{r include=FALSE}
@@ -51,8 +51,6 @@ camera <- list(
     y = 0.6,
     z = 1.2
 )
-
-genes_highlight <- c()
 ```
 
 ## 3D volcano plot
@@ -63,7 +61,7 @@ volcano3d <- map2(
     breaks_r,
     \(x, y) {
         volcano3D(
-            polar_manual, # nolint
+            polar_manual,
             type = x,
             grid_options = list(
                 r_axis_ticks = y,
