@@ -100,3 +100,5 @@ _main_cache/*
 
 !**/README.txt
 !**/.gitkeep
+
+_main.Rmd
