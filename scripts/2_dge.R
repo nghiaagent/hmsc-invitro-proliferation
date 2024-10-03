@@ -96,6 +96,20 @@ saveRDS(
   )
 )
 
+### Export counts matrix as .csv
+
+fwrite(
+  counts(quant_deseq2_batchcor),
+  file = here::here(
+    "output",
+    "data_expression",
+    "post_DGE",
+    "quant_deseq2_batchcor_counts.csv"
+  ),
+  row.names = TRUE,
+  col.names = TRUE
+)
+
 ## Rlog
 
 saveRDS(
