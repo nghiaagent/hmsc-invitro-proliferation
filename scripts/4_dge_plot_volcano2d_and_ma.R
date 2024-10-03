@@ -117,7 +117,7 @@ results_clipped <- map(
 # Draw 2D volcano plots
 
 plots_volcano_ma <- purrr::imap(
-  results_clipped[15],
+  results_clipped,
   \(x, idx) {
     plot_grid(
       EnhancedVolcano(
