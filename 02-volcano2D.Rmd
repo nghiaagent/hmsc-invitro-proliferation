@@ -9,7 +9,7 @@ knitr::opts_chunk$set(echo = TRUE, cache = FALSE)
 
 source(here::here(
     "scripts",
-    "0_meta_env_prep.R"
+    "0_env_prep.R"
 ))
 
 source(here::here(
