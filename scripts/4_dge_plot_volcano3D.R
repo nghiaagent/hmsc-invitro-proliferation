@@ -135,6 +135,15 @@ radial_ggplot <- map(
 )
 
 saveRDS(
+  polar_manual,
+  file = here::here(
+    "output",
+    "plots_volcano3D",
+    "polar_manual.RDS"
+  )
+)
+
+saveRDS(
   list(
     volcano3d,
     radial_plotly,

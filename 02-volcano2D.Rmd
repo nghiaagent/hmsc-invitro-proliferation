@@ -9,7 +9,7 @@ knitr::opts_chunk$set(echo = TRUE, cache = FALSE)
 
 source(here::here(
     "scripts",
-    "0_meta_env_prep.R"
+    "0_env_prep.R"
 ))
 
 source(here::here(
@@ -35,7 +35,7 @@ walk(plots_volcano_ma, plot)
 
 ## Grouped plots for thesis
 
-```{r fig.width = 9, fig.height = 9}
+```{r fig.width = 8, fig.height = 8}
 plots_trio <- list_trio %>%
     map(\(x) plots_volcano_ma[x]) %>%
     map(\(x) {
