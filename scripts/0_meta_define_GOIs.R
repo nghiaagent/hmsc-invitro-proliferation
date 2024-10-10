@@ -45,8 +45,46 @@ genenames_inhouse <- c(
   "POU5F1"
 )
 
+genenames_inhouse_hspgs <- c(
+  "VIM",
+  "ACAN",
+  "HSPG2",
+  "DCN",
+  "GPC1",
+  "GPC4",
+  "SDC1",
+  "SDC2",
+  "SDC3",
+  "SDC4",
+  "EXT1",
+  "EXT2",
+  "GLCE",
+  "HS2ST1",
+  "HS3ST1",
+  "HS3ST2",
+  "HS3ST3A1",
+  "HS3ST3B1",
+  "HS3ST4",
+  "HS3ST6",
+  "HS6ST1",
+  "HS6ST2",
+  "HS6ST3",
+  "HPSE2",
+  "NDST1",
+  "NDST2",
+  "NDST3",
+  "NDST4",
+  "CHST11"
+)
+
 geneids_inhouse <- mapIds(org.Hs.eg.db,
   keys = genenames_inhouse,
+  column = "ENTREZID",
+  keytype = "SYMBOL"
+)
+
+geneids_inhouse_hspgs <- mapIds(org.Hs.eg.db,
+  keys = genenames_inhouse_hspgs,
   column = "ENTREZID",
   keytype = "SYMBOL"
 )
@@ -164,6 +202,12 @@ geneids_goi <- c(
   geneids_inhouse,
   geneids_rt2array,
   geneids_wnt,
+  geneids_hspgs
+) %>%
+  unique()
+
+geneids_goi_hspgs <- c(
+  geneids_inhouse_hspgs,
   geneids_hspgs
 ) %>%
   unique()
