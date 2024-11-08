@@ -1,227 +1,104 @@
-# Extract gene names from limma fit for ORA
-# Between passages at D3
-# Venn diagrams
-# D5vsD3 @ Phase A UT vs. D5vsD3 @ Phase A T: Coefs  7; 10
-# D5vsD3 @ Phase B UT vs. D5vsD3 @ Phase B T: Coefs  8; 11
-# D5vsD3 @ Phase C UT vs. D5vsD3 @ Phase C T: Coefs  9; 12
-# P7vsP5 @ D3 UT vs. P7vsP5 @ D3 T:           Coefs 13; 16
-# P13vsP7 @ D3 UT vs. P7vsP5 @ D3 T:          Coefs 14; 17
-# P13vsP5 @ D3 UT vs. P7vsP5 @ D3 T:          Coefs 15; 18
-# P7vsP5 @ D5 UT vs. P7vsP5 @ D5 T:           Coefs 19; 22
-# P13vsP7 @ D5 UT vs. P7vsP5 @ D5 T:          Coefs 20; 23
-# P13vsP5 @ D5 UT vs. P7vsP5 @ D5 T:          Coefs 21; 24
+# Extract gene names from DESeq fit for ORA using g:Profiler
+# All contrasts
 
-tests <- decideTests(fit_contrasts)
+# Load data
+quant_deseq2 <- readRDS(
+  file = here::here(
+    "output", "data_expression", "post_DGE",
+    "quant_deseq2_batchcor.RDS"
+  )
+)
 
-# Between passages, untreated cells
+results_lfcshrink <- readRDS(
+  file = here::here(
+    "output",
+    "data_expression",
+    "post_DGE",
+    "results_deseq2_lfcshrink.RDS"
+  )
+)
 
-genes_P7vsP5_D3_Untreated <- 
-  quant_DGE_voom$genes[which(tests[, 13] != 0),]
+# Format table object, get only gene ENSEMBL IDs, ENTREZ IDs, and symbol
+# Enter ENSEMBL IDs or ENTREZ IDs into g:Profiler
+# Enter symbol into STRING
+results_lfcshrink_format <- map(
+  results_lfcshrink,
+  \(x) {
+    extract_topgenes(
+      results = x,
+      dds = quant_deseq2,
+      ntop = Inf,
+      signif_only = TRUE
+    )
+  },
+  .progress = TRUE
+)
 
-genes_P13vsP7_D3_Untreated <- 
-  quant_DGE_voom$genes[which(tests[, 14] != 0),]
+results_ensembl_ids <- map(
+  results_lfcshrink_format,
+  \(x) {
+    x$`ENSEMBL ID`
+  }
+)
 
-genes_P13vsP5_D3_Untreated <- 
-  quant_DGE_voom$genes[which(tests[, 15] != 0),]
+results_entrez_ids <- map(
+  results_lfcshrink_format,
+  \(x) {
+    x$`ENTREZ ID`
+  }
+)
 
-# These Venn diagrams show overlap in changes between passages in untreated cells
-
-## D3
-
-genes_D3_Untreated_P7vsP5_only <-
-  quant_DGE_voom$genes[which((tests[, 13] == 1 &
-                                tests[, 14] != 1 &
-                                tests[, 15] != 1) |
-                               (tests[, 13] == -1 &
-                                  tests[, 14] != -1 &
-                                  tests[, 15] != -1)),]
-
-genes_D3_Untreated_P13vsP7_only <-
-  quant_DGE_voom$genes[which((tests[, 13] != 1 &
-                                tests[, 14] == 1 &
-                                tests[, 15] != 1) |
-                               (tests[, 13] != -1 &
-                                  tests[, 14] == -1 &
-                                  tests[, 15] != -1)),]
-
-genes_D3_Untreated_P13vsP5_only <-
-  quant_DGE_voom$genes[which((tests[, 13] != 1 &
-                                tests[, 14] != 1 &
-                                tests[, 15] == 1) |
-                               (tests[, 13] != -1 &
-                                  tests[, 14] != -1 &
-                                  tests[, 15] == -1)),]
-
-genes_D3_Untreated_P13vsP5_and_P13vsP7_only <-
-  quant_DGE_voom$genes[which((tests[, 13] != 1 &
-                                tests[, 14] == 1 &
-                                tests[, 15] == 1) |
-                               (tests[, 13] != -1 &
-                                  tests[, 14] == -1 &
-                                  tests[, 15] == -1)),]
-
-
-## D5
-
-genes_D5_Untreated_P7vsP5_only <-
-  quant_DGE_voom$genes[which((tests[, 19] == 1 &
-                                tests[, 20] != 1 &
-                                tests[, 21] != 1) |
-                               (tests[, 19] == -1 &
-                                  tests[, 20] != -1 &
-                                  tests[, 21] != -1)),]
-
-genes_D5_Untreated_P13vsP7_only <-
-  quant_DGE_voom$genes[which((tests[, 19] != 1 &
-                                tests[, 20] == 1 &
-                                tests[, 21] != 1) |
-                               (tests[, 19] != -1 &
-                                  tests[, 20] == -1 &
-                                  tests[, 21] != -1)),]
-
-genes_D5_Untreated_P13vsP5_only <-
-  quant_DGE_voom$genes[which((tests[, 19] != 1 &
-                                tests[, 20] != 1 &
-                                tests[, 21] == 1) |
-                               (tests[, 19] != -1 &
-                                  tests[, 20] != -1 &
-                                  tests[, 21] == -1)),]
-
-genes_D5_Untreated_P13vsP5_and_P13vsP7_only <-
-  quant_DGE_voom$genes[which((tests[, 19] != 1 &
-                                tests[, 20] == 1 &
-                                tests[, 21] == 1) |
-                               (tests[, 19] != -1 &
-                                  tests[, 20] == -1 &
-                                  tests[, 21] == -1)),]
-
+results_symbol <- map(
+  results_lfcshrink_format,
+  \(x) {
+    x$Symbol
+  }
+)
 
 # Export data
 
-## Difference between passages
-
-### P5vsP7
-
-fwrite(
-  genes_P7vsP5_D3_Untreated$GENEID %>% list(),
-  file = "./output/list_genes/betweenpassages/genes_P7vsP5_D3_Untreated_ENSEMBL.txt",
-  na = ''
+## Export ENSEMBL IDs
+imap(
+  results_ensembl_ids,
+  \(x, idx) {
+    fwrite(
+      x %>% list(),
+      file = here::here(
+        "output",
+        "list_genes",
+        str_c(idx, "_ENSEMBL.txt")
+      )
+    )
+  }
 )
 
-fwrite(
-  genes_P7vsP5_D3_Untreated$GENENAME %>% list(),
-  file = "./output/list_genes/betweenpassages/genes_P7vsP5_D3_Untreated_GENENAME.txt",
-  na = ''
+## Export gene names
+imap(
+  results_symbol,
+  \(x, idx) {
+    fwrite(
+      x %>% list(),
+      file = here::here(
+        "output",
+        "list_genes",
+        str_c(idx, "_symbol.txt")
+      )
+    )
+  }
 )
 
-### P7vsP13
+## Export ENTREZ ID
 
-fwrite(
-  genes_P13vsP7_D3_Untreated$GENEID %>% list(),
-  file = "./output/list_genes/betweenpassages/genes_P13vsP7_D3_Untreated_ENSEMBL.txt",
-  na = ''
+imap(
+  results_entrez_ids,
+  \(x, idx) {
+    fwrite(
+      x %>% list(),
+      file = here::here(
+        "output",
+        "list_genes",
+        str_c(idx, "_ENTREZ.txt")
+      )
+    )
+  }
 )
-
-fwrite(
-  genes_P13vsP7_D3_Untreated$GENENAME %>% list(),
-  file = "./output/list_genes/betweenpassages/genes_P13vsP7_D3_Untreated_GENENAME.txt",
-  na = ''
-)
-
-### P5vsP13
-
-fwrite(
-  genes_P13vsP5_D3_Untreated$GENEID %>% list(),
-  file = "./output/list_genes/betweenpassages/genes_P13vsP5_D3_Untreated_ENSEMBL.txt",
-  na = ''
-)
-
-fwrite(
-  genes_P13vsP5_D3_Untreated$GENENAME %>% list(),
-  file = "./output/list_genes/betweenpassages/genes_P13vsP5_D3_Untreated_GENENAME.txt",
-  na = ''
-)
-
-## Overlap between passages in untreated cells, D3
-
-fwrite(
-  genes_D3_Untreated_P13vsP5_and_P13vsP7_only$GENEID %>% list(),
-  file = "./output/list_genes/venn_P13vsP7vsP5_UT_D3/P13vsP5_and_P13vsP7_only_ENSEMBL.txt",
-  na = ''
-)
-
-fwrite(
-  genes_D3_Untreated_P13vsP5_and_P13vsP7_only$GENENAME %>% list(),
-  file = "./output/list_genes/venn_P13vsP7vsP5_UT_D3/P13vsP5_and_P13vsP7_only_GENENAME.txt",
-  na = ''
-)
-
-fwrite(genes_D3_Untreated_P13vsP5_only$GENEID %>% list(),
-       file = "./output/list_genes/venn_P13vsP7vsP5_UT_D3/P13vsP5_only_ENSEMBL.txt",
-       na = '')
-
-fwrite(
-  genes_D3_Untreated_P13vsP5_only$GENENAME %>% list(),
-  file = "./output/list_genes/venn_P13vsP7vsP5_UT_D3/P13vsP5_only_GENENAME.txt",
-  na = ''
-)
-
-fwrite(genes_D3_Untreated_P13vsP7_only$GENEID %>% list(),
-       file = "./output/list_genes/venn_P13vsP7vsP5_UT_D3/P13vsP7_only_ENSEMBL.txt",
-       na = '')
-
-fwrite(
-  genes_D3_Untreated_P13vsP7_only$GENENAME %>% list(),
-  file = "./output/list_genes/venn_P13vsP7vsP5_UT_D3/P13vsP7_only_GENENAME.txt",
-  na = ''
-)
-
-fwrite(genes_D3_Untreated_P7vsP5_only$GENEID %>% list(),
-       file = "./output/list_genes/venn_P13vsP7vsP5_UT_D3/P7vsP5_only_ENSEMBL.txt",
-       na = '')
-
-fwrite(genes_D3_Untreated_P7vsP5_only$GENENAME %>% list(),
-       file = "./output/list_genes/venn_P13vsP7vsP5_UT_D3/P7vsP5_only_GENENAME.txt",
-       na = '')
-
-## Overlap between passages in untreated cells, D5
-
-fwrite(
-  genes_D5_Untreated_P13vsP5_and_P13vsP7_only$GENEID %>% list(),
-  file = "./output/list_genes/venn_P13vsP7vsP5_UT_D5/P13vsP5_and_P13vsP7_only_ENSEMBL.txt",
-  na = ''
-)
-
-fwrite(
-  genes_D5_Untreated_P13vsP5_and_P13vsP7_only$GENENAME %>% list(),
-  file = "./output/list_genes/venn_P13vsP7vsP5_UT_D5/P13vsP5_and_P13vsP7_only_GENENAME.txt",
-  na = ''
-)
-
-fwrite(genes_D5_Untreated_P13vsP5_only$GENEID %>% list(),
-       file = "./output/list_genes/venn_P13vsP7vsP5_UT_D5/P13vsP5_only_ENSEMBL.txt",
-       na = '')
-
-fwrite(
-  genes_D5_Untreated_P13vsP5_only$GENENAME %>% list(),
-  file = "./output/list_genes/venn_P13vsP7vsP5_UT_D5/P13vsP5_only_GENENAME.txt",
-  na = ''
-)
-
-fwrite(genes_D5_Untreated_P13vsP7_only$GENEID %>% list(),
-       file = "./output/list_genes/venn_P13vsP7vsP5_UT_D5/P13vsP7_only_ENSEMBL.txt",
-       na = '')
-
-fwrite(
-  genes_D5_Untreated_P13vsP7_only$GENENAME %>% list(),
-  file = "./output/list_genes/venn_P13vsP7vsP5_UT_D5/P13vsP7_only_GENENAME.txt",
-  na = ''
-)
-
-fwrite(genes_D5_Untreated_P7vsP5_only$GENEID %>% list(),
-       file = "./output/list_genes/venn_P13vsP7vsP5_UT_D5/P7vsP5_only_ENSEMBL.txt",
-       na = '')
-
-fwrite(genes_D5_Untreated_P7vsP5_only$GENENAME %>% list(),
-       file = "./output/list_genes/venn_P13vsP7vsP5_UT_D5/P7vsP5_only_GENENAME.txt",
-       na = '')

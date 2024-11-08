@@ -18,8 +18,6 @@ breaks <- seq(
   by = 0.5
 )
 
-genes_highlight <- c()
-
 # Load data
 
 rlog_deseq2_batchcor <- readRDS(file = here::here(

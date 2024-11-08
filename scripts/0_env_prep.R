@@ -63,6 +63,7 @@ invisible(lapply(list_bioc_pkg, function(x) {
 # Load all CRAN packages
 p_load(
   tibble,
+  metan,
   tidyverse,
   magrittr,
   ggrepel,
@@ -90,8 +91,16 @@ p_load(
   reactable,
   here,
   ashr,
-  openxlsx
+  openxlsx,
+  ggsignif
 )
+
+# Source other function or list definition scripts
+
+source(here(
+  "scripts",
+  "0_define_GOIs.R"
+))
 
 # Clean up package list
 rm(list_bioc_pkg)
@@ -162,7 +171,7 @@ format_deseq_rowranges <- function(dds) {
   # Format data, extract only relevant columns
   rowranges_format <- rowRanges(dds) %>%
     as_tibble() %>%
-    dplyr::select(c(gene_id, gene_name, description))
+    dplyr::select(c(gene_id, gene_name, entrezid, description))
 
   # Return data
   return(rowranges_format)
@@ -199,6 +208,7 @@ extract_topgenes <- function(
     "ENSEMBL ID" = gene_id,
     "Symbol" = gene_name,
     "Gene name" = description,
+    "ENTREZ ID" = entrezid,
     "LogFC" = log2FoldChange,
     "adj. P-val" = padj
   )
@@ -261,7 +271,8 @@ extract_joined_results <- function(
     dplyr::rename(
       "ENSEMBL ID" = gene_id,
       "Symbol" = gene_name,
-      "Gene name" = description
+      "Gene name" = description,
+      "ENTREZ ID" = entrezid,
     )
 
   # Return data
