@@ -200,13 +200,15 @@ names(geneids_hspgs) <- mapIds(org.Hs.eg.db,
 
 geneids_goi <- c(
   geneids_inhouse,
+  geneids_hspgs,
+  geneids_inhouse_hspgs,
   geneids_rt2array,
-  geneids_wnt,
-  geneids_hspgs
+  geneids_wnt
 ) %>%
   unique()
 
-geneids_goi_hspgs <- c(
+geneids_goi_limited <- c(
+  geneids_inhouse,
   geneids_inhouse_hspgs,
   geneids_hspgs
 ) %>%
