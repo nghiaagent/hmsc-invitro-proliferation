@@ -1,321 +1,152 @@
-# Run relevant scripts beforehand
+# Load data
 
-# env_prep
-# dge_cellpops_as_fixed
-
-# Convert quant_DGE_voom to a compatible format
-## Convert EList to ExpressionSet
-## Convert ENSEMBL ID to ENTREZ ID
-
-temp <- quant_DGE_voom
-
-rownames(temp$genes) <- temp$genes$GENEID
-
-order <- order(fit$Amean, decreasing = TRUE)
-
-temp <- temp[order, ]
-
-temp <- temp[complete.cases(temp$genes$ENTREZID), ]
-
-temp <- temp[!duplicated(temp$genes$ENTREZID), ]
-
-rownames(temp$E) <- temp$genes$ENTREZID
-
-rownames(temp$genes) <- temp$genes$ENTREZID
-
-temp <- temp[order(temp$genes$GENEID, decreasing = FALSE), ]
-
-temp$genes <- temp$genes %>% select(!GENEID)
-
-quant_DGE_ESet <- ExpressionSet(
-  assayData = temp$E,
-  phenoData = AnnotatedDataFrame(temp$targets),
-  featureData = AnnotatedDataFrame(temp$genes)
+rlog_deseq2 <- readRDS(
+  file = here::here(
+    "output",
+    "data_expression",
+    "post_DGE",
+    "rlog_deseq2.RDS"
+  )
 )
 
-rm(temp)
+# Convert to ESet, convert identifiers to ENTREZID
+# Sort dataset by decreasing expression
+# Remove genes with duplicate ENTREZ ID
+
+order <- order(
+  rowRanges(rlog_deseq2)$baseMean,
+  decreasing = TRUE
+)
+
+rlog_deseq2 <- rlog_deseq2[order, ]
+
+rlog_deseq2 <- rlog_deseq2[
+  rowRanges(rlog_deseq2) %>%
+    as.data.frame() %$%
+    map(
+      .$entrezid,
+      \(x) !is.na(x)[[1]]
+    ) %>%
+    unlist(),
+]
+
+idx <- rowRanges(rlog_deseq2) %>%
+  as.data.frame() %$%
+  map(
+    .$entrezid,
+    \(x) x[[1]]
+  ) %>%
+  unlist()
+
+rlog_deseq2 <- rlog_deseq2[!duplicated(idx), ]
+idx <- idx[!duplicated(idx)]
+
+# Rename rownames to entrezid
+
+rlog_deseq2_counts <- assay(rlog_deseq2)
+rlog_deseq2_rowranges <- rowRanges(rlog_deseq2) %>%
+  as.data.frame()
+rlog_deseq2_coldata <- colData(rlog_deseq2) %>%
+  as.data.frame()
+
+rownames(rlog_deseq2_counts) <- idx
+rownames(rlog_deseq2_rowranges) <- idx
+
+# Build eset object
+
+quant_eset <- ExpressionSet(
+  assayData = rlog_deseq2_counts,
+  phenoData = AnnotatedDataFrame(rlog_deseq2_coldata),
+  featureData = AnnotatedDataFrame(rlog_deseq2_rowranges)
+)
+
+# Define design and contrasts for GSVA + limma
+design <- model.matrix(~ condition_ID + cell_line,
+  data = rlog_deseq2_coldata
+)
+
+colnames(design) <- make.names(colnames(design))
+
+matrix_contrasts <- makeContrasts(
+
+  ## Coefs 1 - 6: Treatment at each timepoint
+  Trt_P5_D3 = condition_IDP5D3Treated - 0,
+  Trt_P5_D5 = condition_IDP5D5Treated - condition_IDP5D5Untreated,
+  Trt_P7_D3 = condition_IDP7D3Treated - condition_IDP7D3Untreated,
+  Trt_P7_D5 = condition_IDP7D5Treated - condition_IDP7D5Untreated,
+  Trt_P13_D3 = condition_IDP13D3Treated - condition_IDP13D3Untreated,
+  Trt_P13_D5 = condition_IDP13D5Treated - condition_IDP13D5Untreated,
+
+  ## Coefs 7 - 12: Day at each timepoint x treatment
+  D5vsD3_UT_P5 = condition_IDP5D5Untreated - 0,
+  D5vsD3_UT_P7 = condition_IDP7D5Untreated - condition_IDP7D3Untreated,
+  D5vsD3_UT_P13 = condition_IDP13D5Untreated - condition_IDP13D3Untreated,
+  D5vsD3_T_P5 = condition_IDP5D5Treated - condition_IDP5D3Treated,
+  D5vsD3_T_P7 = condition_IDP7D5Treated - condition_IDP7D3Treated,
+  D5vsD3_T_P13 = condition_IDP13D5Treated - condition_IDP13D3Treated,
+
+  ## Coefs 13 - 24: Passage at each day x treatment
+  P7vsP5_UT_D3 = condition_IDP7D3Untreated - 0,
+  P13vsP7_UT_D3 = condition_IDP13D3Untreated - condition_IDP7D3Untreated,
+  P13vsP5_UT_D3 = condition_IDP13D3Untreated - 0,
+  P7vsP5_T_D3 = condition_IDP7D3Treated - condition_IDP5D3Treated,
+  P13vsP7_T_D3 = condition_IDP13D3Treated - condition_IDP7D3Treated,
+  P13vsP5_T_D3 = condition_IDP13D3Treated - condition_IDP5D3Treated,
+  P7vsP5_UT_D5 = condition_IDP7D5Untreated - condition_IDP5D5Untreated,
+  P13vsP7_UT_D5 = condition_IDP13D5Untreated - condition_IDP7D5Untreated,
+  P13vsP5_UT_D5 = condition_IDP13D5Untreated - condition_IDP5D5Untreated,
+  P7vsP5_T_D5 = condition_IDP7D5Treated - condition_IDP5D5Treated,
+  P13vsP7_T_D5 = condition_IDP13D5Treated - condition_IDP7D5Treated,
+  P13vsP5_T_D5 = condition_IDP13D5Treated - condition_IDP5D5Treated,
+  levels = design
+)
 
 # Build ontology gene sets
+# Create list
 
-## GO
-
-### GOBP
-### Represented by MSigDB c5/GO/BP
-
-msigdb_GOBP <-
-  getGmt(con = "./input/genesets/msigdb_v2023.2.Hs_GMTs/c5.go.bp.v2023.2.Hs.entrez.gmt")
-
-### GOMF
-### Represented by MSigDB c5/GO/MF
-
-msigdb_GOMF <-
-  getGmt(con = "./input/genesets/msigdb_v2023.2.Hs_GMTs/c5.go.mf.v2023.2.Hs.entrez.gmt")
-
-### GOCC
-### Represented by MSigDB c5/GO/CC
-
-msigdb_GOCC <-
-  getGmt(con = "./input/genesets/msigdb_v2023.2.Hs_GMTs/c5.go.cc.v2023.2.Hs.entrez.gmt")
-
-## MSigDB
-
-msigdb_h  <-
-  getGmt(con = "./input/genesets/msigdb_v2023.2.Hs_GMTs/h.all.v2023.2.Hs.entrez.gmt")
-
-msigdb_c2 <-
-  getGmt(con = "./input/genesets/msigdb_v2023.2.Hs_GMTs/c2.cgp.v2023.2.Hs.entrez.gmt")
-
-msigdb_c3 <-
-  getGmt(con = "./input/genesets/msigdb_v2023.2.Hs_GMTs/c3.all.v2023.2.Hs.entrez.gmt")
-
-## ReactomePA
-## Represented by MSigDB c2/CP/Reactome
-
-msigdb_reactome <-
-  getGmt(con = "./input/genesets/msigdb_v2023.2.Hs_GMTs/c2.cp.reactome.v2023.2.Hs.entrez.gmt")
-
-## KEGG
-## Represented by MSigDB c2/CP/KEGG_LEGACY
-
-msigdb_KEGG <-
-  getGmt(con = "./input/genesets/msigdb_v2023.2.Hs_GMTs/c2.cp.kegg_legacy.v2023.2.Hs.entrez.gmt")
-
-## GCN gene sets
-
-GCN_sets <- getGmt(con = file.path(
-  ".",
-  "input",
-  "genesets",
-  "GCN_sets_WGCNA_allsamples_only.gmt"
-))
+list_gmt <- list(
+  "GOBP" = "./input/genesets/msigdb_v2023.2.Hs_GMTs/c5.go.bp.v2023.2.Hs.entrez.gmt",
+  "GOCC" = "./input/genesets/msigdb_v2023.2.Hs_GMTs/c5.go.cc.v2023.2.Hs.entrez.gmt",
+  "GOMF" = "./input/genesets/msigdb_v2023.2.Hs_GMTs/c5.go.mf.v2023.2.Hs.entrez.gmt",
+  "h" = "./input/genesets/msigdb_v2023.2.Hs_GMTs/h.all.v2023.2.Hs.entrez.gmt",
+  "c2" = "./input/genesets/msigdb_v2023.2.Hs_GMTs/c2.cgp.v2023.2.Hs.entrez.gmt",
+  "KEGG" = "./input/genesets/msigdb_v2023.2.Hs_GMTs/c2.cp.kegg_legacy.v2023.2.Hs.entrez.gmt",
+  "Reactome" = "./input/genesets/msigdb_v2023.2.Hs_GMTs/c2.cp.reactome.v2023.2.Hs.entrez.gmt"
+) %>%
+  map(\(x) getGmt(con = x))
 
 # Perform GSVA
+## Make GSVA NES object
 
-## GO
-
-fit_GSVA_GOBP <- gsvaParam(quant_DGE_ESet,
-                           msigdb_GOBP,
-                           minSize = 5,
-                           maxSize = 500) %>%
-  gsva() %>%
-  lmFit(., design) %>%
-  eBayes() %>%
-  contrasts.fit(., matrix_contrasts) %>%
-  eBayes()
-
-fit_GSVA_GOMF <- gsvaParam(quant_DGE_ESet,
-                           msigdb_GOMF,
-                           minSize = 5,
-                           maxSize = 500) %>%
-  gsva() %>%
-  lmFit(., design) %>%
-  eBayes() %>%
-  contrasts.fit(., matrix_contrasts) %>%
-  eBayes()
-
-
-fit_GSVA_GOCC <- gsvaParam(quant_DGE_ESet,
-                           msigdb_GOCC,
-                           minSize = 5,
-                           maxSize = 500) %>%
-  gsva() %>%
-  lmFit(., design) %>%
-  eBayes() %>%
-  contrasts.fit(., matrix_contrasts) %>%
-  eBayes()
-
-## MSigDB
-
-fit_GSVA_h <- gsvaParam(quant_DGE_ESet,
-                        msigdb_h,
-                        minSize = 5,
-                        maxSize = 500) %>%
-  gsva() %>%
-  lmFit(., design) %>%
-  eBayes() %>%
-  contrasts.fit(., matrix_contrasts) %>%
-  eBayes()
-
-fit_GSVA_c2 <- gsvaParam(quant_DGE_ESet,
-                         msigdb_c2,
-                         minSize = 5,
-                         maxSize = 500) %>%
-  gsva() %>%
-  lmFit(., design) %>%
-  eBayes() %>%
-  contrasts.fit(., matrix_contrasts) %>%
-  eBayes()
-
-fit_GSVA_c3 <- gsvaParam(quant_DGE_ESet,
-                         msigdb_c3,
-                         minSize = 5,
-                         maxSize = 500) %>%
-  gsva() %>%
-  lmFit(., design) %>%
-  eBayes() %>%
-  contrasts.fit(., matrix_contrasts) %>%
-  eBayes()
-
-## Reactome
-
-fit_GSVA_reactome <- gsvaParam(quant_DGE_ESet,
-                               msigdb_reactome,
-                               minSize = 5,
-                               maxSize = 500) %>%
-  gsva() %>%
-  lmFit(., design) %>%
-  eBayes() %>%
-  contrasts.fit(., matrix_contrasts) %>%
-  eBayes()
-
-## KEGG
-
-fit_GSVA_KEGG <- gsvaParam(quant_DGE_ESet,
-                           msigdb_KEGG,
-                           minSize = 5,
-                           maxSize = 500) %>%
-  gsva() %>%
-  lmFit(., design) %>%
-  eBayes() %>%
-  contrasts.fit(., matrix_contrasts) %>%
-  eBayes()
-
-fit_GSVA_GCN <- gsvaParam(quant_DGE_ESet,
-                          GCN_sets,
-                          minSize = 5,
-                          maxSize = Inf) %>%
-  gsva() %>%
-  lmFit(., design) %>%
-  eBayes() %>%
-  contrasts.fit(., matrix_contrasts) %>%
-  eBayes()
-
-# Combine fit objects into list
-
-fit_GSVA <- list(
-  "GOBP" = fit_GSVA_GOBP,
-  "GOCC" = fit_GSVA_GOCC,
-  "GOMF" = fit_GSVA_GOMF,
-  "h" = fit_GSVA_h,
-  "c2" = fit_GSVA_c2,
-  "c3" = fit_GSVA_c3,
-  "KEGG" = fit_GSVA_KEGG,
-  "Reactome" = fit_GSVA_reactome,
-  "GCN" = fit_GSVA_GCN
+quant_gsva <- map(
+  list_gmt,
+  \(x) {
+    gsvaParam(
+      quant_eset,
+      x,
+      minSize = 5,
+      maxSize = 500,
+      kcdf = "Gaussian"
+    ) %>%
+      gsva()
+  },
+  .progress = TRUE
 )
 
-# Make GSVA NES object for plotting
-
-## GO
-
-quant_GSVA_GOBP <- gsvaParam(quant_DGE_ESet,
-                             msigdb_GOBP,
-                             minSize = 5,
-                             maxSize = 500) %>%
-  gsva()
-
-quant_GSVA_GOMF <- gsvaParam(quant_DGE_ESet,
-                             msigdb_GOMF,
-                             minSize = 5,
-                             maxSize = 500) %>%
-  gsva()
-
-
-quant_GSVA_GOCC <- gsvaParam(quant_DGE_ESet,
-                             msigdb_GOCC,
-                             minSize = 5,
-                             maxSize = 500) %>%
-  gsva()
-
-
-quant_GSVA_h <- gsvaParam(quant_DGE_ESet,
-                          msigdb_h,
-                          minSize = 5,
-                          maxSize = 500) %>%
-  gsva()
-
-
-quant_GSVA_c2 <- gsvaParam(quant_DGE_ESet,
-                           msigdb_c2,
-                           minSize = 5,
-                           maxSize = 500) %>%
-  gsva()
-
-quant_GSVA_c3 <- gsvaParam(quant_DGE_ESet,
-                           msigdb_c3,
-                           minSize = 5,
-                           maxSize = 500) %>%
-  gsva()
-
-## Reactome
-
-quant_GSVA_reactome <- gsvaParam(quant_DGE_ESet,
-                                 msigdb_reactome,
-                                 minSize = 5,
-                                 maxSize = 500) %>%
-  gsva()
-
-## KEGG
-
-quant_GSVA_KEGG <- gsvaParam(quant_DGE_ESet,
-                             msigdb_KEGG,
-                             minSize = 5,
-                             maxSize = 500) %>%
-  gsva()
-
-## GCN
-
-quant_GSVA_GCN <- gsvaParam(quant_DGE_ESet,
-                            GCN_sets,
-                            minSize = 5,
-                            maxSize = Inf) %>%
-  gsva()
-
-
-# Combine fit objects into list
-
-quant_GSVA <- list(
-  "GOBP" = quant_GSVA_GOBP,
-  "GOCC" = quant_GSVA_GOCC,
-  "GOMF" = quant_GSVA_GOMF,
-  "h" = quant_GSVA_h,
-  "c2" = quant_GSVA_c2,
-  "c3" = quant_GSVA_c3,
-  "KEGG" = quant_GSVA_KEGG,
-  "Reactome" = quant_GSVA_reactome,
-  "GCN" = quant_GSVA_GCN
+## Perform model fit
+fit_gsva <- map(
+  quant_gsva,
+  \(x) {
+    lmFit(x, design) %>%
+      eBayes() %>%
+      contrasts.fit(matrix_contrasts) %>%
+      eBayes()
+  },
+  .progress = TRUE
 )
 
 # Save data
 
-if (!dir.exists(file.path("output", "data_enrichment", "GSVA"))) {
-  dir.create(file.path("output", "data_enrichment", "GSVA"), recursive = TRUE)
-}
+saveRDS(fit_gsva, "./output/data_enrichment/GSVA/GSVA_results.RDS")
 
-saveRDS(fit_GSVA, "./output/data_enrichment/GSVA/GSVA_results.RDS")
-
-saveRDS(quant_GSVA, "./output/data_enrichment/GSVA/quant_GSVA.RDS")
-
-#
-# # Target stats analysis to desired gene sets
-#
-# ## Get names of desired gene sets
-#
-# sets_interest <- c(
-#   msigdb_c2[grepl("_SULFATE_", names(msigdb_c2))] %>% names(),
-#   msigdb_GOBP[grepl("_SULFATE_", names(msigdb_GOBP))] %>% names(),
-#   msigdb_GOCC[grepl("_SULFATE_", names(msigdb_GOCC))] %>% names(),
-#   msigdb_GOMF[grepl("_SULFATE_", names(msigdb_GOMF))] %>% names()
-# )
-#
-# ## Interaction terms (Treat x Timepoint)
-#
-# lapply(fit_GSVA_all,
-#        function(x) {
-#          x[rownames(x$coefficients) %in% sets_interest,]
-#        }) %>%
-#   lapply(decideTests) %>%
-#   lapply(summary) %>%
-#   lapply(function(x) {
-#     x[, c(25:30, 37:39)]
-#   })
+saveRDS(quant_gsva, "./output/data_enrichment/GSVA/quant_GSVA.RDS")
