@@ -63,6 +63,7 @@ invisible(lapply(list_bioc_pkg, function(x) {
 # Load all CRAN packages
 p_load(
   tibble,
+  metan,
   tidyverse,
   magrittr,
   ggrepel,
@@ -90,8 +91,16 @@ p_load(
   reactable,
   here,
   ashr,
-  openxlsx
+  openxlsx,
+  ggsignif
 )
+
+# Source other function or list definition scripts
+
+source(here(
+  "scripts",
+  "0_define_GOIs.R"
+))
 
 # Clean up package list
 rm(list_bioc_pkg)
