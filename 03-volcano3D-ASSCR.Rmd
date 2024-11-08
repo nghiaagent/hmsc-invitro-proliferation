@@ -1,0 +1,127 @@
+# Volcano plots - Between passages, Day 3
+
+```{r include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = FALSE)
+```
+
+```{r include=FALSE}
+# Load packages
+
+source(here::here(
+    "scripts",
+    "0_env_prep.R"
+))
+
+# Load data for plotting
+
+polar_manual <- readRDS(file = here::here(
+    "output",
+    "plots_volcano3D",
+    "polar_manual.RDS"
+))
+
+# Define plot specs
+
+plotlist <- list(
+    z_score = 1,
+    logFC = 2
+)
+
+breaks_r <- list(
+    z_score = seq(
+        from = 0.5,
+        to = 2.5,
+        by = 1
+    ),
+    logFC = seq(
+        from = 0.5,
+        to = 3.5,
+        by = 1
+    )
+)
+
+breaks_z <- seq(
+    from = 0,
+    to = 80,
+    by = 20
+)
+
+camera <- list(
+    x = 0,
+    y = 0.6,
+    z = 1.2
+)
+```
+
+## 3D volcano plot - P+7 highlight
+
+```{r include=FALSE}
+volcano3d_p7_highlight <- map2(
+    plotlist,
+    breaks_r,
+    \(x, y) {
+        volcano3D(
+            polar_manual,
+            type = x,
+            label_rows = c(
+                "DUSP5",
+                "JUNB",
+                "NFKBIA",
+                "GADD45B",
+                "NR4A2"
+            ),
+            grid_options = list(
+                r_axis_ticks = y,
+                z_axis_ticks = breaks_z
+            ),
+            label_size = 24,
+            z_axis_title_size = 12,
+            radial_axis_title_size = 12,
+            camera_eye = camera
+        )
+    }
+)
+```
+
+### Expression Z-score
+
+```{r}
+volcano3d_p7_highlight[[1]]
+```
+
+## 3D volcano plot - P+13 highlight
+
+```{r include=FALSE}
+volcano3d_p13_highlight <- map2(
+    plotlist,
+    breaks_r,
+    \(x, y) {
+        volcano3D(
+            polar_manual,
+            type = x,
+            label_rows = c(
+                "NEFM",
+                "HBEGF",
+                "ALPL",
+                "EGR1",
+                "E2F1"
+            ),
+            grid_options = list(
+                r_axis_ticks = y,
+                z_axis_ticks = breaks_z
+            ),
+            label_size = 24,
+            z_axis_title_size = 12,
+            radial_axis_title_size = 12,
+            camera_eye = camera
+        )
+    }
+)
+```
+
+### Expression Z-score
+
+```{r}
+volcano3d_p13_highlight[[1]]
+```
+
