@@ -110,7 +110,7 @@ fwrite(
   col.names = TRUE
 )
 
-## Rlog
+## rlog
 
 saveRDS(
   rlog_deseq2_batchcor,
