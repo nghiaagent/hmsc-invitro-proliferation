@@ -105,14 +105,21 @@ matrix_contrasts <- makeContrasts(
 # Create list
 
 list_gmt <- list(
-  "GOBP" = "./input/genesets/msigdb_v2023.2.Hs_GMTs/c5.go.bp.v2023.2.Hs.entrez.gmt",
-  "GOCC" = "./input/genesets/msigdb_v2023.2.Hs_GMTs/c5.go.cc.v2023.2.Hs.entrez.gmt",
-  "GOMF" = "./input/genesets/msigdb_v2023.2.Hs_GMTs/c5.go.mf.v2023.2.Hs.entrez.gmt",
-  "h" = "./input/genesets/msigdb_v2023.2.Hs_GMTs/h.all.v2023.2.Hs.entrez.gmt",
-  "c2" = "./input/genesets/msigdb_v2023.2.Hs_GMTs/c2.cgp.v2023.2.Hs.entrez.gmt",
-  "KEGG" = "./input/genesets/msigdb_v2023.2.Hs_GMTs/c2.cp.kegg_legacy.v2023.2.Hs.entrez.gmt",
-  "Reactome" = "./input/genesets/msigdb_v2023.2.Hs_GMTs/c2.cp.reactome.v2023.2.Hs.entrez.gmt"
+  "h"      = "h.all.v2023.2.Hs.entrez.gmt",
+  "c2_cgp" = "c2.cgp.v2023.2.Hs.entrez.gmt",
+  "c2_cp"  = "c2.cp.v2023.2.Hs.entrez.gmt",
+  "GOBP"   = "c5.go.bp.v2023.2.Hs.entrez.gmt",
+  "GOCC"   = "c5.go.cc.v2023.2.Hs.entrez.gmt",
+  "GOMF"   = "c5.go.mf.v2023.2.Hs.entrez.gmt"
 ) %>%
+  map(\(filename) {
+    here::here(
+      "input",
+      "genesets",
+      "msigdb_v2023.2.Hs_GMTs",
+      filename
+    )
+  }) %>%
   map(\(x) getGmt(con = x))
 
 # Perform GSVA
