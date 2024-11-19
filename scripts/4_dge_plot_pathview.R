@@ -1,58 +1,85 @@
-# Prepare dataset. Run DGE first.
-# Swap ENSEMBL ID with ENTREZ ID
-# If multiple ENS genes share one ENTREZ ID, remove gene with lower average expression
-# Remove genes with no Entrez ID
+# Load data
 
-fit_contrasts <-
-  readRDS(file = "./output/data_expression/post_DGE/fit_contrasts.RDS")
+results_lfcshrink <- readRDS(file = here::here(
+  "output",
+  "data_expression",
+  "post_DGE",
+  "results_deseq2.RDS"
+))
 
-order <- order(fit_contrasts$Amean, decreasing = TRUE)
+quant_deseq2 <- readRDS(file = here::here(
+  "output", "data_expression", "post_DGE",
+  "quant_deseq2_batchcor.RDS"
+))
 
-table_logFC <- topTable(
-  fit_contrasts,
-  coef = c(13, 14, 15),
-  sort.by = "none",
-  n = Inf
+results_lrt <- readRDS(file = here::here(
+  "output", "data_expression", "post_DGE",
+  "quant_deseq2_LRT.RDS"
+)) %>%
+  results(alpha = 0.05)
+
+# Construct main table
+results_betweenpassages <- extract_joined_results_trio(
+  results_1 = results_lfcshrink[[13]],
+  results_2 = results_lfcshrink[[14]],
+  results_3 = results_lfcshrink[[15]],
+  results_lrt = results_lrt,
+  name_1 = "p5_p7",
+  name_2 = "p7_p13",
+  name_3 = "p5_p13",
+  quant_deseq2
 )
 
-table_logFC <- table_logFC[order, ]
+# Filter results table for use with Pathview
+# Swap ENSEMBL ID with ENTREZ ID
+# Remove gene with lower average expression (baseMean) if sharing ENSEMBL IDs
+# Remove genes with no Entrez ID
 
-table_logFC <- table_logFC[complete.cases(table_logFC$ENTREZID), ]
+order <- order(results_betweenpassages$baseMean, decreasing = TRUE)
 
-table_logFC <- table_logFC[!duplicated(table_logFC$ENTREZID), ]
+results_betweenpassages <- results_betweenpassages %>%
+  .[order, ] %>%
+  .[map(.$`ENTREZ ID`, length) == 1, ] %>%
+  .[!duplicated(.$`ENTREZ ID`), ] %>%
+  as.data.frame()
 
-rownames(table_logFC) <- table_logFC$ENTREZID
+results_pathview <- results_betweenpassages
 
-table_logFC <- select(table_logFC,
-                      c(P7vsP5_UT_D3,
-                        P13vsP7_UT_D3,
-                        P13vsP5_UT_D3))
+rownames(results_pathview) <- results_pathview$`ENTREZ ID`
+
+results_pathview <- results_pathview %>%
+  dplyr::select(c(
+    "log2FoldChange_p5_p7",
+    "log2FoldChange_p7_p13",
+    "log2FoldChange_p5_p13"
+  ))
+
 # Draw pathway map
 
 ## Jump to output dir
-
-setwd('./output/plots_kegg_pathways')
+setwd("./output/plots_kegg_pathways")
 
 ## Draw
 ### Set fun
 
-plot_pv <- function(gene.data,
-                    out.suffix) {
+plot_pv <- function(gene_data,
+                    out_suffix) {
   pathview(
-    gene.data = gene.data,
-    pathway.id = c("hsa04064",
-                   "hsa04668",
-                   "hsa04010",
-                   "hsa04310",
-                   "hsa04350",
-                   "hsa04110",
-                   "hsa05205",
-                   "hsa04512"
-                   ),
+    gene.data = gene_data,
+    pathway.id = c(
+      "hsa04064",
+      "hsa04668",
+      "hsa04010",
+      "hsa04310",
+      "hsa04350",
+      "hsa04110",
+      "hsa05205",
+      "hsa04512"
+    ),
     species = "hsa",
-    kegg.dir = '../../input/kegg_pathways',
+    kegg.dir = "../../input/kegg_pathways",
     kegg.native = TRUE,
-    out.suffix = out.suffix,
+    out.suffix = out_suffix,
     keys.align = "y",
     multi.state = TRUE,
     same.layer = TRUE,
@@ -62,21 +89,13 @@ plot_pv <- function(gene.data,
   )
 }
 
-### OPTIONAl - Draw 1 pair only. Code disabled for now
-# 
-# plot_pv(dplyr::select(table_logFC,
-#                       1),
-#         'P7vsP5')
-# 
-# plot_pv(dplyr::select(table_logFC,
-#                       2),
-#         'P13vsP7')
-#
 ### 3 pairs
 
-plot_pv(table_logFC,
-        'P13vsP7vsP5')
+plot_pv(
+  results_pathview,
+  "P13vsP7vsP5"
+)
 
 ## Return to wd
 
-setwd('../../')
+setwd("../../")
