@@ -1,221 +1,210 @@
-
 # Load data
 
-quant_DGE_voom <- readRDS("./output/data_expression/post_DGE/quant_DGE_voom.RDS")
-fit_contrasts <- readRDS("./output/data_expression/post_DGE/fit_contrasts.RDS")
+rlog_deseq2 <- readRDS(
+  file = here::here(
+    "output",
+    "data_expression",
+    "post_DGE",
+    "rlog_deseq2.RDS"
+  )
+)
 
-# List of gene sets to be used for camera
-# GO (CC, BP, MF)
-# KEGG
-# Reactome
-# MSigDB h, c2/CGP, c3
+quant_deseq2 <- readRDS(
+  file = here::here(
+    "output",
+    "data_expression",
+    "post_DGE",
+    "quant_deseq2_batchcor.RDS"
+  )
+)
 
-#### Define function for converting GMT files to limma::camera format ####
+# Convert rlog object to MArrayLM to pass to camera
+# Method accepted by camera authors https://support.bioconductor.org/p/71534/
+
+rlog_camera <- new(
+  "EList",
+  list(
+    E = assay(rlog_deseq2),
+    genes = rowRanges(rlog_deseq2),
+    targets = colData(rlog_deseq2)
+  )
+)
+
+# Define design and contrast matrices for camera
+## Design matrix
+
+design <- model.matrix(
+  design(quant_deseq2),
+  data = rlog_camera$targets
+)
+
+colnames(design) <- make.names(colnames(design))
+
+## Contrasts matrix
+
+contrasts <- makeContrasts(
+
+  ## Coefs 1 - 6: Treatment at each timepoint
+  Trt_P5_D3 = condition_IDP5D3Treated - 0,
+  Trt_P5_D5 = condition_IDP5D5Treated - condition_IDP5D5Untreated,
+  Trt_P7_D3 = condition_IDP7D3Treated - condition_IDP7D3Untreated,
+  Trt_P7_D5 = condition_IDP7D5Treated - condition_IDP7D5Untreated,
+  Trt_P13_D3 = condition_IDP13D3Treated - condition_IDP13D3Untreated,
+  Trt_P13_D5 = condition_IDP13D5Treated - condition_IDP13D5Untreated,
+
+  ## Coefs 7 - 12: Day at each timepoint x treatment
+  D5vsD3_UT_P5 = condition_IDP5D5Untreated - 0,
+  D5vsD3_UT_P7 = condition_IDP7D5Untreated - condition_IDP7D3Untreated,
+  D5vsD3_UT_P13 = condition_IDP13D5Untreated - condition_IDP13D3Untreated,
+  D5vsD3_T_P5 = condition_IDP5D5Treated - condition_IDP5D3Treated,
+  D5vsD3_T_P7 = condition_IDP7D5Treated - condition_IDP7D3Treated,
+  D5vsD3_T_P13 = condition_IDP13D5Treated - condition_IDP13D3Treated,
+
+  ## Coefs 13 - 24: Passage at each day x treatment
+  P7vsP5_UT_D3 = condition_IDP7D3Untreated - 0,
+  P13vsP7_UT_D3 = condition_IDP13D3Untreated - condition_IDP7D3Untreated,
+  P13vsP5_UT_D3 = condition_IDP13D3Untreated - 0,
+  P7vsP5_T_D3 = condition_IDP7D3Treated - condition_IDP5D3Treated,
+  P13vsP7_T_D3 = condition_IDP13D3Treated - condition_IDP7D3Treated,
+  P13vsP5_T_D3 = condition_IDP13D3Treated - condition_IDP5D3Treated,
+  P7vsP5_UT_D5 = condition_IDP7D5Untreated - condition_IDP5D5Untreated,
+  P13vsP7_UT_D5 = condition_IDP13D5Untreated - condition_IDP7D5Untreated,
+  P13vsP5_UT_D5 = condition_IDP13D5Untreated - condition_IDP5D5Untreated,
+  P7vsP5_T_D5 = condition_IDP7D5Treated - condition_IDP5D5Treated,
+  P13vsP7_T_D5 = condition_IDP13D5Treated - condition_IDP7D5Treated,
+  P13vsP5_T_D5 = condition_IDP13D5Treated - condition_IDP5D5Treated,
+  levels = design
+)
+
+# Define function for converting gene set GMT files to limma::camera format
 
 get_camera_gs <- function(con) {
   getGmt(con = con) %>%
     geneIds() %>%
-    ids2indices(identifiers = fit_contrasts$genes$ENTREZID)
+    ids2indices(identifiers = rlog_camera$genes$entrezid)
 }
 
-#### Obtain gene sets ####
+# Obtain gene sets
+## List of gene sets to be used for camera
+## MSigDB h
+## MSigDB C2/CGP
+## MSigDB C2/CP
+## GO (CC, BP, MF)
 
-# GO
+list_gmt <- list(
+  "h"      = "h.all.v2023.2.Hs.entrez.gmt",
+  "c2_cgp" = "c2.cgp.v2023.2.Hs.entrez.gmt",
+  "c2_cp"  = "c2.cp.v2023.2.Hs.entrez.gmt",
+  "GOBP"   = "c5.go.bp.v2023.2.Hs.entrez.gmt",
+  "GOCC"   = "c5.go.cc.v2023.2.Hs.entrez.gmt",
+  "GOMF"   = "c5.go.mf.v2023.2.Hs.entrez.gmt"
+) %>%
+  map(\(filename) {
+    here::here(
+      "input",
+      "genesets",
+      "msigdb_v2023.2.Hs_GMTs",
+      filename
+    )
+  }) %>%
+  map(\(x) get_camera_gs(con = x))
 
-## GOBP
-## Represented by MSigDB c5/GO/BP
+# (Re)define design for limma::camera
 
-msigdb_GOBP <-
-  get_camera_gs("./input/genesets/msigdb_v2023.2.Hs_GMTs/c5.go.bp.v2023.2.Hs.entrez.gmt")
-
-## GOMF
-## Represented by MSigDB c5/GO/MF
-
-msigdb_GOMF <-
-  get_camera_gs("./input/genesets/msigdb_v2023.2.Hs_GMTs/c5.go.mf.v2023.2.Hs.entrez.gmt")
-
-## GOCC
-## Represented by MSigDB c5/GO/CC
-
-msigdb_GOCC <-
-  get_camera_gs("./input/genesets/msigdb_v2023.2.Hs_GMTs/c5.go.cc.v2023.2.Hs.entrez.gmt")
-
-# MSigDB
-
-msigdb_h  <-
-  get_camera_gs("./input/genesets/msigdb_v2023.2.Hs_GMTs/h.all.v2023.2.Hs.entrez.gmt")
-
-msigdb_c2 <-
-  get_camera_gs("./input/genesets/msigdb_v2023.2.Hs_GMTs/c2.cgp.v2023.2.Hs.entrez.gmt")
-
-msigdb_c3 <-
-  get_camera_gs("./input/genesets/msigdb_v2023.2.Hs_GMTs/c3.all.v2023.2.Hs.entrez.gmt")
-
-# ReactomePA
-# Represented by MSigDB c2/CP/Reactome
-
-msigdb_reactome <-
-  get_camera_gs("./input/genesets/msigdb_v2023.2.Hs_GMTs/c2.cp.reactome.v2023.2.Hs.entrez.gmt")
-
-# KEGG
-# Represented by MSigDB c2/CP/KEGG_LEGACY
-
-msigdb_KEGG <-
-  get_camera_gs(
-    "./input/genesets/msigdb_v2023.2.Hs_GMTs/c2.cp.kegg_legacy.v2023.2.Hs.entrez.gmt"
-  )
-
-#### Define camera helper function ####
+# Define camera helper function
 # Function runs camera on MArrayLM fit object provided by voomLmFit,
 # allowing selection of contrast coefficient and threshold
 # Export files to relevant folder
 
-run_camera <- function(fit = NULL, coef = NULL, inter.gene.cor = 0.01, sort = TRUE) {
-  
+run_camera <- function(
+  elist = NULL,
+  design = NULL,
+  contrasts = NULL,
+  genesets = NULL,
+  coef = NULL,
+  inter.gene.cor = 0.01,
+  sort = TRUE) {
   # Check for errors in input
-  ## Check errors in fit object
-  
-  if (!class(fit) == "MArrayLM" | is.null(fit$contrasts)) {
-    stop("Fit object is not a contrasted MArrayLM object provided by voomLmFit.\nIs keep.EList = TRUE? Have you run contrasts.fit after voomLmFit?")
-  }
-  
   ## Check errors in inter-gene correlation
-  
+
   if (is.null(inter.gene.cor) == TRUE) {
-    
     message(str_c("inter-gene correlation estimated by camera"))
-    
-  }
-  else {
-    
+  } else {
     if ((is.numeric(inter.gene.cor) == FALSE |
-         abs(inter.gene.cor) > 1)) {
+      abs(inter.gene.cor) > 1)) {
       stop("inter-gene correlation must be between -1 and 1")
     }
     message(str_c("inter-gene correlation set at ", inter.gene.cor))
-    
   }
-  
+
   ## Check errors in sort option
-  
+
   if (class(sort) != "logical") {
     stop("sort selection must be TRUE or FALSE")
   }
-  
+
   # Set up output folder
-  
-  name_output <- as.character(colnames(fit$coefficients)[coef])
-  
-  path_output <- file.path(getwd(), 
-                           'output',
-                           'data_enrichment', 
-                           'camera', 
-                           name_output)
-  
-  message(str_c("Output camera results to", path_output, 
-                sep = " "))
-  
-  
+
+  name_output <- as.character(colnames(contrasts)[coef])
+  path_output <- here::here(
+    "output",
+    "data_enrichment",
+    "camera",
+    as.character(colnames(contrasts)[coef])
+  )
+
+  message(str_c(
+    "Output camera results to",
+    path_output,
+    sep = " "
+  ))
+
   if (!dir.exists(path_output)) {
     dir.create(path_output, recursive = TRUE)
   }
-  
-  # Run camera on GO gene sets
-  
-  message(str_c("Running GO enrichment for", name_output, sep = " "))
-  
-  camera_GOBP <- camera(
-    quant_DGE_voom$E,
-    msigdb_GOBP,
-    fit$design,
-    fit$contrasts[, coef],
-    sort = sort,
-    inter.gene.cor = inter.gene.cor
+
+  # Run camera on list of provided gene sets
+  camera_results <- imap(
+    list_gmt,
+    \(geneset, genesetname) {
+      message(str_c(
+        "Running",
+        genesetname,
+        "enrichment for",
+        path_output,
+        sep = " "
+      ))
+      
+      camera(
+        elist$E,
+        geneset,
+        design,
+        contrasts[, coef],
+        sort = sort,
+        inter.gene.cor = inter.gene.cor
+      )
+    }
   )
-  
-  camera_GOCC <- camera(
-    quant_DGE_voom$E,
-    msigdb_GOCC,
-    fit$design,
-    fit$contrasts[, coef],
-    sort = sort,
-    inter.gene.cor = inter.gene.cor
+
+  # Save data
+  saveRDS(
+    camera_results,
+    file = here::here(
+      path_output,
+      "camera_results.RDS"
+    )
   )
-  
-  camera_GOMF <- camera(
-    quant_DGE_voom$E,
-    msigdb_GOMF,
-    fit$design,
-    fit$contrasts[, coef],
-    sort = sort,
-    inter.gene.cor = inter.gene.cor
+
+  write.xlsx(
+    camera_results,
+    file = here::here(
+      path_output,
+      "camera_results.xlsx"
+    ),
+    asTable = TRUE,
+    rowNames = TRUE
   )
-  
-  message(str_c("Running MSigDB enrichment for", name_output, sep = " "))
-  
-  camera_h <- camera(
-    quant_DGE_voom$E,
-    msigdb_h,
-    fit$design,
-    fit$contrasts[, coef],
-    sort = sort,
-    inter.gene.cor = inter.gene.cor
-  )
-  
-  camera_c2 <- camera(
-    quant_DGE_voom$E,
-    msigdb_c2,
-    fit$design,
-    fit$contrasts[, coef],
-    sort = sort,
-    inter.gene.cor = inter.gene.cor
-  )
-  
-  camera_c3 <- camera(
-    quant_DGE_voom$E,
-    msigdb_c3,
-    fit$design,
-    fit$contrasts[, coef],
-    sort = sort,
-    inter.gene.cor = inter.gene.cor
-  )
-  
-  message(str_c("Running Reactome enrichment for", name_output, sep = " "))
-  
-  camera_reactome <- camera(
-    quant_DGE_voom$E,
-    msigdb_reactome,
-    fit$design,
-    fit$contrasts[, coef],
-    sort = sort,
-    inter.gene.cor = inter.gene.cor
-  )
-  
-  message(str_c("Running KEGG enrichment for", name_output, sep = " "))
-  
-  camera_KEGG <- camera(
-    quant_DGE_voom$E,
-    msigdb_KEGG,
-    fit$design,
-    fit$contrasts[, coef],
-    sort = sort,
-    inter.gene.cor = inter.gene.cor
-  )
-  
-  camera_list <- list(
-    "GOBP" = camera_GOBP,
-    "GOCC" = camera_GOCC,
-    "GOMF" = camera_GOMF,
-    "KEGG" = camera_KEGG,
-    "MSigDB_h" = camera_h,
-    "MSigDB_c2" = camera_c2,
-    "MSigDB_c3" = camera_c3,
-    "Reactome" = camera_reactome
-  )
-  
-  saveRDS(camera_list, file = file.path(path_output, "camera_results.RDS"))
-  writexl::write_xlsx(camera_list, 
-                      path = file.path(path_output, "camera_results.xlsx"))
-  return(camera_list)
-  
+
+  # Return
+  return(camera_results)
 }
