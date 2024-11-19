@@ -92,7 +92,8 @@ p_load(
   here,
   ashr,
   openxlsx,
-  ggsignif
+  ggsignif,
+  patchwork
 )
 
 # Source other function or list definition scripts
@@ -106,9 +107,11 @@ source(here(
 rm(list_bioc_pkg)
 
 # Limit number of cores used due to memory issues on laptops.
-BiocParallel::register(SnowParam(workers = 4),
+BiocParallel::register(
+  SnowParam(workers = 4),
   default = TRUE
 )
+
 bpparam()
 
 # Define contrasts for DESeq2

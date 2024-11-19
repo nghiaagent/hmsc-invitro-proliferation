@@ -50,14 +50,7 @@ results_subset <- map(
 
 # Define counts plotting functions
 
-## For setting scale
-
-set_scale <- function(ggplot) {
-  ggplot
-}
-
 ## For treatments
-
 plot_goi_treat <- function(gene_id, gene_name) {
   # Get table containing normalised gene counts
   gene_counts <- plotCounts(

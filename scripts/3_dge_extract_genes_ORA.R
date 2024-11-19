@@ -36,23 +36,17 @@ results_lfcshrink_format <- map(
 
 results_ensembl_ids <- map(
   results_lfcshrink_format,
-  \(x) {
-    x$`ENSEMBL ID`
-  }
+  \(x) x$`ENSEMBL ID`
 )
 
 results_entrez_ids <- map(
   results_lfcshrink_format,
-  \(x) {
-    x$`ENTREZ ID`
-  }
+  \(x) x$`ENTREZ ID`
 )
 
 results_symbol <- map(
   results_lfcshrink_format,
-  \(x) {
-    x$Symbol
-  }
+  \(x) x$Symbol
 )
 
 # Export data
@@ -62,7 +56,7 @@ imap(
   results_ensembl_ids,
   \(x, idx) {
     fwrite(
-      x %>% list(),
+      list(x),
       file = here::here(
         "output",
         "list_genes",
@@ -77,7 +71,7 @@ imap(
   results_symbol,
   \(x, idx) {
     fwrite(
-      x %>% list(),
+      list(x),
       file = here::here(
         "output",
         "list_genes",
@@ -93,7 +87,7 @@ imap(
   results_entrez_ids,
   \(x, idx) {
     fwrite(
-      x %>% list(),
+      list(x),
       file = here::here(
         "output",
         "list_genes",
