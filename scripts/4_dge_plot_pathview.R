@@ -4,7 +4,7 @@ results_lfcshrink <- readRDS(file = here::here(
   "output",
   "data_expression",
   "post_DGE",
-  "results_deseq2.RDS"
+  "results_deseq2_lfcshrink.RDS"
 ))
 
 quant_deseq2 <- readRDS(file = here::here(

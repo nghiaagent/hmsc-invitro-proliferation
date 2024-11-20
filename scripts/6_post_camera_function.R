@@ -117,20 +117,20 @@ list_gmt <- list(
 # Export files to relevant folder
 
 run_camera <- function(
-  elist = NULL,
-  design = NULL,
-  contrasts = NULL,
-  genesets = NULL,
-  coef = NULL,
-  inter.gene.cor = 0.01,
-  sort = TRUE) {
+    elist = NULL,
+    design = NULL,
+    contrasts = NULL,
+    genesets = NULL,
+    coef = NULL,
+    inter.gene.cor = 0.01, # nolint: object_name_linter.
+    sort = TRUE) {
   # Check for errors in input
   ## Check errors in inter-gene correlation
 
   if (is.null(inter.gene.cor) == TRUE) {
     message(str_c("inter-gene correlation estimated by camera"))
   } else {
-    if ((is.numeric(inter.gene.cor) == FALSE |
+    if ((is.numeric(inter.gene.cor) == FALSE ||
       abs(inter.gene.cor) > 1)) {
       stop("inter-gene correlation must be between -1 and 1")
     }
@@ -174,7 +174,7 @@ run_camera <- function(
         path_output,
         sep = " "
       ))
-      
+
       camera(
         elist$E,
         geneset,
