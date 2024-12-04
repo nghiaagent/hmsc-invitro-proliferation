@@ -45,7 +45,8 @@ list_bioc_pkg <- c(
   "pcaExplorer",
   "IHW",
   "RUVSeq",
-  "EnhancedVolcano"
+  "EnhancedVolcano",
+  "impute"
 )
 
 # Install Bioconductor packages, if they are not yet installed
@@ -159,6 +160,12 @@ source(here::here(
 source(here(
   "scripts",
   "0_define_results_extract.R"
+))
+
+## Results extraction (limma)
+source(here(
+  "scripts",
+  "0_define_results_extract_limma.R"
 ))
 
 ## Results clipping for plotting with EnhancedVolcano

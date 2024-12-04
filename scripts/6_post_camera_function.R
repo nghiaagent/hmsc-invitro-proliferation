@@ -73,6 +73,27 @@ contrasts <- makeContrasts(
   P7vsP5_T_D5 = condition_IDP7D5Treated - condition_IDP5D5Treated,
   P13vsP7_T_D5 = condition_IDP13D5Treated - condition_IDP7D5Treated,
   P13vsP5_T_D5 = condition_IDP13D5Treated - condition_IDP5D5Treated,
+
+  ## Coefs 25 - 30: Passage x Treatment at each day
+  P7vsP5_TvsUT_D3 = (condition_IDP7D3Treated - condition_IDP7D3Untreated) - (condition_IDP5D3Treated - 0),
+  P13vsP7_TvsUT_D3 = (condition_IDP13D3Treated - condition_IDP13D3Untreated) - (condition_IDP7D3Treated - condition_IDP7D3Untreated),
+  P13vsP5_TvsUT_D3 = (condition_IDP13D3Treated - condition_IDP13D3Untreated) - (condition_IDP5D3Treated - 0),
+  P7vsP5_TvsUT_D5 = (condition_IDP7D5Treated - condition_IDP7D5Untreated) - (condition_IDP5D5Treated - condition_IDP5D5Untreated),
+  P13vsP7_TvsUT_D5 = (condition_IDP13D5Treated - condition_IDP13D5Untreated) - (condition_IDP7D5Treated - condition_IDP7D5Untreated),
+  P13vsP5_TvsUT_D5 = (condition_IDP13D5Treated - condition_IDP13D5Untreated) - (condition_IDP5D5Treated - condition_IDP5D5Untreated),
+
+  ## Coefs 31 - 36: Passage x Day at treatment
+  P7vsP5_D5vsD3_UT = (condition_IDP7D5Untreated - condition_IDP5D5Untreated) - (condition_IDP7D3Untreated - 0),
+  P13vsP7_D5vsD3_UT = (condition_IDP13D5Untreated - condition_IDP7D5Untreated) - (condition_IDP13D3Untreated - condition_IDP7D3Untreated),
+  P13vsP5_D5vsD3_UT = (condition_IDP13D5Untreated - condition_IDP5D5Untreated) - (condition_IDP13D3Untreated - 0),
+  P7vsP5_D5vsD3_T = (condition_IDP7D5Treated - condition_IDP5D5Treated) - (condition_IDP7D3Treated - condition_IDP5D3Treated),
+  P13vsP7_D5vsD3_T = (condition_IDP13D5Treated - condition_IDP7D5Treated) - (condition_IDP13D3Treated - condition_IDP7D3Treated),
+  P13vsP5_D5vsD3_T = (condition_IDP13D5Treated - condition_IDP5D5Treated) - (condition_IDP13D3Treated - condition_IDP5D3Treated),
+
+  ## Coefs 37 - 39: Day x Treatment at Passage
+  D5vsD3_TvsUT_P5 = (condition_IDP5D5Treated - condition_IDP5D5Untreated) - (condition_IDP5D3Treated - 0),
+  D5vsD3_TvsUT_P7 = (condition_IDP7D5Treated - condition_IDP7D5Untreated) - (condition_IDP7D3Treated - condition_IDP7D3Untreated),
+  D5vsD3_TvsUT_P13 = (condition_IDP13D5Treated - condition_IDP13D5Untreated) - (condition_IDP13D3Treated - condition_IDP13D3Untreated),
   levels = design
 )
 

@@ -6,9 +6,6 @@ genenames_inhouse <- c(
   "NES",
   "TUBB3",
   "VIM",
-  "ACAN",
-  "HSPG2",
-  "DCN",
   "GPC1",
   "GPC4",
   "SDC1",
@@ -47,9 +44,6 @@ genenames_inhouse <- c(
 
 genenames_inhouse_hspgs <- c(
   "VIM",
-  "ACAN",
-  "HSPG2",
-  "DCN",
   "GPC1",
   "GPC4",
   "SDC1",
@@ -73,8 +67,7 @@ genenames_inhouse_hspgs <- c(
   "NDST1",
   "NDST2",
   "NDST3",
-  "NDST4",
-  "CHST11"
+  "NDST4"
 )
 
 geneids_inhouse <- mapIds(org.Hs.eg.db,
