@@ -105,18 +105,18 @@ matrix_contrasts <- makeContrasts(
 # Create list
 
 list_gmt <- list(
-  "h"      = "h.all.v2023.2.Hs.entrez.gmt",
-  "c2_cgp" = "c2.cgp.v2023.2.Hs.entrez.gmt",
-  "c2_cp"  = "c2.cp.v2023.2.Hs.entrez.gmt",
-  "GOBP"   = "c5.go.bp.v2023.2.Hs.entrez.gmt",
-  "GOCC"   = "c5.go.cc.v2023.2.Hs.entrez.gmt",
-  "GOMF"   = "c5.go.mf.v2023.2.Hs.entrez.gmt"
+  "h"      = "msigdb_v2023.2.Hs_GMTs/h.all.v2023.2.Hs.entrez.gmt",
+  "c2_cgp" = "msigdb_v2023.2.Hs_GMTs/c2.cgp.v2023.2.Hs.entrez.gmt",
+  "c2_cp"  = "msigdb_v2023.2.Hs_GMTs/c2.cp.v2023.2.Hs.entrez.gmt",
+  "GOBP"   = "msigdb_v2023.2.Hs_GMTs/c5.go.bp.v2023.2.Hs.entrez.gmt",
+  "GOCC"   = "msigdb_v2023.2.Hs_GMTs/c5.go.cc.v2023.2.Hs.entrez.gmt",
+  "GOMF"   = "msigdb_v2023.2.Hs_GMTs/c5.go.mf.v2023.2.Hs.entrez.gmt",
+  "WGCNA"  = "gcn_sets_WGCNA.gmt"
 ) %>%
   map(\(filename) {
     here::here(
       "input",
       "genesets",
-      "msigdb_v2023.2.Hs_GMTs",
       filename
     )
   }) %>%
@@ -125,8 +125,8 @@ list_gmt <- list(
 # Perform GSVA
 ## Make GSVA NES object
 
-quant_gsva <- map(
-  list_gmt,
+quant_gsva_db <- map(
+  list_gmt[1:6],
   \(x) {
     gsvaParam(
       quant_eset,
@@ -138,6 +138,24 @@ quant_gsva <- map(
       gsva()
   },
   .progress = TRUE
+)
+
+quant_gsva_wgcna <- map(
+  list_gmt[7],
+  \(x) {
+    gsvaParam(
+      quant_eset,
+      x,
+      kcdf = "Gaussian"
+    ) %>%
+      gsva()
+  },
+  .progress = TRUE
+)
+
+quant_gsva <- c(
+  quant_gsva_db,
+  quant_gsva_wgcna
 )
 
 ## Perform model fit
@@ -154,6 +172,22 @@ fit_gsva <- map(
 
 # Save data
 
-saveRDS(fit_gsva, "./output/data_enrichment/GSVA/GSVA_results.RDS")
+saveRDS(
+  fit_gsva,
+  here::here(
+    "output",
+    "data_enrichment",
+    "GSVA",
+    "GSVA_results.RDS"
+  )
+)
 
-saveRDS(quant_gsva, "./output/data_enrichment/GSVA/quant_GSVA.RDS")
+saveRDS(
+  quant_gsva,
+  here::here(
+    "output",
+    "data_enrichment",
+    "GSVA",
+    "quant_GSVA.RDS"
+  )
+)

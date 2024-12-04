@@ -1,5 +1,4 @@
 # Load data (batch-corrected counts)
-
 quant_deseq2_batchcor <- readRDS(file = here::here(
   "output",
   "data_expression",
@@ -17,7 +16,6 @@ results <- readRDS(
 )
 
 # Select data for conditions
-
 conditions_interest <- c(
   "P5D3Untreated",
   "P7D3Untreated",
@@ -31,13 +29,11 @@ quant_small <- quant_deseq2_batchcor %$%
   .[, colData(.)$condition_ID %in% conditions_interest]
 
 # Extract rownames of GOIs
-
 genes_sel <- rowRanges(quant_small) %>%
   as.data.frame() %>%
   filter(entrezid %in% geneids_goi_limited)
 
 # Readjust DESeq results to include only GOIs
-
 results_subset <- map(
   results,
   \(x) {
@@ -49,7 +45,6 @@ results_subset <- map(
 )
 
 # Define counts plotting functions
-
 ## For treatments
 plot_goi_treat <- function(gene_id, gene_name) {
   # Get table containing normalised gene counts
@@ -118,15 +113,18 @@ plot_goi_treat <- function(gene_id, gene_name) {
 }
 
 ## For passages
-
 plot_goi_passage <- function(gene_id, gene_name) {
   # Get table containing normalised gene counts
   gene_counts <- plotCounts(
     quant_small,
     gene = gene_id,
-    intgroup = c("Passage"),
+    intgroup = c(
+      "Passage",
+      "Treatment"
+    ),
     returnData = TRUE
-  )
+  ) %>%
+    filter(Treatment == "Untreated")
 
   # Get position to start drawing signif bars
   y_position <- log10(max(gene_counts$count))
@@ -164,7 +162,6 @@ plot_goi_passage <- function(gene_id, gene_name) {
 }
 
 ## Apply to draw plots, export
-
 plots_goi_treat <- map2(
   genes_sel$gene_id,
   genes_sel$gene_name,
@@ -182,7 +179,6 @@ plots_goi_passage <- map2(
   set_names(genes_sel$gene_name)
 
 ## Export plots
-
 purrr::iwalk(
   plots_goi_treat,
   \(x, idx) {
@@ -228,7 +224,6 @@ purrr::iwalk(
 )
 
 # Save data
-
 saveRDS(
   plots_goi_treat,
   file = here::here(
