@@ -76,8 +76,7 @@ plots_sel_treat_hspgs <- plots_goi_treat[genes_sel_hspgs] %>%
 plots_sel_treat_hspgs <- wrap_plots(plots_sel_treat_hspgs) / plot_legend +
     plot_layout(heights = c(20, 1))
 
-## Export plots
-
+# Export plots
 ggsave(
     filename = str_c("gois_passage_hspgs.png", sep = ""),
     plot = plots_sel_passage_hspgs,
@@ -122,7 +121,7 @@ plots_sel_treat_markers <- plots_goi_treat[genes_sel_markers] %>%
 plots_sel_treat_markers <- wrap_plots(plots_sel_treat_markers) / plot_legend +
     plot_layout(heights = c(20, 1))
 
-## Export plots
+# Export plots
 ggsave(
     filename = str_c("gois_passage_markers.png", sep = ""),
     plot = plots_sel_passage_markers,
