@@ -45,7 +45,8 @@ list_bioc_pkg <- c(
   "pcaExplorer",
   "IHW",
   "RUVSeq",
-  "EnhancedVolcano"
+  "EnhancedVolcano",
+  "impute"
 )
 
 # Install Bioconductor packages, if they are not yet installed
