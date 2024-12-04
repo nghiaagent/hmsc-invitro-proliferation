@@ -162,6 +162,12 @@ source(here(
   "0_define_results_extract.R"
 ))
 
+## Results extraction (limma)
+source(here(
+  "scripts",
+  "0_define_results_extract_limma.R"
+))
+
 ## Results clipping for plotting with EnhancedVolcano
 source(here(
   "scripts",
