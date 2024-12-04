@@ -5,7 +5,7 @@ results <- readRDS(
         "output",
         "data_expression",
         "post_DGE",
-        "results_deseq2.RDS"
+        "results_deseq2_lfcshrink.RDS"
     )
 )
 
@@ -41,18 +41,25 @@ list_barcodeplots <- imap(
                         path_output,
                         str_c(name_geneset, ".png", sep = "")
                     ),
-                    res = 300,
-                    width = 7,
-                    height = 4,
+                    res = 288,
+                    width = 4,
+                    height = 3,
                     units = "in"
                 )
 
-                par(mar = c(4.5, 3, 1.5, 1) + 0.1)
+                par(mar = c(4.5, 3, 1.5, 1) - 0.5)
 
                 # Draw plot
                 barcodeplot(
                     results$log2FoldChange,
-                    index = genesets
+                    index = genesets,
+                    alpha = 0.2,
+                    labels = c("", ""),
+                    xlab = "Log2 fold change",
+                    cex.lab = 0.6,
+                    cex.axis = 0.6,
+                    cex.main = 0.6,
+                    cex.sub = 0.6
                 )
 
                 # Export plot and object
