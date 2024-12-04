@@ -139,7 +139,7 @@ ggsave(
 
 ggsave(
     filename = str_c("gois_treat_markers.png", sep = ""),
-    plot = plots_sel_treat_hspgs,
+    plot = plots_sel_treat_markers,
     path = here::here(
         ".",
         "output",
