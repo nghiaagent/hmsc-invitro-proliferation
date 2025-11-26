@@ -86,7 +86,8 @@ polar_manual_gsva <- pmap(
             outcome = outcome,
             data = t(data_gsva),
             pvals = polar_pvals_gsva,
-            padj = polar_padj_gsva
+            padj = polar_padj_gsva,
+            scheme = palette_volcano3d
         )
     }
 )
