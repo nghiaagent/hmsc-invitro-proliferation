@@ -101,27 +101,6 @@ matrix_contrasts <- makeContrasts(
     levels = design
 )
 
-# Build ontology gene sets
-# Create list
-
-list_gmt <- list(
-    "h"      = "msigdb_v2023.2.Hs_GMTs/h.all.v2023.2.Hs.entrez.gmt",
-    "c2_cgp" = "msigdb_v2023.2.Hs_GMTs/c2.cgp.v2023.2.Hs.entrez.gmt",
-    "c2_cp"  = "msigdb_v2023.2.Hs_GMTs/c2.cp.v2023.2.Hs.entrez.gmt",
-    "GOBP"   = "msigdb_v2023.2.Hs_GMTs/c5.go.bp.v2023.2.Hs.entrez.gmt",
-    "GOCC"   = "msigdb_v2023.2.Hs_GMTs/c5.go.cc.v2023.2.Hs.entrez.gmt",
-    "GOMF"   = "msigdb_v2023.2.Hs_GMTs/c5.go.mf.v2023.2.Hs.entrez.gmt",
-    "WGCNA"  = "gcn_sets_WGCNA.gmt"
-) %>%
-    map(\(filename) {
-        here::here(
-            "input",
-            "genesets",
-            filename
-        )
-    }) %>%
-    map(\(x) getGmt(con = x))
-
 # Perform GSVA
 ## Make GSVA NES object
 
