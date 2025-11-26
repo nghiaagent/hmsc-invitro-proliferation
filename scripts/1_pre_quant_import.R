@@ -7,75 +7,75 @@
 # Construct sample table
 
 table_samples <-
-  read_csv("./input/annotation/Cell_sample_table.csv") %>%
-  mutate(
-    ID = name,
-    .keep = "unused"
-  ) %>%
-  mutate(ID = str_replace(
-    ID,
-    "hMSC_",
-    "hMSC-"
-  )) %>%
-  mutate(ID = str_replace(
-    ID,
-    "(?<=0)_(?=[:digit:])",
-    "-"
-  )) %>%
-  mutate(cell_line = factor(
-    cell_line,
-    levels = c("hMSC-20176", "hMSC-21558")
-  )) %>%
-  mutate(Passage = factor(
-    Passage,
-    levels = c("P5", "P7", "P13")
-  )) %>%
-  mutate(Day = factor(
-    Day,
-    levels = c("D3", "D5")
-  )) %>%
-  mutate(Treatment = factor(
-    Treatment,
-    levels = c("Untreated", "Treated")
-  )) %>%
-  mutate(run_date = str_replace_all(
-    run_date,
-    "_",
-    ""
-  )) %>%
-  mutate(timepoint_ID = factor(
-    str_c(Passage, Day, sep = ""),
-    levels = c(
-      "P5D3",
-      "P5D5",
-      "P7D3",
-      "P7D5",
-      "P13D3",
-      "P13D5"
-    )
-  )) %>%
-  mutate(condition_ID = factor(
-    str_c(Passage, Day, Treatment, sep = ""),
-    levels = c(
-      "P5D3Untreated",
-      "P5D3Treated",
-      "P5D5Untreated",
-      "P5D5Treated",
-      "P7D3Untreated",
-      "P7D3Treated",
-      "P7D5Untreated",
-      "P7D5Treated",
-      "P13D3Untreated",
-      "P13D3Treated",
-      "P13D5Untreated",
-      "P13D5Treated"
-    )
-  )) %>%
-  subset(included_in_dataset == TRUE) %>%
-  arrange(ID, cell_line, Passage, Day, Treatment) %>%
-  mutate(ID = factor(ID)) %>%
-  mutate(ID = fct_inorder(ID)) %>%
-  mutate(run_date = factor(run_date))
+    read_csv("./input/annotation/Cell_sample_table.csv") %>%
+    mutate(
+        ID = name,
+        .keep = "unused"
+    ) %>%
+    mutate(ID = str_replace(
+        ID,
+        "hMSC_",
+        "hMSC-"
+    )) %>%
+    mutate(ID = str_replace(
+        ID,
+        "(?<=0)_(?=[:digit:])",
+        "-"
+    )) %>%
+    mutate(cell_line = factor(
+        cell_line,
+        levels = c("hMSC-20176", "hMSC-21558")
+    )) %>%
+    mutate(Passage = factor(
+        Passage,
+        levels = c("P5", "P7", "P13")
+    )) %>%
+    mutate(Day = factor(
+        Day,
+        levels = c("D3", "D5")
+    )) %>%
+    mutate(Treatment = factor(
+        Treatment,
+        levels = c("Untreated", "Treated")
+    )) %>%
+    mutate(run_date = str_replace_all(
+        run_date,
+        "_",
+        ""
+    )) %>%
+    mutate(timepoint_ID = factor(
+        str_c(Passage, Day, sep = ""),
+        levels = c(
+            "P5D3",
+            "P5D5",
+            "P7D3",
+            "P7D5",
+            "P13D3",
+            "P13D5"
+        )
+    )) %>%
+    mutate(condition_ID = factor(
+        str_c(Passage, Day, Treatment, sep = ""),
+        levels = c(
+            "P5D3Untreated",
+            "P5D3Treated",
+            "P5D5Untreated",
+            "P5D5Treated",
+            "P7D3Untreated",
+            "P7D3Treated",
+            "P7D5Untreated",
+            "P7D5Treated",
+            "P13D3Untreated",
+            "P13D3Treated",
+            "P13D5Untreated",
+            "P13D5Treated"
+        )
+    )) %>%
+    subset(included_in_dataset == TRUE) %>%
+    arrange(ID, cell_line, Passage, Day, Treatment) %>%
+    mutate(ID = factor(ID)) %>%
+    mutate(ID = fct_inorder(ID)) %>%
+    mutate(run_date = factor(run_date))
 
 # Construct transcriptome dataset for limma-voom
 ## Construct this for cDNA + ncRNA data from ENSEMBL
