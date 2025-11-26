@@ -68,7 +68,9 @@ volcano3d_p7_highlight <- map2(
                 "JUNB",
                 "NFKBIA",
                 "GADD45B",
-                "NR4A2"
+                "NR4A2",
+                "DDIT4",
+                "LIF"
             ),
             grid_options = list(
                 r_axis_ticks = y,
@@ -101,10 +103,13 @@ volcano3d_p13_highlight <- map2(
             type = x,
             label_rows = c(
                 "NEFM",
-                "HBEGF",
                 "ALPL",
                 "EGR1",
-                "E2F1"
+                "E2F1",
+                "IFIT1",
+                "IFI6",
+                "H3C12",
+                "H2BC14"
             ),
             grid_options = list(
                 r_axis_ticks = y,
