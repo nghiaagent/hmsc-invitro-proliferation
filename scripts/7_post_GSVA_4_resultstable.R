@@ -92,12 +92,12 @@ toptables_gsva_format <- map(
     \(condition) {
         toptables_gsva %$%
             rbind(
-                .[["h"]][[condition]][1:10, ],
-                .[["c2_cgp"]][[condition]][1:10, ],
-                .[["c2_cp"]][[condition]][1:10, ],
-                .[["GOBP"]][[condition]][1:10, ],
-                .[["GOCC"]][[condition]][1:10, ],
-                .[["GOMF"]][[condition]][1:10, ]
+                .[["h"]][[condition]][1:30, ],
+                .[["c2_cgp"]][[condition]][1:30, ],
+                .[["c2_cp"]][[condition]][1:30, ],
+                .[["GOBP"]][[condition]][1:30, ],
+                .[["GOCC"]][[condition]][1:30, ],
+                .[["GOMF"]][[condition]][1:30, ]
             ) %>%
             dplyr::select(
                 set,
@@ -129,17 +129,6 @@ write.xlsx(
 ## Export top tables
 write.xlsx(
     toptables_gsva_format,
-    file = here::here(
-        "output",
-        "data_enrichment",
-        "GSVA",
-        "GSVA_limma_toptable.xlsx"
-    ),
-    asTable = TRUE
-)
-
-write.xlsx(
-    toptables_gsva_volcano3d,
     file = here::here(
         "output",
         "data_enrichment",

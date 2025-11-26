@@ -12,8 +12,7 @@ plots_poi_passage <- readRDS(
 
 # Create grid
 ## Get legend, reformat
-
-plot_legend <- get_legend(
+plot_legend_passage <- get_legend(
     plots_poi_passage[[1]] + guides(col = guide_legend(ncol = 3))
 )
 
@@ -27,15 +26,31 @@ plots_sel_poi_passage <- plots_poi_passage %>%
             )
     })
 
+plots_sel_poi_passage_horizontal <- wrap_plots(plots_sel_poi_passage, byrow = FALSE) / plot_legend_passage +
+    plot_layout(heights = c(20, 1))
 
-plots_sel_poi_passage <- wrap_plots(plots_sel_poi_passage) / plot_legend +
+plots_sel_poi_passage_vertical <- wrap_plots(plots_sel_poi_passage, byrow = TRUE) / plot_legend_passage +
     plot_layout(heights = c(20, 1))
 
 # Export plots
+ggsave(
+    filename = "pois_passage_horizontal.png",
+    plot = plots_sel_poi_passage_horizontal,
+    path = here::here(
+        "output",
+        "data_enrichment",
+        "GSVA"
+    ),
+    scale = 0.8,
+    width = 10,
+    height = 11,
+    units = "in",
+    dpi = 144
+)
 
 ggsave(
-    filename = "pois_passage.png",
-    plot = plots_sel_poi_passage,
+    filename = "pois_passage_vertical.png",
+    plot = plots_sel_poi_passage_vertical,
     path = here::here(
         "output",
         "data_enrichment",

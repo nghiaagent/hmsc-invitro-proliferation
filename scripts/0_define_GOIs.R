@@ -1,5 +1,4 @@
 # Define in-house GOIs
-
 genenames_inhouse <- c(
     "ENO2",
     "NANOG",
@@ -83,7 +82,6 @@ geneids_inhouse_hspgs <- mapIds(org.Hs.eg.db,
 )
 
 # Define AD-related genes from QIAgen panel
-
 genenames_rt2array <- c(
     "A2M",
     "ABCA1",
@@ -139,7 +137,6 @@ geneids_rt2array <- mapIds(org.Hs.eg.db,
 
 
 # Load external GMTs
-
 msigdb_gobp <- getGmt(con = here::here(
     "input",
     "genesets",
@@ -161,12 +158,29 @@ msigdb_kegg <- getGmt(con = here::here(
     "c2.cp.kegg_legacy.v2023.2.Hs.entrez.gmt"
 ))
 
-## Define genes in WNT signalling
+list_gmt <- list(
+    "h"      = "msigdb_v2023.2.Hs_GMTs/h.all.v2023.2.Hs.entrez.gmt",
+    "c2_cgp" = "msigdb_v2023.2.Hs_GMTs/c2.cgp.v2023.2.Hs.entrez.gmt",
+    "c2_cp"  = "msigdb_v2023.2.Hs_GMTs/c2.cp.v2023.2.Hs.entrez.gmt",
+    "GOBP"   = "msigdb_v2023.2.Hs_GMTs/c5.go.bp.v2023.2.Hs.entrez.gmt",
+    "GOCC"   = "msigdb_v2023.2.Hs_GMTs/c5.go.cc.v2023.2.Hs.entrez.gmt",
+    "GOMF"   = "msigdb_v2023.2.Hs_GMTs/c5.go.mf.v2023.2.Hs.entrez.gmt",
+    "WGCNA"  = "gcn_sets_WGCNA.gmt"
+) %>%
+    map(\(filename) {
+        here::here(
+            "input",
+            "genesets",
+            filename
+        )
+    }) %>%
+    map(\(x) getGmt(con = x))
 
-geneids_wnt <- msigdb_gobp %$% c(
-    .[["GOBP_CELL_CELL_SIGNALING_BY_WNT"]]@geneIds,
-    .[["GOBP_NON_CANONICAL_WNT_SIGNALING_PATHWAY"]]@geneIds,
-    .[["GOBP_CANONICAL_WNT_SIGNALING_PATHWAY"]]@geneIds
+## Define genes in WNT signalling
+geneids_wnt <- c(
+    msigdb_gobp[["GOBP_CELL_CELL_SIGNALING_BY_WNT"]]@geneIds,
+    msigdb_gobp[["GOBP_NON_CANONICAL_WNT_SIGNALING_PATHWAY"]]@geneIds,
+    msigdb_gobp[["GOBP_CANONICAL_WNT_SIGNALING_PATHWAY"]]@geneIds
 )
 
 names(geneids_wnt) <- mapIds(
@@ -177,8 +191,6 @@ names(geneids_wnt) <- mapIds(
 )
 
 ## Define genes related to HSPGs (not already in in-house set)
-
-
 geneids_hspgs <- c(
     msigdb_kegg[["KEGG_GLYCOSAMINOGLYCAN_BIOSYNTHESIS_HEPARAN_SULFATE"]]@geneIds,
     msigdb_gobp[["GOBP_HEPARAN_SULFATE_PROTEOGLYCAN_BIOSYNTHETIC_PROCESS"]]@geneIds,
@@ -206,3 +218,24 @@ geneids_goi_limited <- c(
     geneids_hspgs
 ) %>%
     unique()
+
+## Define genes related to NF-kB signalling
+geneids_nfkb <- c(
+    list_gmt[["h"]][["HALLMARK_TNFA_SIGNALING_VIA_NFKB"]]@geneIds
+) %>%
+    unique() %>%
+    set_names(mapIds(org.Hs.eg.db,
+        keys = .,
+        column = "SYMBOL",
+        keytype = "ENTREZID"
+    ))
+
+geneids_tgfb <- c(
+    list_gmt[["h"]][["HALLMARK_TGF_BETA_SIGNALING"]]@geneIds
+) %>%
+    unique() %>%
+    set_names(mapIds(org.Hs.eg.db,
+        keys = .,
+        column = "SYMBOL",
+        keytype = "ENTREZID"
+    ))

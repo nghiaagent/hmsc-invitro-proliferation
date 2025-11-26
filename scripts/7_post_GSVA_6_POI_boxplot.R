@@ -26,8 +26,8 @@ pathways_interest <- list(
         "HALLMARK_E2F_TARGETS"
     ),
     c2_cgp = list(
-        "GESERICK_TERT_TARGETS_DN",
-        "AMIT_SERUM_RESPONSE_60_MCF10A",
+        "FOROUTAN_INTEGRATED_TGFB_EMT_UP",
+        "AMIT_EGF_RESPONSE_40_HELA",
         "BROWNE_INTERFERON_RESPONSIVE_GENES",
         "VERNELL_RETINOBLASTOMA_PATHWAY_UP"
     ),
@@ -39,7 +39,7 @@ pathways_interest <- list(
     ),
     GOBP = list(
         "GOBP_CELL_FATE_DETERMINATION",
-        "GOBP_POSITIVE_REGULATION_OF_NON_CANONICAL_WNT_SIGNALING_PATHWAY",
+        "GOBP_INTEGRATED_STRESS_RESPONSE_SIGNALING",
         "GOBP_FAS_SIGNALING_PATHWAY",
         "GOBP_CELL_CYCLE_DNA_REPLICATION_INITIATION"
     )
@@ -69,10 +69,27 @@ plot_poi_passage <- function(fit, quant, geneset) {
     # Plot the data
     plot <- ggplot(
         geneset_counts,
-        aes(x = Passage, y = score)
+        aes(
+            x = Passage,
+            y = score,
+        )
     ) +
-        geom_boxplot(aes(color = Passage)) +
-        geom_jitter(aes(color = Passage)) +
+        geom_boxplot(
+            aes(
+                color = Passage,
+                shape = Passage
+            ),
+            outliers = FALSE
+        ) +
+        geom_jitter(
+            aes(
+                fill = Passage,
+                shape = Passage
+            ),
+            colour = "black",
+            alpha = 0.7,
+            stroke = 0.5
+        ) +
         geom_signif(
             comparisons = list(
                 c("P5", "P7"),
@@ -107,10 +124,20 @@ plot_poi_passage <- function(fit, quant, geneset) {
             textsize = 3,
             step_increase = 0.2
         ) +
+        scale_colour_manual(
+            values = palette_merge[c(1, 3, 5)]
+        ) +
+        scale_fill_manual(
+            values = palette_merge[c(1, 3, 5)]
+        ) +
+        scale_shape_manual(
+            values = c(21, 24, 22)
+        ) +
         scale_y_continuous(expand = expansion(0, 0.3)) +
         theme_classic() +
         ggtitle(
             label = geneset %>%
+                str_replace_all("HALLMARK", "H") %>%
                 str_replace_all("_", " ") %>%
                 str_wrap(
                     width = 20,
@@ -122,10 +149,6 @@ plot_poi_passage <- function(fit, quant, geneset) {
     # Return object
     return(plot)
 }
-
-
-## For treatment
-## TODO
 
 # Plot GSVA
 ## For passage
@@ -144,9 +167,6 @@ plots_poi_passage <- pmap(
         )
     }
 )
-
-## For treat
-## TODO
 
 # Save data
 saveRDS(
