@@ -57,8 +57,9 @@ plots_p13 <- plot_grid(
         files_p13,
         \(x) ggdraw() + draw_image(x)
     ),
-    ncol = 2,
-    labels = c("A", "B", "", "", "", "")
+    ncol = 2
+    # ,
+    # labels = c("A", "B", "", "", "", "")
 )
 
 ### Export plots
@@ -105,8 +106,9 @@ plots_p7 <- plot_grid(
         files_p7,
         \(x) ggdraw() + draw_image(x)
     ),
-    ncol = 2,
-    labels = c("A", "B", "", "", "", "")
+    ncol = 2
+    # ,
+    # labels = c("A", "B", "", "", "", "")
 )
 
 ### Export plots
