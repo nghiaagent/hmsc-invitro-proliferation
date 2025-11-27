@@ -52,7 +52,8 @@ plot_goi_treat <- function(gene_id, gene_name) {
         gene = gene_id,
         intgroup = c(
             "Passage",
-            "Treatment"
+            "Treatment",
+            "condition_ID"
         ),
         returnData = TRUE
     )
@@ -83,8 +84,8 @@ plot_goi_treat <- function(gene_id, gene_name) {
         gene_counts,
         aes(x = Treatment, y = count)
     ) +
-        geom_boxplot(aes(color = Treatment)) +
-        geom_jitter(aes(color = Treatment)) +
+        geom_boxplot(aes(color = condition_ID)) +
+        geom_jitter(aes(color = condition_ID)) +
         geom_signif(
             data = annotation_signif,
             aes(
@@ -101,6 +102,17 @@ plot_goi_treat <- function(gene_id, gene_name) {
             "Treated" = "Hep",
             "Untreated" = "Ctrl"
         )) +
+        scale_colour_manual(
+            values = palette_merge[1:6],
+            labels = c(
+                "P5D3Untreated" = "P+5 Control",
+                "P5D3Treated" = "P+5 Heparin",
+                "P7D3Untreated" = "P+7 Control",
+                "P7D3Treated" = "P+7 Heparin",
+                "P13D3Untreated" = "P+13 Control",
+                "P13D3Treated" = "P+13 Heparin"
+            )
+        ) +
         facet_wrap(~Passage) +
         scale_y_log10(expand = expansion(0, 0.05)) +
         theme_classic() +
@@ -150,6 +162,9 @@ plot_goi_passage <- function(gene_id, gene_name) {
             y_position = c(y_position, y_position, y_position),
             textsize = 3,
             step_increase = 0.1
+        ) +
+        scale_colour_manual(
+            values = palette_merge[c(1, 3, 5)]
         ) +
         scale_y_log10(expand = expansion(0, 0.05)) +
         theme_classic() +
