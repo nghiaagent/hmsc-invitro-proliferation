@@ -58,22 +58,29 @@ genes_sel_markers <- c(
 
 ## Get legend, reformat
 
-plot_legend <- get_legend(
-    plots_goi_passage[[1]] + guides(col = guide_legend(ncol = 3))
+plot_legend_passage <- get_legend(
+    plots_goi_passage[[1]] +
+        guides(col = guide_legend(ncol = 3))
+)
+
+plot_legend_treat <- get_legend(
+    plots_goi_treat[[1]] +
+        guides(col = guide_legend(ncol = 3)) +
+        theme(legend.title = element_blank())
 )
 
 ## Passages HSPG figure
 plots_sel_passage_hspgs <- plots_goi_passage[genes_sel_hspgs] %>%
     map(\(plot) plot <- plot + theme(legend.position = "none"))
 
-plots_sel_passage_hspgs <- wrap_plots(plots_sel_passage_hspgs) / plot_legend +
+plots_sel_passage_hspgs <- wrap_plots(plots_sel_passage_hspgs) / plot_legend_passage +
     plot_layout(heights = c(20, 1))
 
 ## Treatment HSPG figure
 plots_sel_treat_hspgs <- plots_goi_treat[genes_sel_hspgs] %>%
     map(\(plot) plot <- plot + theme(legend.position = "none"))
 
-plots_sel_treat_hspgs <- wrap_plots(plots_sel_treat_hspgs) / plot_legend +
+plots_sel_treat_hspgs <- wrap_plots(plots_sel_treat_hspgs) / plot_legend_treat +
     plot_layout(heights = c(20, 1))
 
 # Export plots
@@ -111,14 +118,14 @@ ggsave(
 plots_sel_passage_markers <- plots_goi_passage[genes_sel_markers] %>%
     map(\(plot) plot <- plot + theme(legend.position = "none"))
 
-plots_sel_passage_markers <- wrap_plots(plots_sel_passage_markers) / plot_legend +
+plots_sel_passage_markers <- wrap_plots(plots_sel_passage_markers) / plot_legend_passage +
     plot_layout(heights = c(20, 1))
 
 ## Treatment hMSC figure
 plots_sel_treat_markers <- plots_goi_treat[genes_sel_markers] %>%
     map(\(plot) plot <- plot + theme(legend.position = "none"))
 
-plots_sel_treat_markers <- wrap_plots(plots_sel_treat_markers) / plot_legend +
+plots_sel_treat_markers <- wrap_plots(plots_sel_treat_markers) / plot_legend_treat +
     plot_layout(heights = c(20, 1))
 
 # Export plots

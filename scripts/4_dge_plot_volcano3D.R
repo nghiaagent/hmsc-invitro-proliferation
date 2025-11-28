@@ -82,7 +82,8 @@ polar_manual <- polar_coords(
         set_rownames(rowRanges(rlog_deseq2_batchcor)$gene_name) %>%
         t(),
     pvals = polar_pvals,
-    padj = polar_padj
+    padj = polar_padj,
+    scheme = palette_volcano3d
 )
 
 rownames(polar_manual@pvals) <- rownames(rlog_deseq2_batchcor)
