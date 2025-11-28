@@ -11,11 +11,8 @@ quant_deseq2 <- readRDS(here::here(
 
 # Perform batch correction
 ## Batch correction + factor
-
 quant_deseq2_batchcor <- quant_deseq2
-
 design(quant_deseq2_batchcor) <- ~ condition_ID + cell_line + run_date
-
 counts(quant_deseq2_batchcor) <- quant_deseq2_batchcor %$%
     sva::ComBat_seq(
         counts(.),
@@ -24,16 +21,12 @@ counts(quant_deseq2_batchcor) <- quant_deseq2_batchcor %$%
     ) %>%
     `storage.mode<-`(., "integer")
 
-# Export rlog
-
-rlog_deseq2_batchcor <- rlog(quant_deseq2_batchcor)
-
 # Run DESeq2
 ## Run once with full model
 ## Run again with reduced model and LRT
+## Run again with non-batch corrected data
 ## to get ANOVA-like statistic for 3D volcano plot
 ## (i.e. chance of gene differentially expressed at all)
-
 quant_deseq2_batchcor <- quant_deseq2_batchcor %>%
     DESeq()
 
@@ -43,21 +36,25 @@ quant_deseq2_lrt <- quant_deseq2_batchcor %>%
         reduced = ~ cell_line + run_date
     )
 
+quant_deseq2 <- quant_deseq2 %>%
+    DESeq()
+
 # Obtain results
+## No LFC shrinking
+results <- list_contrasts_deseq2 %>%
+    map(
+        \(x) {
+            results(
+                quant_deseq2_batchcor,
+                contrast = x,
+                filterFun = ihw,
+                alpha = 0.05
+            )
+        },
+        .progress = TRUE
+    )
 
-results <- map(
-    list_contrasts_deseq2,
-    \(x) {
-        results(
-            quant_deseq2_batchcor,
-            contrast = x,
-            filterFun = ihw,
-            alpha = 0.05
-        )
-    },
-    .progress = TRUE
-)
-
+## With LFC shrinking
 results_lfcshrink <- map2(
     .x = list_contrasts_deseq2,
     .y = results,
@@ -73,8 +70,16 @@ results_lfcshrink <- map2(
 )
 
 # Save data
-
 ## DESeq datasets
+saveRDS(
+    quant_deseq2,
+    file = here::here(
+        "output",
+        "data_expression",
+        "post_DGE",
+        "quant_deseq2.RDS"
+    )
+)
 
 saveRDS(
     quant_deseq2_batchcor,
@@ -97,7 +102,6 @@ saveRDS(
 )
 
 ### Export counts matrix as .csv
-
 fwrite(
     counts(quant_deseq2_batchcor),
     file = here::here(
@@ -111,9 +115,8 @@ fwrite(
 )
 
 ## rlog
-
 saveRDS(
-    rlog_deseq2_batchcor,
+    rlog(quant_deseq2_batchcor),
     file = here::here(
         "output",
         "data_expression",
@@ -123,7 +126,6 @@ saveRDS(
 )
 
 ## Results (non-shrink and shrunken LFC)
-
 saveRDS(
     results,
     file = here::here(
