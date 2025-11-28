@@ -1,6 +1,5 @@
 # Perform camera on all contrasts
 # Load function script beforehand
-
 camera_all <- purrr::map(
     seq_len(ncol(contrasts)),
     \(x) {
@@ -17,7 +16,6 @@ camera_all <- purrr::map(
 )
 
 # Save data
-
 names(camera_all) <- colnames(contrasts)
 
 saveRDS(
