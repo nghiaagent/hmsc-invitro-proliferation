@@ -5,8 +5,10 @@ here::i_am("R/8_evaluate_batchcor.R")
 ########################
 
 # Import packages
+library(conflicted)
 library(DESeq2)
 library(here)
+library(IHW)
 library(magrittr)
 library(SummarizedExperiment)
 library(sva)
@@ -22,11 +24,11 @@ quant_deseq2 <- readRDS(here::here(
 
 # Apply batch correction to data
 quant_deseq2_batchcor <- quant_deseq2
-design(quant_deseq2_batchcor) <- ~ condition_ID + cell_line + run_date
-counts(quant_deseq2_batchcor) <- quant_deseq2_batchcor %$%
-  ComBat_seq(
-    counts(.),
-    batch = colData(.)$run_date,
+DESeq2::design(quant_deseq2_batchcor) <- ~ condition_ID + cell_line + run_date
+DESeq2::counts(quant_deseq2_batchcor) <- quant_deseq2_batchcor %$%
+  sva::ComBat_seq(
+    DESeq2::counts(.),
+    batch = SummarizedExperiment::colData(.)$run_date,
     covar_mod = model.matrix(~ condition_ID + cell_line, data = colData(.))
   ) %>%
   `storage.mode<-`(., "integer")
@@ -37,16 +39,16 @@ counts(quant_deseq2_batchcor) <- quant_deseq2_batchcor %$%
 
 ## No batch correction, include batch term
 quant_deseq2_nobatchcor_includeterm <- quant_deseq2 %>%
-  DESeq()
+  DESeq2::DESeq()
 
 ## Batch correction, include batch term
 quant_deseq2_batchcor_includeterm <- quant_deseq2_batchcor %>%
-  DESeq()
+  DESeq2::DESeq()
 ## Batch correction, no batch term
 quant_deseq2_batchcor_noterm <- quant_deseq2_batchcor
-design(quant_deseq2_batchcor_noterm) <- ~ condition_ID + cell_line
+DESeq2::design(quant_deseq2_batchcor_noterm) <- ~ condition_ID + cell_line
 quant_deseq2_batchcor_noterm <- quant_deseq2_batchcor_noterm %>%
-  DESeq()
+  DESeq2::DESeq()
 
 # Create list of datasets for processing
 list_quant <- list(
@@ -63,24 +65,24 @@ results_pilot <- list_contrasts_deseq2[
     "P13vsP5_UT_D3"
   )
 ] %>%
-  imap(\(contrast, name_contrast) {
-    imap(list_quant, \(quant, name_quant) {
+  purrr::imap(\(contrast, name_contrast) {
+    purrr::imap(list_quant, \(quant, name_quant) {
       quant %>%
-        results(
+        DESeq2::results(
           contrast = contrast,
           filterFun = ihw,
           alpha = 0.05
         ) %>%
         as.data.frame() %>%
-        rownames_to_column(var = "ensembl_id") %>%
-        mutate(method = name_quant) %>%
-        mutate(contrast = name_contrast)
+        tibble::rownames_to_column(var = "ensembl_id") %>%
+        dplyr::mutate(method = name_quant) %>%
+        dplyr::mutate(contrast = name_contrast)
     }) %>%
-      rbindlist()
+      data.table::rbindlist()
   }) %>%
-  rbindlist() %>%
+  data.table::rbindlist() %>%
   # Convert method and contrasts to named factors for easier plotting
-  mutate(
+  dplyr::mutate(
     method = method %>%
       factor(
         levels = c(
@@ -111,46 +113,46 @@ results_pilot <- list_contrasts_deseq2[
 
 # Create density plot of raw p values
 plot_pvals <- results_pilot %>%
-  ggplot(aes(x = x)) +
-  geom_density(
-    aes(
+  ggplot2::ggplot(ggplot2::aes(x = x)) +
+  ggplot2::geom_density(
+    ggplot2::aes(
       x = pvalue,
       y = ..density..
     ),
     fill = "grey60",
     adjust = 0.5
   ) +
-  geom_density(
-    aes(
+  ggplot2::geom_density(
+    ggplot2::aes(
       x = padj,
       y = -..density..
     ),
     fill = "grey20",
     adjust = 0.5
   ) +
-  geom_hline(yintercept = 0) +
-  annotate(
+  ggplot2::geom_hline(yintercept = 0) +
+  ggpp::annotate(
     "label",
     x = 0.7,
     y = 5,
     label = "Raw p value",
     color = "grey40"
   ) +
-  annotate(
+  ggpp::annotate(
     "label",
     x = 0.3,
     y = -10,
     label = "Adj. p value",
     color = "black"
   ) +
-  labs(x = "P value") +
-  theme_bw() +
-  theme(
-    axis.text.y = element_blank(),
-    axis.ticks.y = element_blank(),
-    axis.title.y = element_blank(),
+  ggplot2::labs(x = "P value") +
+  ggplot2::theme_bw() +
+  ggplot2::theme(
+    axis.text.y = ggplot2::element_blank(),
+    axis.ticks.y = ggplot2::element_blank(),
+    axis.title.y = ggplot2::element_blank(),
   ) +
-  facet_grid(contrast ~ method)
+  ggplot2::facet_grid(contrast ~ method)
 
 # Save plots
 ## P value plot

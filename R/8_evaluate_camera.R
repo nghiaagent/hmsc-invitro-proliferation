@@ -5,9 +5,11 @@ here::i_am("R/8_evaluate_camera.R")
 ########################
 
 # Import packages
+library(conflicted)
 library(DESeq2)
 library(here)
 library(magrittr)
+library(patchwork)
 library(tidyverse)
 
 # Source relevant scripts
@@ -32,7 +34,7 @@ camera_all_withigc <- purrr::map(
     )
   }
 ) %>%
-  set_names(colnames(contrasts))
+  magrittr::set_names(colnames(contrasts))
 
 ## Without inter-gene correlation
 camera_all_noigc <- purrr::map(
@@ -49,7 +51,7 @@ camera_all_noigc <- purrr::map(
     )
   }
 ) %>%
-  set_names(colnames(contrasts))
+  magrittr::set_names(colnames(contrasts))
 
 # Plot
 ## Get relevant tables
@@ -60,15 +62,15 @@ list_camera <- camera_all_withigc %$%
     "P13vsP5_UT_D3" = .[["P13vsP5_UT_D3"]][["GOBP"]]
   ) %>%
   # Format data
-  map(\(.results) {
+  purrr::map(\(.results) {
     .results <- .results %>%
       dplyr::arrange(FDR) %>%
       dplyr::slice_head(n = 20) %>%
-      rownames_to_column(var = "gs_name") %>%
-      mutate(
+      tibble::rownames_to_column(var = "gs_name") %>%
+      dplyr::mutate(
         gs_name = gs_name %>%
-          str_replace("GOBP_", "") %>%
-          str_replace_all("_", " ") %>%
+          stringr::str_replace("GOBP_", "") %>%
+          stringr::str_replace_all("_", " ") %>%
           factor(., levels = .)
       )
 
@@ -78,37 +80,37 @@ list_camera <- camera_all_withigc %$%
 
 ## Build plots
 plots_camera <- list_camera %>%
-  imap(\(.results, .name) {
+  purrr::imap(\(.results, .name) {
     .plot <- .results %>%
-      ggplot(aes(
+      ggplot2::ggplot(ggplot2::aes(
         x = NGenes,
         y = gs_name,
         fill = FDR
       )) +
-      geom_col() +
-      scale_fill_continuous_sequential(palette = "Red-Blue") +
-      theme_bw() +
-      theme(
-        axis.title.y = element_blank(),
-        plot.title = element_text(face = "bold")
+      ggplot2::geom_col() +
+      colorspace::scale_fill_continuous_sequential(palette = "Red-Blue") +
+      ggplot2::theme_bw() +
+      ggplot2::theme(
+        axis.title.y = ggplot2::element_blank(),
+        plot.title = ggplot2::element_text(face = "bold")
       ) +
-      scale_y_discrete(
+      ggplot2::scale_y_discrete(
         labels = \(x) {
-          str_wrap(
+          stringr::str_wrap(
             x,
             width = 30,
             whitespace_only = TRUE
           )
         }
       ) +
-      labs(
+      ggplot2::labs(
         x = "No. genes in set",
         title = .name,
       )
   })
 
 grid_camera <- plots_camera %>%
-  wrap_plots(nrow = 1)
+  patchwork::wrap_plots(nrow = 1)
 
 # Save plot
 ggsave(
