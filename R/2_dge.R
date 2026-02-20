@@ -1,9 +1,8 @@
 here::i_am("R/2_dge.R")
 
 ########################
-# Load dataset
-# Remember that experimental design is already embedded
-# in the dataset and model - only need to extract comparisons
+# Perform batch adjustment with ComBat-seq
+# Then perform DESeq2 analysis
 ########################
 
 # Import packages
@@ -13,6 +12,9 @@ library(magrittr)
 library(SummarizedExperiment)
 library(tidyverse)
 
+# Load dataset
+# Remember that experimental design is already embedded
+# in the dataset and model - only need to extract comparisons
 quant_deseq2 <- readRDS(here::here(
   "output",
   "data_expression",
@@ -35,9 +37,9 @@ counts(quant_deseq2_batchcor) <- quant_deseq2_batchcor %$%
 # Run DESeq2
 ## Run once with full model
 ## Run again with reduced model and LRT
-## Run again with non-batch corrected data
 ## to get ANOVA-like statistic for 3D volcano plot
 ## (i.e. chance of gene differentially expressed at all)
+## Run again with non-batch corrected data
 quant_deseq2_batchcor <- quant_deseq2_batchcor %>%
   DESeq()
 

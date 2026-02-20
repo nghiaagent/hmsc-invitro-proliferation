@@ -1,7 +1,8 @@
 here::i_am("R/2_dge_nofilt.R")
 
 ########################
-# Load dataset - no filter
+# Perform DGE with minimal low-abundance filtering
+# To try and keep GOIs that are lowly expressed for statistical analysis
 ########################
 
 # Import packages
@@ -11,6 +12,7 @@ library(magrittr)
 library(SummarizedExperiment)
 library(tidyverse)
 
+# Load dataset - no filter
 quant_deseq2 <- readRDS(here::here(
   "output",
   "data_expression",
