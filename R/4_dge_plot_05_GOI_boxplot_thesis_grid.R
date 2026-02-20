@@ -5,7 +5,10 @@ here::i_am("R/4_dge_plot_05_GOI_boxplot_thesis_grid.R")
 ########################
 
 # Import packages
+library(conflicted)
+library(cowplot)
 library(here)
+library(patchwork)
 library(tidyverse)
 
 # Load data
@@ -61,12 +64,12 @@ genes_sel_markers <- c(
 
 # Create grid
 ## Get legend, reformat
-plot_legend_passage <- get_legend(
+plot_legend_passage <- cowplot::get_legend(
   plots_goi_passage[[1]] +
     guides(col = guide_legend(ncol = 3))
 )
 
-plot_legend_treat <- get_legend(
+plot_legend_treat <- cowplot::get_legend(
   plots_goi_treat[[1]] +
     guides(col = guide_legend(ncol = 3)) +
     theme(legend.title = element_blank())
@@ -74,19 +77,19 @@ plot_legend_treat <- get_legend(
 
 ## Passages HSPG figure
 plots_sel_passage_hspgs <- plots_goi_passage[genes_sel_hspgs] %>%
-  map(\(plot) plot <- plot + theme(legend.position = "none"))
+  purrr::map(\(plot) plot <- plot + ggplot2::theme(legend.position = "none"))
 
-plots_sel_passage_hspgs <- wrap_plots(plots_sel_passage_hspgs) /
+plots_sel_passage_hspgs <- patchwork::wrap_plots(plots_sel_passage_hspgs) /
   plot_legend_passage +
-  plot_layout(heights = c(20, 1))
+  patchwork::plot_layout(heights = c(20, 1))
 
 ## Treatment HSPG figure
 plots_sel_treat_hspgs <- plots_goi_treat[genes_sel_hspgs] %>%
-  map(\(plot) plot <- plot + theme(legend.position = "none"))
+  purrr::map(\(plot) plot <- plot + ggplot2::theme(legend.position = "none"))
 
-plots_sel_treat_hspgs <- wrap_plots(plots_sel_treat_hspgs) /
+plots_sel_treat_hspgs <- patchwork::wrap_plots(plots_sel_treat_hspgs) /
   plot_legend_treat +
-  plot_layout(heights = c(20, 1))
+  patchwork::plot_layout(heights = c(20, 1))
 
 # Export plots
 ggsave(
@@ -121,19 +124,19 @@ ggsave(
 
 ## Passages hMSC figure
 plots_sel_passage_markers <- plots_goi_passage[genes_sel_markers] %>%
-  map(\(plot) plot <- plot + theme(legend.position = "none"))
+  purrr::map(\(plot) plot <- plot + ggplot2::theme(legend.position = "none"))
 
-plots_sel_passage_markers <- wrap_plots(plots_sel_passage_markers) /
+plots_sel_passage_markers <- patchwork::wrap_plots(plots_sel_passage_markers) /
   plot_legend_passage +
-  plot_layout(heights = c(20, 1))
+  patchwork::plot_layout(heights = c(20, 1))
 
 ## Treatment hMSC figure
 plots_sel_treat_markers <- plots_goi_treat[genes_sel_markers] %>%
-  map(\(plot) plot <- plot + theme(legend.position = "none"))
+  purrr::map(\(plot) plot <- plot + ggplot2::theme(legend.position = "none"))
 
-plots_sel_treat_markers <- wrap_plots(plots_sel_treat_markers) /
+plots_sel_treat_markers <- patchwork::wrap_plots(plots_sel_treat_markers) /
   plot_legend_treat +
-  plot_layout(heights = c(20, 1))
+  patchwork::plot_layout(heights = c(20, 1))
 
 # Export plots
 ggsave(

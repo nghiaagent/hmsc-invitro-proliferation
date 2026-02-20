@@ -5,11 +5,12 @@ here::i_am("R/4_dge_table_topgenes.R")
 ########################
 
 # Import packages
+library(conflicted)
 library(DESeq2)
 library(here)
 library(magrittr)
-library(openxlsx)
 library(tidyverse)
+library(writexl)
 
 # Load data
 quant_deseq2 <- readRDS(
@@ -66,45 +67,44 @@ list_sheets <- results_lfcshrink %$%
 # Compile to list, coerce to data.frame, export to excel
 # 2 lists: Contrasts and LRT
 ## All contrasts (Wald test)
-write.xlsx(
-  x = map(
-    list_sheets,
-    \(x) {
-      extract_topgenes(
-        results = x,
-        dds = quant_deseq2,
-        ntop = Inf,
-        signif_only = FALSE
-      )
-    },
-    .progress = TRUE
-  ),
-  file = here::here(
-    "output",
-    "data_expression",
-    "genes_all_contrasts.xlsx"
-  ),
-  asTable = TRUE
-)
-
-## Omnibus (LRT)
-write.xlsx(
-  x = results(quant_deseq2_lrt) %>%
+purrr::map(
+  list_sheets,
+  \(x) {
     extract_topgenes(
-      results = .,
+      results = x,
       dds = quant_deseq2,
       ntop = Inf,
       signif_only = FALSE
     ) %>%
-    dplyr::arrange(`adj. P-val`) %>%
-    dplyr::select(!LogFC),
-  file = here::here(
-    "output",
-    "data_expression",
-    "genes_all_LRT.xlsx"
-  ),
-  asTable = TRUE
-)
+      dplyr::select(!`ENTREZ ID`)
+  },
+  .progress = TRUE
+) %>%
+  writexl::write_xlsx(
+    path = here::here(
+      "output",
+      "data_expression",
+      "genes_all_contrasts.xlsx"
+    )
+  )
+
+## Omnibus (LRT)
+DESeq2::results(quant_deseq2_lrt) %>%
+  extract_topgenes(
+    results = .,
+    dds = quant_deseq2,
+    ntop = Inf,
+    signif_only = FALSE
+  ) %>%
+  dplyr::arrange(`adj. P-val`) %>%
+  dplyr::select(!LogFC, !`ENTREZ ID`) %>%
+  writexl::write_xlsx(
+    path = here::here(
+      "output",
+      "data_expression",
+      "genes_all_LRT.xlsx"
+    )
+  )
 
 # Extract top and bottom 20 genes for desired comparisons
 # Compile to list, export to excel
@@ -113,21 +113,21 @@ map2(
   c(TRUE, FALSE),
   c("genes_top_DE.xlsx", "genes_top_LFC.xlsx"),
   \(signif_only, filename) {
-    write.xlsx(
-      x = map(
-        list_sheets,
-        \(x) {
-          extract_topgenes(
-            x,
-            quant_deseq2,
-            ntop = 20,
-            signif_only = signif_only
-          )
-        },
-        .progress = TRUE
-      ),
-      file = here::here("output", "data_expression", filename),
-      asTable = TRUE
-    )
+    purrr::map(
+      list_sheets,
+      \(x) {
+        extract_topgenes(
+          x,
+          quant_deseq2,
+          ntop = 20,
+          signif_only = signif_only
+        ) %>%
+          dplyr::select(!`ENTREZ ID`)
+      },
+      .progress = TRUE
+    ) %>%
+      writexl::write_xlsx(
+        path = here::here("output", "data_expression", filename)
+      )
   }
 )

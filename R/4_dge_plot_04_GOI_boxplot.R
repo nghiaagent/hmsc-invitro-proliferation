@@ -5,9 +5,12 @@ here::i_am("R/4_dge_plot_04_GOI_boxplot.R")
 ########################
 
 # Import packages
+library(conflicted)
 library(DESeq2)
+library(ggsignif)
 library(here)
 library(magrittr)
+library(metan)
 library(SummarizedExperiment)
 library(tidyverse)
 
@@ -41,15 +44,15 @@ conditions_interest <- c(
 )
 
 quant_small <- quant_deseq2_batchcor %$%
-  .[, colData(.)$condition_ID %in% conditions_interest]
+  .[, SummarizedExperiment::colData(.)$condition_ID %in% conditions_interest]
 
 # Extract rownames of GOIs
-genes_sel <- rowRanges(quant_small) %>%
+genes_sel <- SummarizedExperiment::rowRanges(quant_small) %>%
   as.data.frame() %>%
-  filter(entrezid %in% geneids_goi_limited)
+  dplyr::filter(entrezid %in% geneids_goi_limited)
 
 # Readjust DESeq results to include only GOIs
-results_subset <- map(
+results_subset <- purrr::map(
   results,
   \(x) {
     x <- x[rownames(x) %in% genes_sel$gene_id, ]
@@ -62,7 +65,7 @@ results_subset <- map(
 ## For treatments
 plot_goi_treat <- function(gene_id, gene_name) {
   # Get table containing normalised gene counts
-  gene_counts <- plotCounts(
+  gene_counts <- DESeq2::plotCounts(
     quant_small,
     gene = gene_id,
     intgroup = c(
@@ -77,7 +80,7 @@ plot_goi_treat <- function(gene_id, gene_name) {
   y_position <- log10(max(gene_counts$count) * 1.1)
 
   # Define position of bars and numbers
-  annotation_signif <- tibble(
+  annotation_signif <- tibble::tibble(
     Passage = factor(
       c("P5", "P7", "P13"),
       levels = c("P5", "P7", "P13")
@@ -94,15 +97,15 @@ plot_goi_treat <- function(gene_id, gene_name) {
   )
 
   # Plot data
-  plot <- ggplot(
+  plot <- ggplot2::ggplot(
     gene_counts,
-    aes(x = Treatment, y = count)
+    ggplot2::aes(x = Treatment, y = count)
   ) +
-    geom_boxplot(aes(color = condition_ID)) +
-    geom_jitter(aes(color = condition_ID)) +
-    geom_signif(
+    ggplot2::geom_boxplot(ggplot2::aes(color = condition_ID)) +
+    ggplot2::geom_jitter(ggplot2::aes(color = condition_ID)) +
+    ggsignif::geom_signif(
       data = annotation_signif,
-      aes(
+      ggplot2::aes(
         xmin = start,
         xmax = end,
         annotations = label,
@@ -112,13 +115,13 @@ plot_goi_treat <- function(gene_id, gene_name) {
       manual = TRUE,
       textsize = 3
     ) +
-    scale_x_discrete(
+    ggplot2::scale_x_discrete(
       labels = c(
         "Treated" = "Hep",
         "Untreated" = "Ctrl"
       )
     ) +
-    scale_colour_manual(
+    ggplot2::scale_colour_manual(
       values = palette_merge[1:6],
       labels = c(
         "P5D3Untreated" = "P+5 Control",
@@ -129,11 +132,11 @@ plot_goi_treat <- function(gene_id, gene_name) {
         "P13D3Treated" = "P+13 Heparin"
       )
     ) +
-    facet_wrap(~Passage) +
-    scale_y_log10(expand = expansion(0, 0.05)) +
-    theme_classic() +
-    ggtitle(label = gene_name) +
-    ylab("Normalised counts")
+    ggplot2::facet_wrap(~Passage) +
+    ggplot2::scale_y_log10(expand = ggplot2::expansion(0, 0.05)) +
+    ggplot2::theme_classic() +
+    ggplot2::ggtitle(label = gene_name) +
+    ggplot2::ylab("Normalised counts")
 
   # Return object
   return(plot)
@@ -142,7 +145,7 @@ plot_goi_treat <- function(gene_id, gene_name) {
 ## For passages
 plot_goi_passage <- function(gene_id, gene_name) {
   # Get table containing normalised gene counts
-  gene_counts <- plotCounts(
+  gene_counts <- DESeq2::plotCounts(
     quant_small,
     gene = gene_id,
     intgroup = c(
@@ -151,19 +154,19 @@ plot_goi_passage <- function(gene_id, gene_name) {
     ),
     returnData = TRUE
   ) %>%
-    filter(Treatment == "Untreated")
+    dplyr::filter(Treatment == "Untreated")
 
   # Get position to start drawing signif bars
   y_position <- log10(max(gene_counts$count))
 
   # Plot data
-  plot <- ggplot(
+  plot <- ggplot2::ggplot(
     gene_counts,
-    aes(x = Passage, y = count)
+    ggplot2::aes(x = Passage, y = count)
   ) +
-    geom_boxplot(aes(color = Passage)) +
-    geom_jitter(aes(color = Passage)) +
-    geom_signif(
+    ggplot2::geom_boxplot(ggplot2::aes(color = Passage)) +
+    ggplot2::geom_jitter(ggplot2::aes(color = Passage)) +
+    ggsignif::geom_signif(
       comparisons = list(
         c("P5", "P7"),
         c("P7", "P13"),
@@ -174,45 +177,45 @@ plot_goi_passage <- function(gene_id, gene_name) {
         results_subset[[14]][gene_id, ]$padj,
         results_subset[[15]][gene_id, ]$padj
       ) %>%
-        stars_pval(),
+        metan::stars_pval(),
       y_position = c(y_position, y_position, y_position),
       textsize = 3,
       step_increase = 0.1
     ) +
-    scale_colour_manual(
+    ggplot2::scale_colour_manual(
       values = palette_merge[c(1, 3, 5)]
     ) +
-    scale_y_log10(expand = expansion(0, 0.05)) +
-    theme_classic() +
-    ggtitle(label = gene_name) +
-    ylab("Normalised counts")
+    ggplot2::scale_y_log10(expand = ggplot2::expansion(0, 0.05)) +
+    ggplot2::theme_classic() +
+    ggplot2::ggtitle(label = gene_name) +
+    ggplot2::ylab("Normalised counts")
 
   # Return object
   return(plot)
 }
 
 ## Apply to draw plots, export
-plots_goi_treat <- map2(
+plots_goi_treat <- purrr::map2(
   genes_sel$gene_id,
   genes_sel$gene_name,
   \(x, y) plot_goi_treat(x, y),
   .progress = TRUE
 ) %>%
-  set_names(genes_sel$gene_name)
+  magrittr::set_names(genes_sel$gene_name)
 
-plots_goi_passage <- map2(
+plots_goi_passage <- purrr::map2(
   genes_sel$gene_id,
   genes_sel$gene_name,
   \(x, y) plot_goi_passage(x, y),
   .progress = TRUE
 ) %>%
-  set_names(genes_sel$gene_name)
+  magrittr::set_names(genes_sel$gene_name)
 
 ## Export plots
-iwalk(
+purrr::iwalk(
   plots_goi_treat,
   \(x, idx) {
-    ggsave(
+    ggplot2::ggsave(
       filename = str_c(idx, ".png", sep = ""),
       plot = x,
       path = here::here(
@@ -231,10 +234,10 @@ iwalk(
   .progress = TRUE
 )
 
-iwalk(
+purrr::iwalk(
   plots_goi_passage,
   \(x, idx) {
-    ggsave(
+    ggplot2::ggsave(
       filename = str_c(idx, ".png", sep = ""),
       plot = x,
       path = here::here(
