@@ -7,10 +7,12 @@ here::i_am("R/6_post_camera_01_prepare.R")
 ########################
 
 # Import packages
+library(conflicted)
 library(DESeq2)
 library(GSEABase)
 library(here)
 library(limma)
+library(openxlsx)
 library(SummarizedExperiment)
 library(tidyverse)
 
@@ -38,9 +40,9 @@ quant_deseq2 <- readRDS(
 rlog_camera <- new(
   "EList",
   list(
-    E = assay(rlog_deseq2),
-    genes = rowRanges(rlog_deseq2),
-    targets = colData(rlog_deseq2)
+    E = SummarizedExperiment::assay(rlog_deseq2),
+    genes = SummarizedExperiment::rowRanges(rlog_deseq2),
+    targets = SummarizedExperiment::colData(rlog_deseq2)
   )
 )
 
@@ -54,7 +56,7 @@ design <- model.matrix(
 colnames(design) <- make.names(colnames(design))
 
 ## Define contrast matrix
-contrasts <- makeContrasts(
+contrasts <- limma::makeContrasts(
   ## Coefs 1 - 6: Treatment at each timepoint
   Trt_P5_D3 = condition_IDP5D3Treated - 0,
   Trt_P5_D5 = condition_IDP5D5Treated - condition_IDP5D5Untreated,
@@ -123,15 +125,6 @@ contrasts <- makeContrasts(
   levels = design
 )
 
-# Define function for converting gene set GMT files to limma::camera format
-get_camera_gs <- function(con) {
-  camera_gs <- getGmt(con = con) %>%
-    geneIds() %>%
-    ids2indices(identifiers = rlog_camera$genes$entrezid)
-
-  return(camera_gs)
-}
-
 # Obtain gene sets
 ## List of gene sets to be used for camera
 ## MSigDB h
@@ -139,7 +132,10 @@ get_camera_gs <- function(con) {
 ## MSigDB C2/CP
 ## GO (CC, BP, MF)
 list_gmt_camera <- list_gmt %>%
-  map(\(x) get_camera_gs(con = x))
+  map(\(gmt) {
+    geneIds(gmt) %>%
+      limma::ids2indices(identifiers = rlog_camera$genes$entrezid)
+  })
 
 # Define camera helper function
 # Function runs camera on MArrayLM fit object provided by voomLmFit,
@@ -157,7 +153,7 @@ run_camera <- function(
   # Check for errors in input
   ## Check errors in inter-gene correlation
   if (is.null(inter.gene.cor) == TRUE) {
-    message(str_c("inter-gene correlation estimated by camera"))
+    message(stringr::str_c("inter-gene correlation estimated by camera"))
   } else {
     if (
       (is.numeric(inter.gene.cor) == FALSE ||
@@ -165,7 +161,7 @@ run_camera <- function(
     ) {
       stop("inter-gene correlation must be between -1 and 1")
     }
-    message(str_c("inter-gene correlation set at ", inter.gene.cor))
+    message(stringr::str_c("inter-gene correlation set at ", inter.gene.cor))
   }
 
   ## Check errors in sort option
@@ -181,7 +177,7 @@ run_camera <- function(
     as.character(colnames(contrasts)[coef])
   )
 
-  message(str_c(
+  message(stringr::str_c(
     "Output camera results to",
     path_output,
     sep = " "
@@ -192,7 +188,7 @@ run_camera <- function(
   }
 
   # Run camera on list of provided gene sets
-  camera_results <- imap(
+  camera_results <- purrr::imap(
     list_gmt_camera,
     \(geneset, genesetname) {
       message(str_c(
@@ -203,7 +199,7 @@ run_camera <- function(
         sep = " "
       ))
 
-      camera(
+      limma::camera(
         elist$E,
         geneset,
         design,
@@ -223,7 +219,7 @@ run_camera <- function(
     )
   )
 
-  write.xlsx(
+  openxlsx::write.xlsx(
     camera_results,
     file = here::here(
       path_output,
@@ -236,3 +232,9 @@ run_camera <- function(
   # Return
   return(camera_results)
 }
+
+# Save data
+saveRDS(
+  list_gmt_camera,
+  file = here::here("output/data_enrichment/camera/list_gmt_camera.rds")
+)

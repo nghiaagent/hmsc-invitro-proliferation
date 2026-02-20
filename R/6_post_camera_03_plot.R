@@ -5,6 +5,7 @@ here::i_am("R/6_post_camera_03_plot.R")
 ########################
 
 # Import packages
+library(conflicted)
 library(DESeq2)
 library(here)
 library(tidyverse)
@@ -19,11 +20,15 @@ results <- readRDS(
   )
 )
 
+list_gmt_camera <- readRDS(
+  file = here::here("output/data_enrichment/camera/list_gmt_camera.rds")
+)
+
 # Plot barcode plots for Hallmark gene sets
 ## Plot multiple plots using a nested map
 ## Inner map: Create barcodeplot of all gene sets on provided contrast
 ## Outer map: Perform inner map on all contrasts
-list_barcodeplots <- imap(
+list_barcodeplots <- purrr::imap(
   results,
   \(results, name_contrast) {
     # Set and create output directory
@@ -40,14 +45,14 @@ list_barcodeplots <- imap(
     }
 
     # Create and draw plot
-    imap(
-      list_gmt$h,
+    purrr::imap(
+      list_gmt_camera$h,
       \(genesets, name_geneset) {
         # Set up output device
         png(
           filename = here::here(
             path_output,
-            str_c(name_geneset, ".png", sep = "")
+            stringr::str_c(name_geneset, ".png", sep = "")
           ),
           res = 288,
           width = 4,
@@ -58,7 +63,7 @@ list_barcodeplots <- imap(
         par(mar = c(4.5, 3, 1.5, 1) - 0.5)
 
         # Draw plot
-        barcodeplot(
+        limma::barcodeplot(
           results$log2FoldChange,
           index = genesets,
           alpha = 0.2,
