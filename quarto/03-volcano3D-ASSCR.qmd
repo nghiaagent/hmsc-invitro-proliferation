@@ -12,7 +12,7 @@ here::i_am("quarto/03-volcan3D-ASSCR.qmd")
 # Load packages
 library(here)
 library(tidyverse)
-library(Volcano3D)
+library(volcano3D)
 
 # Load data for plotting
 polar_manual <- readRDS(
