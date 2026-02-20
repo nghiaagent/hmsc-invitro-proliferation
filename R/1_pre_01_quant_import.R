@@ -8,6 +8,7 @@ here::i_am("R/1_pre_01_quant_import.R")
 ########################
 
 # Import packages
+library(conflicted)
 library(DESeq2)
 library(edgeR)
 library(here)
@@ -19,17 +20,17 @@ library(tximeta)
 
 # Construct sample table
 table_samples <- here::here("input/annotation/cell_sample_table.csv") %>%
-  read_csv() %>%
-  mutate(
+  readr::read_csv() %>%
+  dplyr::mutate(
     # Create ID column
     ID = name,
     .keep = "unused"
   ) %>%
-  mutate(
+  dplyr::mutate(
     # Format ID column to be consistent
     ID = ID %>%
-      str_replace("hMSC_", "hMSC-") %>%
-      str_replace("(?<=0)_(?=[:digit:])", "-"),
+      stringr::str_replace("hMSC_", "hMSC-") %>%
+      stringr::str_replace("(?<=0)_(?=[:digit:])", "-"),
     # Format factor columns in the correct levels
     cell_line = cell_line %>%
       factor(levels = c("hMSC-20176", "hMSC-21558")),
@@ -41,9 +42,9 @@ table_samples <- here::here("input/annotation/cell_sample_table.csv") %>%
       factor(levels = c("Untreated", "Treated")),
     # Remove underscores from run_date
     run_date = run_date %>%
-      str_replace_all("_", "")
+      stringr::str_replace_all("_", "")
   ) %>%
-  mutate(
+  dplyr::mutate(
     # Create timepoint_ID and condition_ID columns and set their order
     timepoint_ID = str_c(Passage, Day, sep = "") %>%
       factor(
@@ -78,8 +79,8 @@ table_samples <- here::here("input/annotation/cell_sample_table.csv") %>%
   # included in the dataset (based on samplesheet)
   subset(included_in_dataset == TRUE) %>%
   # Arrange samples in the correct order
-  arrange(ID, cell_line, Passage, Day, Treatment) %>%
-  mutate(
+  dplyr::arrange(ID, cell_line, Passage, Day, Treatment) %>%
+  dplyr::mutate(
     # Set ID and run_date as factors in the correct order
     ID = ID %>%
       factor() %>%
@@ -91,7 +92,7 @@ table_samples <- here::here("input/annotation/cell_sample_table.csv") %>%
 # Construct samplesheet that also includes file paths
 ## Get list of salmon quantification files
 files_tx_quant <- table_samples$filename %>%
-  str_c(
+  stringr::str_c(
     "./input/cDNA/",
     .,
     "_quant/quant.sf"
@@ -99,12 +100,12 @@ files_tx_quant <- table_samples$filename %>%
 
 ## Get list of sample names from the files
 names_tx_quant <- files_tx_quant %>%
-  str_replace(pattern = "IonXpress.*$", "") %>%
-  str_replace(pattern = "./input/cDNA/", "") %>%
-  str_replace(pattern = "_$", "")
+  stringr::str_replace(pattern = "IonXpress.*$", "") %>%
+  stringr::str_replace(pattern = "./input/cDNA/", "") %>%
+  stringr::str_replace(pattern = "_$", "")
 
 ## Combine list of files and sample names as a tibble, add metadata
-list_files <- tibble(files = files_tx_quant, names = names_tx_quant) %>%
+list_files <- tibble::tibble(files = files_tx_quant, names = names_tx_quant) %>%
   cbind(dplyr::select(
     table_samples,
     c(
@@ -125,14 +126,14 @@ all(file.exists(list_files$files)) # Make sure that all transcript files exist
 # Summarise transcripts quantification to genes
 # Create object for DGE with DESeq2
 quant_deseq2 <- list_files %>%
-  tximeta(type = "salmon") %>%
-  summarizeToGene(assignRanges = "abundant") %>%
-  DESeqDataSet(design = ~ condition_ID + run_date + cell_line)
+  tximeta::tximeta(type = "salmon") %>%
+  tximeta::summarizeToGene(assignRanges = "abundant") %>%
+  DESeq2::DESeqDataSet(design = ~ condition_ID + run_date + cell_line)
 
 # Filter lowly-expressed genes
 # Keep only genes with higher than 40 counts in at least 3 samples
 keep <- quant_deseq2 %$%
-  filterByExpr(
+  edgeR::filterByExpr(
     y = counts(.),
     group = colData(.)$condition_ID,
     min.count = 40,
