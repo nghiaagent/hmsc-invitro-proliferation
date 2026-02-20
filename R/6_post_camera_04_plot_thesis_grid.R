@@ -1,7 +1,7 @@
 here::i_am("R/6_post_camera_04_plot_thesis_grid.R")
 
 ########################
-# Grid of barcode plots
+# Build grid of barcode plots
 ########################
 
 # Import packages
@@ -26,18 +26,14 @@ pathways_p13 <- c(
 ## Between passages - highlight on P+7 pathways
 ## x-axisL 5v7; 7v13; 5v13
 ## y-axis: NFKB, TGFB, Hypoxia
-
 pathways_p7 <- c(
   "HALLMARK_TNFA_SIGNALING_VIA_NFKB",
   "HALLMARK_TGF_BETA_SIGNALING"
 )
 
 # Draw plots
-
 ## For P13
-
 ### Get file paths
-
 files_p13 <- map(
   conditions,
   \(conditions) {
@@ -59,19 +55,15 @@ files_p13 <- map(
   unlist()
 
 ### Draw plots
-
 plots_p13 <- plot_grid(
   plotlist = map(
     files_p13,
     \(x) ggdraw() + draw_image(x)
   ),
   ncol = 2
-  # ,
-  # labels = c("A", "B", "", "", "", "")
 )
 
 ### Export plots
-
 ggsave(
   file = here::here(
     "output",
@@ -84,9 +76,7 @@ ggsave(
 )
 
 ## For P7
-
 ### Get file paths
-
 files_p7 <- map(
   conditions,
   \(conditions) {
@@ -108,19 +98,15 @@ files_p7 <- map(
   unlist()
 
 ### Draw plots
-
 plots_p7 <- plot_grid(
   plotlist = map(
     files_p7,
     \(x) ggdraw() + draw_image(x)
   ),
   ncol = 2
-  # ,
-  # labels = c("A", "B", "", "", "", "")
 )
 
 ### Export plots
-
 ggsave(
   file = here::here(
     "output",

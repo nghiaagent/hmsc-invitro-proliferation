@@ -1,7 +1,7 @@
 here::i_am("R/6_post_camera_03_plot.R")
 
 ########################
-# Load data
+# Build plots for camera
 ########################
 
 # Import packages
@@ -9,6 +9,7 @@ library(DESeq2)
 library(here)
 library(tidyverse)
 
+# Load data
 results <- readRDS(
   file = here::here(
     "output",
@@ -19,11 +20,9 @@ results <- readRDS(
 )
 
 # Plot barcode plots for Hallmark gene sets
-
 ## Plot multiple plots using a nested map
 ## Inner map: Create barcodeplot of all gene sets on provided contrast
 ## Outer map: Perform inner map on all contrasts
-
 list_barcodeplots <- imap(
   results,
   \(results, name_contrast) {
@@ -82,6 +81,7 @@ list_barcodeplots <- imap(
   .progress = TRUE
 )
 
+# Save data
 saveRDS(
   list_barcodeplots,
   file = here::here(

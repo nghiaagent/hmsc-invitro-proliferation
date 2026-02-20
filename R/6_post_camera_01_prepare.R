@@ -1,16 +1,20 @@
 here::i_am("R/6_post_camera_01_prepare.R")
 
 ########################
-# Load data
+# Prepare data for CAMERA
+# Define design and contrast matrices
+# Defun function to run camera
 ########################
 
 # Import packages
 library(DESeq2)
+library(GSEABase)
 library(here)
 library(limma)
 library(SummarizedExperiment)
 library(tidyverse)
 
+# Load data
 rlog_deseq2 <- readRDS(
   file = here::here(
     "output",
@@ -31,7 +35,6 @@ quant_deseq2 <- readRDS(
 
 # Convert rlog object to MArrayLM to pass to camera
 # Method accepted by camera authors https://support.bioconductor.org/p/71534/
-
 rlog_camera <- new(
   "EList",
   list(
@@ -42,8 +45,7 @@ rlog_camera <- new(
 )
 
 # Define design and contrast matrices for camera
-## Design matrix
-
+## Define design matrix
 design <- model.matrix(
   design(quant_deseq2),
   data = rlog_camera$targets
@@ -51,8 +53,7 @@ design <- model.matrix(
 
 colnames(design) <- make.names(colnames(design))
 
-## Contrasts matrix
-
+## Define contrast matrix
 contrasts <- makeContrasts(
   ## Coefs 1 - 6: Treatment at each timepoint
   Trt_P5_D3 = condition_IDP5D3Treated - 0,
@@ -123,11 +124,12 @@ contrasts <- makeContrasts(
 )
 
 # Define function for converting gene set GMT files to limma::camera format
-
 get_camera_gs <- function(con) {
-  getGmt(con = con) %>%
+  camera_gs <- getGmt(con = con) %>%
     geneIds() %>%
     ids2indices(identifiers = rlog_camera$genes$entrezid)
+
+  return(camera_gs)
 }
 
 # Obtain gene sets
@@ -136,32 +138,13 @@ get_camera_gs <- function(con) {
 ## MSigDB C2/CGP
 ## MSigDB C2/CP
 ## GO (CC, BP, MF)
-
-list_gmt <- list(
-  "h" = "h.all.v2023.2.Hs.entrez.gmt",
-  "c2_cgp" = "c2.cgp.v2023.2.Hs.entrez.gmt",
-  "c2_cp" = "c2.cp.v2023.2.Hs.entrez.gmt",
-  "GOBP" = "c5.go.bp.v2023.2.Hs.entrez.gmt",
-  "GOCC" = "c5.go.cc.v2023.2.Hs.entrez.gmt",
-  "GOMF" = "c5.go.mf.v2023.2.Hs.entrez.gmt"
-) %>%
-  map(\(filename) {
-    here::here(
-      "input",
-      "genesets",
-      "msigdb_v2023.2.Hs_GMTs",
-      filename
-    )
-  }) %>%
+list_gmt_camera <- list_gmt %>%
   map(\(x) get_camera_gs(con = x))
-
-# (Re)define design for limma::camera
 
 # Define camera helper function
 # Function runs camera on MArrayLM fit object provided by voomLmFit,
 # allowing selection of contrast coefficient and threshold
 # Export files to relevant folder
-
 run_camera <- function(
   elist = NULL,
   design = NULL,
@@ -173,7 +156,6 @@ run_camera <- function(
 ) {
   # Check for errors in input
   ## Check errors in inter-gene correlation
-
   if (is.null(inter.gene.cor) == TRUE) {
     message(str_c("inter-gene correlation estimated by camera"))
   } else {
@@ -187,14 +169,11 @@ run_camera <- function(
   }
 
   ## Check errors in sort option
-
   if (class(sort) != "logical") {
     stop("sort selection must be TRUE or FALSE")
   }
 
   # Set up output folder
-
-  name_output <- as.character(colnames(contrasts)[coef])
   path_output <- here::here(
     "output",
     "data_enrichment",
@@ -214,7 +193,7 @@ run_camera <- function(
 
   # Run camera on list of provided gene sets
   camera_results <- imap(
-    list_gmt,
+    list_gmt_camera,
     \(geneset, genesetname) {
       message(str_c(
         "Running",

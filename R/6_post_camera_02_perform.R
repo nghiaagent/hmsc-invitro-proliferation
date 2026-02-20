@@ -2,14 +2,15 @@ here::i_am("R/6_post_camera_02_perform.R")
 
 ########################
 # Perform camera on all contrasts
-# Load function script beforehand
 ########################
 
 # Import packages
 library(DESeq2)
 library(here)
+library(limma)
 library(tidyverse)
 
+# Perform camera on all contrasts
 camera_all <- purrr::map(
   seq_len(ncol(contrasts)),
   \(x) {
@@ -17,7 +18,7 @@ camera_all <- purrr::map(
       elist = rlog_camera,
       design = design,
       contrasts = contrasts,
-      genesets = list_gmt,
+      genesets = list_gmt_camera,
       coef = x,
       inter.gene.cor = 0.01,
       sort = TRUE
@@ -25,9 +26,9 @@ camera_all <- purrr::map(
   }
 )
 
-# Save data
 names(camera_all) <- colnames(contrasts)
 
+# Save data
 saveRDS(
   camera_all,
   here::here(
