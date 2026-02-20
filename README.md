@@ -25,6 +25,7 @@ To reproduce the thesis figures:
 - Request a copy of our dataset via
   <minhnghia.nguyen@connect.qut.edu.au> and place it in the `input`
   folder as instructed.
+- Open the project folder.
 - Run the following in an R terminal to download all packages:
 
 ``` r
