@@ -7,6 +7,7 @@ here::i_am("R/0_define_colours.R")
 # Import packages
 library(colorspace)
 library(conflicted)
+library(grDevices)
 library(here)
 library(tidyverse)
 library(vctrs)
@@ -25,13 +26,13 @@ library(vctrs)
 ### 1321: Purple
 ### SH: Grey
 palette <- c(
-  palette.colors()[[6]],
-  palette.colors()[[7]],
-  palette.colors()[[4]],
-  palette.colors()[[5]],
-  palette.colors()[[2]],
-  palette.colors()[[8]],
-  palette.colors()[[9]]
+  grDevices::palette.colors()[[6]],
+  grDevices::palette.colors()[[7]],
+  grDevices::palette.colors()[[4]],
+  grDevices::palette.colors()[[5]],
+  grDevices::palette.colors()[[2]],
+  grDevices::palette.colors()[[8]],
+  grDevices::palette.colors()[[9]]
 )
 
 palette_merge <- vctrs::vec_interleave(
@@ -47,8 +48,8 @@ palette_merge <- vctrs::vec_interleave(
 ## Scale 4: Treatment
 palette_heatmap <- list(
   `Cell population` = c(
-    "hMSC-20176" = palette.colors()[1],
-    "hMSC-21558" = palette.colors()[9]
+    "hMSC-20176" = grDevices::palette.colors()[1],
+    "hMSC-21558" = grDevices::palette.colors()[9]
   ),
   `Passage` = c(
     "P5" = palette_merge[[1]],
@@ -56,50 +57,64 @@ palette_heatmap <- list(
     "P13" = palette_merge[[5]]
   ),
   `Day` = c(
-    "D3" = hcl.colors(5, palette = "Purples 3")[3],
-    "D5" = hcl.colors(5, palette = "Purples 3")[1]
+    "D3" = grDevices::hcl.colors(5, palette = "Purples 3")[3],
+    "D5" = grDevices::hcl.colors(5, palette = "Purples 3")[1]
   ),
   `Treatment` = c(
-    "Control" = hcl.colors(5, palette = "Reds 3")[3],
-    "Heparin" = hcl.colors(5, palette = "Reds 3")[1]
+    "Control" = grDevices::hcl.colors(5, palette = "Reds 3")[3],
+    "Heparin" = grDevices::hcl.colors(5, palette = "Reds 3")[1]
   ),
   `Batch` = c(
-    "IanAmpliseqTranscriptome550Chip1434" = palette.colors(
+    "IanAmpliseqTranscriptome550Chip1434" = grDevices::palette.colors(
       palette = "Polychrome 36"
     )[[3]],
-    "IanAmpliseqTranscriptome550Chip2435" = palette.colors(
+    "IanAmpliseqTranscriptome550Chip2435" = grDevices::palette.colors(
       palette = "Polychrome 36"
     )[[4]],
-    "IanAmpliseqtranscriptome550Chip3437" = palette.colors(
+    "IanAmpliseqtranscriptome550Chip3437" = grDevices::palette.colors(
       palette = "Polychrome 36"
     )[[5]],
-    "R20171107152458" = palette.colors(palette = "Polychrome 36")[[6]],
-    "R20171202120807" = palette.colors(palette = "Polychrome 36")[[7]],
-    "R20171204095805" = palette.colors(palette = "Polychrome 36")[[8]],
-    "R20171204123655" = palette.colors(palette = "Polychrome 36")[[9]],
-    "R20171205085758" = palette.colors(palette = "Polychrome 36")[[10]],
-    "R20171205113620" = palette.colors(palette = "Polychrome 36")[[11]],
-    "R20180131074914" = palette.colors(palette = "Polychrome 36")[[12]]
+    "R20171107152458" = grDevices::palette.colors(palette = "Polychrome 36")[[
+      6
+    ]],
+    "R20171202120807" = grDevices::palette.colors(palette = "Polychrome 36")[[
+      7
+    ]],
+    "R20171204095805" = grDevices::palette.colors(palette = "Polychrome 36")[[
+      8
+    ]],
+    "R20171204123655" = grDevices::palette.colors(palette = "Polychrome 36")[[
+      9
+    ]],
+    "R20171205085758" = grDevices::palette.colors(palette = "Polychrome 36")[[
+      10
+    ]],
+    "R20171205113620" = grDevices::palette.colors(palette = "Polychrome 36")[[
+      11
+    ]],
+    "R20180131074914" = grDevices::palette.colors(palette = "Polychrome 36")[[
+      12
+    ]]
   )
 )
 
 # Palette 3: For Volcano3D
 palette_volcano3d <- c(
-  palette.colors()[[9]],
-  palette.colors()[[7]],
-  palette.colors()[[5]],
-  palette.colors()[[4]],
-  palette.colors()[[3]],
-  palette.colors()[[6]],
-  palette.colors()[[8]]
+  grDevices::palette.colors()[[9]],
+  grDevices::palette.colors()[[7]],
+  grDevices::palette.colors()[[5]],
+  grDevices::palette.colors()[[4]],
+  grDevices::palette.colors()[[3]],
+  grDevices::palette.colors()[[6]],
+  grDevices::palette.colors()[[8]]
 )
 
 # Palette 3: For Fig S1 (PCA)
 palette_pca <- list(
-  "run_date" = palette.colors(palette = "Polychrome 36"),
+  "run_date" = grDevices::palette.colors(palette = "Polychrome 36"),
   "cell_line" = c(
-    "hMSC-20176" = palette.colors()[1],
-    "hMSC-21558" = palette.colors()[9]
+    "hMSC-20176" = grDevices::palette.colors()[1],
+    "hMSC-21558" = grDevices::palette.colors()[9]
   ),
   "timepoint_ID" = c(
     P5D3 = palette_merge[[1]],
@@ -110,8 +125,8 @@ palette_pca <- list(
     P13D5 = palette_merge[[6]]
   ),
   "Treatment" = c(
-    "Untreated" = hcl.colors(5, palette = "Reds 3")[3],
-    "Treated" = hcl.colors(5, palette = "Reds 3")[1]
+    "Untreated" = grDevices::hcl.colors(5, palette = "Reds 3")[3],
+    "Treated" = grDevices::hcl.colors(5, palette = "Reds 3")[1]
   )
 )
 # Palette 4: For Fig 4 to make quadrant genes more distinct
@@ -124,29 +139,35 @@ palette_quadrant <- c(
 
 # Palette 5: For WGCNA
 palette_wgcna <- c(
-  "D3" = hcl.colors(5, palette = "Purples 3")[3],
-  "D5" = hcl.colors(5, palette = "Purples 3")[1],
-  "hMSC-20176" = palette.colors()[1],
-  "hMSC-21558" = palette.colors()[9],
-  "IanAmpliseqTranscriptome550Chip1434" = palette.colors(
+  "D3" = grDevices::hcl.colors(5, palette = "Purples 3")[3],
+  "D5" = grDevices::hcl.colors(5, palette = "Purples 3")[1],
+  "hMSC-20176" = grDevices::palette.colors()[1],
+  "hMSC-21558" = grDevices::palette.colors()[9],
+  "IanAmpliseqTranscriptome550Chip1434" = grDevices::palette.colors(
     palette = "Polychrome 36"
   )[[3]],
-  "IanAmpliseqTranscriptome550Chip2435" = palette.colors(
+  "IanAmpliseqTranscriptome550Chip2435" = grDevices::palette.colors(
     palette = "Polychrome 36"
   )[[4]],
-  "IanAmpliseqtranscriptome550Chip3437" = palette.colors(
+  "IanAmpliseqtranscriptome550Chip3437" = grDevices::palette.colors(
     palette = "Polychrome 36"
   )[[5]],
   "P13" = palette_merge[[5]],
   "P5" = palette_merge[[1]],
   "P7" = palette_merge[[3]],
-  "R20171107152458" = palette.colors(palette = "Polychrome 36")[[6]],
-  "R20171202120807" = palette.colors(palette = "Polychrome 36")[[7]],
-  "R20171204095805" = palette.colors(palette = "Polychrome 36")[[8]],
-  "R20171204123655" = palette.colors(palette = "Polychrome 36")[[9]],
-  "R20171205085758" = palette.colors(palette = "Polychrome 36")[[10]],
-  "R20171205113620" = palette.colors(palette = "Polychrome 36")[[11]],
-  "R20180131074914" = palette.colors(palette = "Polychrome 36")[[12]],
-  "Treated" = hcl.colors(5, palette = "Reds 3")[1],
-  "Untreated" = hcl.colors(5, palette = "Reds 3")[3]
+  "R20171107152458" = grDevices::palette.colors(palette = "Polychrome 36")[[6]],
+  "R20171202120807" = grDevices::palette.colors(palette = "Polychrome 36")[[7]],
+  "R20171204095805" = grDevices::palette.colors(palette = "Polychrome 36")[[8]],
+  "R20171204123655" = grDevices::palette.colors(palette = "Polychrome 36")[[9]],
+  "R20171205085758" = grDevices::palette.colors(palette = "Polychrome 36")[[
+    10
+  ]],
+  "R20171205113620" = grDevices::palette.colors(palette = "Polychrome 36")[[
+    11
+  ]],
+  "R20180131074914" = grDevices::palette.colors(palette = "Polychrome 36")[[
+    12
+  ]],
+  "Treated" = grDevices::hcl.colors(5, palette = "Reds 3")[1],
+  "Untreated" = grDevices::hcl.colors(5, palette = "Reds 3")[3]
 )
