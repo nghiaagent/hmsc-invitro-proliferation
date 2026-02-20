@@ -5,11 +5,13 @@ here::i_am("R/7_post_GSVA_2_plot_volcano3D.R")
 ########################
 
 # Import packages
+library(conflicted)
 library(DESeq2)
 library(GSVA)
 library(here)
 library(limma)
 library(tidyverse)
+library(volcano3D)
 
 # Load data
 fit_gsva <- readRDS(
@@ -31,7 +33,7 @@ quant_gsva <- readRDS(
 )
 
 # Define outcome variable
-outcome <- phenoData(quant_gsva[[1]])$condition_ID %>%
+outcome <- Biobase::phenoData(quant_gsva[[1]])$condition_ID %>%
   factor(
     levels = c(
       "P5D3Untreated",
@@ -54,54 +56,59 @@ breaks <- seq(
 
 # Derive GSVA results
 ## Expression matrix
-data_gsva <- map(
+data_gsva <- purrr::map(
   quant_gsva,
   \(eset) {
-    exprs(eset)
+    Biobase::exprs(eset)
   }
 )
 
 ## Supply pvalues and padj
-polar_pvals_gsva <- map(
+polar_pvals_gsva <- purrr::map(
   fit_gsva,
   \(fit_contrasts) {
     cbind(
-      topTable(fit_contrasts, number = Inf, sort.by = "none")$P.Value,
-      topTable(
+      limma::topTable(fit_contrasts, number = Inf, sort.by = "none")$P.Value,
+      limma::topTable(
         fit_contrasts,
         number = Inf,
         sort.by = "none",
         coef = 13
       )$P.Value,
-      topTable(
+      limma::topTable(
         fit_contrasts,
         number = Inf,
         sort.by = "none",
         coef = 15
       )$P.Value,
-      topTable(fit_contrasts, number = Inf, sort.by = "none", coef = 14)$P.Value
+      limma::topTable(
+        fit_contrasts,
+        number = Inf,
+        sort.by = "none",
+        coef = 14
+      )$P.Value
     )
   }
 )
 
-polar_padj_gsva <- map(
+polar_padj_gsva <- purrr::map(
   fit_gsva,
   \(fit_contrasts) {
     cbind(
-      topTable(fit_contrasts, number = Inf, sort.by = "none")$adj.P.Val,
-      topTable(
+      limma::topTable(fit_contrasts, number = Inf, sort.by = "none")$adj.P.Val,
+      limma::topTable(
         fit_contrasts,
         number = Inf,
         sort.by = "none",
         coef = 13
       )$adj.P.Val,
-      topTable(
+      limma::topTable(
         fit_contrasts,
         number = Inf,
         sort.by = "none",
         coef = 15
       )$adj.P.Val,
-      topTable(
+      limma::topTable(
         fit_contrasts,
         number = Inf,
         sort.by = "none",
@@ -112,14 +119,14 @@ polar_padj_gsva <- map(
 )
 
 # Construct volcano3d object
-polar_manual_gsva <- pmap(
+polar_manual_gsva <- purrr::pmap(
   list(
     data_gsva,
     polar_pvals_gsva,
     polar_padj_gsva
   ),
   \(data_gsva, polar_pvals_gsva, polar_padj_gsva) {
-    polar_coords(
+    volcano3D::polar_coords(
       outcome = outcome,
       data = t(data_gsva),
       pvals = polar_pvals_gsva,
@@ -135,14 +142,14 @@ polar_manual_gsva <- map2(
   fit_gsva,
   \(polar_manual, fit_contrasts) {
     rownames(polar_manual@pvals) <- rownames(
-      topTable(
+      limma::topTable(
         fit_contrasts,
         number = Inf,
         sort.by = "none"
       )
     )
     rownames(polar_manual@padj) <- rownames(
-      topTable(
+      limma::topTable(
         fit_contrasts,
         number = Inf,
         sort.by = "none"
@@ -157,7 +164,7 @@ polar_manual_gsva <- map2(
 volcano3d <- map(
   polar_manual_gsva,
   \(polar_manual) {
-    volcano3D(
+    volcano3D::volcano3D(
       polar_manual,
       type = 1,
       label_size = 24,
@@ -170,7 +177,7 @@ volcano3d <- map(
 radial_plotly <- map(
   polar_manual_gsva,
   \(polar_manual) {
-    radial_plotly(
+    volcano3D::radial_plotly(
       polar_manual,
       type = 1,
       r_axis_ticks = breaks
@@ -181,7 +188,7 @@ radial_plotly <- map(
 radial_ggplot <- map(
   polar_manual_gsva,
   \(polar_manual) {
-    radial_ggplot(
+    volcano3D::radial_ggplot(
       polar_manual,
       type = 1,
       r_axis_ticks = breaks

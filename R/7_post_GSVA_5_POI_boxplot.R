@@ -5,6 +5,7 @@ here::i_am("R/7_post_GSVA_5_POI_boxplot.R")
 ########################
 
 # Import packages
+library(conflicted)
 library(DESeq2)
 library(GSVA)
 library(here)
@@ -66,12 +67,12 @@ quant_gsva_interest <- quant_gsva[c("h", "c2_cgp", "c2_cp", "GOBP")]
 plot_poi_passage <- function(fit, quant, geneset) {
   # Get table containing ES for gene set
   geneset_counts <- data.frame(
-    score = exprs(quant)[geneset, ],
-    Passage = phenoData(quant)$Passage,
-    Treatment = phenoData(quant)$Treatment,
-    Day = phenoData(quant)$Day
+    score = Biobase::exprs(quant)[geneset, ],
+    Passage = Biobase::phenoData(quant)$Passage,
+    Treatment = Biobase::phenoData(quant)$Treatment,
+    Day = Biobase::phenoData(quant)$Day
   ) %>%
-    filter(
+    dplyr::filter(
       Day == "D3",
       Treatment == "Untreated"
     )
@@ -80,21 +81,21 @@ plot_poi_passage <- function(fit, quant, geneset) {
   y_position <- max(geneset_counts$score) * 1.1
 
   # Plot the data
-  plot <- ggplot(
+  plot <- ggplot2::ggplot(
     geneset_counts,
-    aes(
+    ggplot2::aes(
       x = Passage,
       y = score,
     )
   ) +
-    geom_boxplot(
+    ggplot2::geom_boxplot(
       aes(
         color = Passage,
         shape = Passage
       ),
       outliers = FALSE
     ) +
-    geom_jitter(
+    ggplot2::geom_jitter(
       aes(
         fill = Passage,
         shape = Passage
@@ -103,28 +104,28 @@ plot_poi_passage <- function(fit, quant, geneset) {
       alpha = 0.7,
       stroke = 0.5
     ) +
-    geom_signif(
+    ggsignif::geom_signif(
       comparisons = list(
         c("P5", "P7"),
         c("P7", "P13"),
         c("P5", "P13")
       ),
       annotation = c(
-        topTable(
+        limma::topTable(
           fit,
           coef = 13,
           sort.by = "none",
           number = Inf
         ) %>%
           .[geneset, "adj.P.Val"],
-        topTable(
+        limma::topTable(
           fit,
           coef = 14,
           sort.by = "none",
           number = Inf
         ) %>%
           .[geneset, "adj.P.Val"],
-        topTable(
+        limma::topTable(
           fit,
           coef = 15,
           sort.by = "none",
@@ -132,27 +133,27 @@ plot_poi_passage <- function(fit, quant, geneset) {
         ) %>%
           .[geneset, "adj.P.Val"]
       ) %>%
-        stars_pval(),
+        metan::stars_pval(),
       y_position = c(y_position, y_position, y_position),
       textsize = 3,
       step_increase = 0.2
     ) +
-    scale_colour_manual(
+    ggplot2::scale_colour_manual(
       values = palette_merge[c(1, 3, 5)]
     ) +
-    scale_fill_manual(
+    ggplot2::scale_fill_manual(
       values = palette_merge[c(1, 3, 5)]
     ) +
-    scale_shape_manual(
+    ggplot2::scale_shape_manual(
       values = c(21, 24, 22)
     ) +
-    scale_y_continuous(expand = expansion(0, 0.3)) +
-    theme_classic() +
-    ggtitle(
+    ggplot2::scale_y_continuous(expand = ggplot2::expansion(0, 0.3)) +
+    ggplot2::theme_classic() +
+    ggplot2::ggtitle(
       label = geneset %>%
-        str_replace_all("HALLMARK", "H") %>%
-        str_replace_all("_", " ") %>%
-        str_wrap(
+        stringr::str_replace_all("HALLMARK", "H") %>%
+        stringr::str_replace_all("_", " ") %>%
+        stringr::str_wrap(
           width = 20,
           whitespace_only = TRUE
         )
@@ -165,14 +166,14 @@ plot_poi_passage <- function(fit, quant, geneset) {
 
 # Plot GSVA
 ## For passage
-plots_poi_passage <- pmap(
+plots_poi_passage <- purrr::pmap(
   list(
     fit_gsva_interest,
     quant_gsva_interest,
     pathways_interest
   ),
   \(fit, quant, pathways_interest) {
-    map(
+    purrr::map(
       pathways_interest,
       \(geneset) {
         plot_poi_passage(fit, quant, geneset)

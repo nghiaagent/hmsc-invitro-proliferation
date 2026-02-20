@@ -5,6 +5,7 @@ here::i_am("R/7_post_GSVA_3_resultstable.R")
 ########################
 
 # Import packages
+library(conflicted)
 library(DESeq2)
 library(GSVA)
 library(here)
@@ -74,26 +75,26 @@ conditions_interest <- c(
 )
 
 # Create summary tables
-results_summary <- map(
+results_summary <- purrr::map(
   fit_gsva,
   \(x) summary(decideTests(x))
 )
 
 # Create nested list containing TopTables
-toptables_gsva <- imap(
+toptables_gsva <- purrr::imap(
   fit_gsva,
   \(fit, collection) {
-    map(
+    purrr::map(
       conditions_interest,
       \(coef) {
-        topTable(
+        limma::topTable(
           fit,
           coef = coef,
           number = Inf,
           sort.by = "p"
         ) %>%
-          rownames_to_column(var = "set") %>%
-          mutate(source = collection)
+          tibble::rownames_to_column(var = "set") %>%
+          dplyr::mutate(source = collection)
       }
     )
   },
@@ -130,7 +131,7 @@ toptables_gsva_format <- map(
 
 # Save data
 ## Export summary
-write.xlsx(
+openxlsx::write.xlsx(
   results_summary,
   file = here::here(
     "output",
@@ -141,7 +142,7 @@ write.xlsx(
 )
 
 ## Export top tables
-write.xlsx(
+openxlsx::write.xlsx(
   toptables_gsva_format,
   file = here::here(
     "output",

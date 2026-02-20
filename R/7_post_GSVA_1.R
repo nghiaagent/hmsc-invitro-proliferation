@@ -6,6 +6,7 @@ here::i_am("R/7_post_GSVA_1.R")
 ########################
 
 # Import packages
+library(conflicted)
 library(DESeq2)
 library(GSVA)
 library(here)
@@ -29,25 +30,25 @@ rlog_deseq2 <- readRDS(
 # Sort dataset by decreasing expression
 # Remove genes with duplicate ENTREZ ID
 order <- order(
-  rowRanges(rlog_deseq2)$baseMean,
+  SummarizedExperiment::rowRanges(rlog_deseq2)$baseMean,
   decreasing = TRUE
 )
 
 rlog_deseq2 <- rlog_deseq2[order, ]
 
 rlog_deseq2 <- rlog_deseq2[
-  rowRanges(rlog_deseq2) %>%
+  SummarizedExperiment::rowRanges(rlog_deseq2) %>%
     as.data.frame() %$%
-    map(
+    purrr::map(
       .$entrezid,
       \(x) !is.na(x)[[1]]
     ) %>%
     unlist(),
 ]
 
-idx <- rowRanges(rlog_deseq2) %>%
+idx <- SummarizedExperiment::rowRanges(rlog_deseq2) %>%
   as.data.frame() %$%
-  map(
+  purrr::map(
     .$entrezid,
     \(x) x[[1]]
   ) %>%
@@ -57,20 +58,20 @@ rlog_deseq2 <- rlog_deseq2[!duplicated(idx), ]
 idx <- idx[!duplicated(idx)]
 
 # Rename rownames to entrezid
-rlog_deseq2_counts <- assay(rlog_deseq2)
-rlog_deseq2_rowranges <- rowRanges(rlog_deseq2) %>%
+rlog_deseq2_counts <- SummarizedExperiment::assay(rlog_deseq2)
+rlog_deseq2_rowranges <- SummarizedExperiment::rowRanges(rlog_deseq2) %>%
   as.data.frame()
-rlog_deseq2_coldata <- colData(rlog_deseq2) %>%
+rlog_deseq2_coldata <- SummarizedExperiment::colData(rlog_deseq2) %>%
   as.data.frame()
 
 rownames(rlog_deseq2_counts) <- idx
 rownames(rlog_deseq2_rowranges) <- idx
 
 # Build eset object
-quant_eset <- ExpressionSet(
+quant_eset <- Biobase::ExpressionSet(
   assayData = rlog_deseq2_counts,
-  phenoData = AnnotatedDataFrame(rlog_deseq2_coldata),
-  featureData = AnnotatedDataFrame(rlog_deseq2_rowranges)
+  phenoData = Biobase::AnnotatedDataFrame(rlog_deseq2_coldata),
+  featureData = Biobase::AnnotatedDataFrame(rlog_deseq2_rowranges)
 )
 
 # Define design and contrasts for GSVA + limma
@@ -78,7 +79,7 @@ design <- model.matrix(~ condition_ID + cell_line, data = rlog_deseq2_coldata)
 
 colnames(design) <- make.names(colnames(design))
 
-matrix_contrasts <- makeContrasts(
+matrix_contrasts <- limma::makeContrasts(
   ## Coefs 1 - 6: Treatment at each timepoint
   Trt_P5_D3 = condition_IDP5D3Treated - 0,
   Trt_P5_D5 = condition_IDP5D5Treated - condition_IDP5D5Untreated,
@@ -113,30 +114,30 @@ matrix_contrasts <- makeContrasts(
 
 # Perform GSVA
 ## Make GSVA NES object
-quant_gsva_db <- map(
+quant_gsva_db <- purrr::map(
   list_gmt[1:6],
   \(x) {
-    gsvaParam(
+    GSVA::gsvaParam(
       quant_eset,
       x,
       minSize = 5,
       maxSize = 500,
       kcdf = "Gaussian"
     ) %>%
-      gsva()
+      GSVA::gsva()
   },
   .progress = TRUE
 )
 
-quant_gsva_wgcna <- map(
+quant_gsva_wgcna <- purrr::map(
   list_gmt[7],
   \(x) {
-    gsvaParam(
+    GSVA::gsvaParam(
       quant_eset,
       x,
       kcdf = "Gaussian"
     ) %>%
-      gsva()
+      GSVA::gsva()
   },
   .progress = TRUE
 )
@@ -147,13 +148,13 @@ quant_gsva <- c(
 )
 
 ## Perform model fit
-fit_gsva <- map(
+fit_gsva <- purrr::map(
   quant_gsva,
   \(x) {
-    lmFit(x, design) %>%
-      eBayes() %>%
-      contrasts.fit(matrix_contrasts) %>%
-      eBayes()
+    limma::lmFit(x, design) %>%
+      limma::eBayes() %>%
+      limma::contrasts.fit(matrix_contrasts) %>%
+      limma::eBayes()
   },
   .progress = TRUE
 )

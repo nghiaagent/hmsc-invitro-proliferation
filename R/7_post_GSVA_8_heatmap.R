@@ -5,11 +5,15 @@ here::i_am("R/7_post_GSVA_8_heatmap.R")
 ########################
 
 # Import packages
+library(circlize)
+library(ComplexHeatmap)
+library(conflicted)
 library(DESeq2)
 library(here)
 library(limma)
 library(magrittr)
 library(tidyverse)
+library(viridis)
 
 # Load data
 fit_gsva <- readRDS(
@@ -36,30 +40,30 @@ quant_gsva_subset <- quant_gsva[c("h", "c2_cp", "GOBP")]
 
 # Get significant gene sets
 genesets_significant <- fit_gsva_subset %>%
-  map(\(fit) {
+  purrr::map(\(fit) {
     top <- fit %>%
-      topTable(
+      limma::topTable(
         coef = NULL,
         number = Inf,
         sort.by = "none"
       ) %>%
-      filter(adj.P.Val < 0.05) %>%
+      dplyr::filter(adj.P.Val < 0.05) %>%
       rownames()
 
     # Return data
     return(top)
   })
 
-quant_gsva_heatmap <- map2(
+quant_gsva_heatmap <- purrr::map2(
   quant_gsva_subset,
   genesets_significant,
   \(quant, genesets) quant[genesets, ]
 )
 
 es_heatmap <- quant_gsva_heatmap %>%
-  map(\(x) {
+  purrr::map(\(x) {
     x %>%
-      exprs() %>%
+      Biobase::exprs() %>%
       t() %>%
       scale() %>%
       t()
@@ -67,13 +71,13 @@ es_heatmap <- quant_gsva_heatmap %>%
 
 # Set color scheme and breaks
 ## For gene expression (rlog z-scores)
-col <- inferno(n = 100)
+col <- viridis::inferno(n = 100)
 breaks <- seq(-2, 2, length.out = 100)
 
 # Create extra factors for splitting columns
 split_cell_line <- quant_gsva_subset[[1]]@phenoData$cell_line
 
-split_cell_line_passage <- str_c(
+split_cell_line_passage <- stringr::str_c(
   quant_gsva_subset[[1]]@phenoData$cell_line,
   quant_gsva_subset[[1]]@phenoData$Passage,
   sep = "_"
@@ -90,26 +94,26 @@ split_cell_line_passage <- str_c(
   )
 
 order <- quant_gsva_subset[[1]]@phenoData %>%
-  pData() %>%
-  arrange(cell_line, Passage, Day, Treatment) %>%
+  Biobase::pData() %>%
+  dplyr::arrange(cell_line, Passage, Day, Treatment) %>%
   rownames()
 
 # Build annotation; include only necessary metadata
 ## Dataframe of annotation data
 anno <- quant_gsva_subset[[1]]@phenoData %$%
-  tibble(
+  tibble::tibble(
     `Cell population` = .$cell_line,
     `Passage` = .$Passage,
     `Day` = .$Day,
     `Treatment` = .$Treatment %>%
-      case_match(
+      dplyr::case_match(
         "Untreated" ~ "Control",
         "Treated" ~ "Heparin"
       )
   )
 
 ## Build ComplexHeatmap annotation object
-anno_object <- HeatmapAnnotation(
+anno_object <- ComplexHeatmap::HeatmapAnnotation(
   df = anno,
   which = "col",
   col = palette_heatmap,
@@ -151,10 +155,10 @@ anno_object <- HeatmapAnnotation(
 )
 
 # Create a heatmap to extract order for columns
-heatmap_column_order <- Heatmap(
+heatmap_column_order <- ComplexHeatmap::Heatmap(
   es_heatmap[[3]],
   name = "ES\nZ-\nscore",
-  col = colorRamp2(breaks, col),
+  col = circlize::colorRamp2(breaks, col),
   border = FALSE,
 
   # parameters for the colour-bar that represents gradient of expression
@@ -185,12 +189,12 @@ heatmap_column_order <- Heatmap(
   show_column_names = FALSE
 ) %>%
   plot() %>%
-  column_order() %>%
+  ComplexHeatmap::column_order() %>%
   unlist()
 
 # Create list of heatmap objects
 list_heatmap <- es_heatmap %>%
-  map(\(es) {
+  purrr::map(\(es) {
     heatmap <- Heatmap(
       es,
       name = "ES\nZ-\nscore",
@@ -234,7 +238,7 @@ list_heatmap <- es_heatmap %>%
   })
 
 # Export heatmaps
-imap(
+purrr::imap(
   list_heatmap,
   \(heatmap, name) {
     png(
