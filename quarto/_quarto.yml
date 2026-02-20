@@ -1,0 +1,21 @@
+project:
+  type: book
+
+book:
+  title: "Transcriptome analysis"
+  author: "Nghia Nguyen (Mitchell)"
+  date: today
+  repo-url: https://github.com/nghiaagent/2025_txome_gse178514
+  chapters:
+    - index.qmd
+    - 01-volcano3D.qmd
+    - 02-volcano2D.qmd
+    - 03-volcano3D-ASSCR.qmd
+    - 04-volcano3D-gsva.qmd
+    - 05-volcano3D-gsva-highlight.qmd
+format:
+  html:
+    theme: zephyr
+
+editor: source
+
