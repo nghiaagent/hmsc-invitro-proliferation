@@ -6,9 +6,12 @@ here::i_am("R/8_evaluate_clusterprofiler.R")
 
 # Import packages
 library(clusterProfiler)
+library(conflicted)
 library(DESeq2)
+library(enrichplot)
 library(here)
 library(org.Hs.eg.db)
+library(patchwork)
 library(tidyverse)
 
 # Set variables
@@ -42,7 +45,7 @@ rowranges <- readRDS(
     "quant_deseq2_batchcor.RDS"
   )
 ) %>%
-  rowRanges() %>%
+  SummarizedExperiment::rowRanges() %>%
   as.data.frame() %>%
   dplyr::select(
     gene_id,
@@ -52,15 +55,15 @@ rowranges <- readRDS(
 
 # Get desired contrasts, sort data
 results_deseq2_pilot <- results_deseq2[contrasts_pilot] %>%
-  map(\(results) {
+  purrr::map(\(results) {
     results <- results %>%
       as.data.frame() %>%
-      rownames_to_column(var = "gene_id") %>%
-      as_tibble() %>%
-      arrange(desc(stat)) %>%
-      left_join(
+      tibble::rownames_to_column(var = "gene_id") %>%
+      tibble::as_tibble() %>%
+      arrange(dplyr::desc(stat)) %>%
+      dplyr::left_join(
         rowranges,
-        by = join_by("gene_id" == "gene_id")
+        by = dplyr::join_by("gene_id" == "gene_id")
       )
 
     # Return data
@@ -71,10 +74,10 @@ results_deseq2_pilot <- results_deseq2[contrasts_pilot] %>%
 genelists_pilot <- results_deseq2_pilot %>%
   map(\(results) {
     results <- results %>%
-      dplyr::arrange(desc(stat))
+      dplyr::arrange(desc(log2FoldChange))
 
     gene_list <- results$log2FoldChange %>%
-      set_names(results$gene_id)
+      magrittr::set_names(results$gene_id)
 
     # Return data
     return(gene_list)
@@ -82,7 +85,7 @@ genelists_pilot <- results_deseq2_pilot %>%
 
 # Set up function for GSEA on GO gene sets
 run_fgsea <- function(gene_list) {
-  gsea_gobp <- gseGO(
+  gsea_gobp <- clusterProfiler::gseGO(
     gene_list,
     OrgDb = org.Hs.eg.db,
     keyType = "ENSEMBL",
@@ -91,7 +94,7 @@ run_fgsea <- function(gene_list) {
     maxGSSize = 500,
     pvalueCutoff = 0.05
   ) %>%
-    setReadable(
+    clusterProfiler::setReadable(
       "org.Hs.eg.db",
       "ENSEMBL"
     )
@@ -102,42 +105,42 @@ run_fgsea <- function(gene_list) {
 
 # Run fgsea
 results_fgsea <- genelists_pilot %>%
-  map(\(.gene_list) run_fgsea(.gene_list))
+  purrr::map(\(.gene_list) run_fgsea(.gene_list))
 
 # Create fgsea plots
 plots_fgsea_dot <- results_fgsea %>%
-  map(\(.fgsea) {
+  purrr::map(\(.fgsea) {
     if (nrow(.fgsea@result) == 0) {
       return(NA)
     } else {
-      dotplot(.fgsea, showCategory = 15, label_format = 200)
+      clusterProfiler::dotplot(.fgsea, showCategory = 15, label_format = 200)
     }
   })
 
 plots_fgsea_cnet <- results_fgsea %>%
-  map(\(.fgsea) {
+  purrr::map(\(.fgsea) {
     if (nrow(.fgsea@result) == 0) {
       return(NA)
     } else {
-      cnetplot(.fgsea, showCategory = 15)
+      clusterProfiler::cnetplot(.fgsea, showCategory = 15)
     }
   })
 
 plots_fgsea_heat <- results_fgsea %>%
-  map(\(.fgsea) {
+  purrr::map(\(.fgsea) {
     if (nrow(.fgsea@result) == 0) {
       return(NA)
     } else {
-      heatplot(.fgsea, showCategory = 15)
+      clusterProfiler::heatplot(.fgsea, showCategory = 15)
     }
   })
 
 plots_fgsea_worm <- results_fgsea %>%
-  map(\(.fgsea) {
+  purrr::map(\(.fgsea) {
     if (nrow(.fgsea@result) == 0) {
       return(NA)
     } else {
-      gseaplot2(
+      enrichplot::gseaplot2(
         .fgsea,
         geneSetID = c(
           "GO:0007608",
@@ -158,7 +161,7 @@ gene_id_sus <- c(
   list_gmt[["GOBP"]][["GOBP_SENSORY_PERCEPTION_OF_CHEMICAL_STIMULUS"]]@geneIds
 ) %>%
   unique() %>%
-  mapIds(
+  AnnotationDbi::mapIds(
     org.Hs.eg.db,
     keys = .,
     column = "ENSEMBL",
@@ -167,19 +170,19 @@ gene_id_sus <- c(
   .[!is.na(.)]
 
 gene_id_moresus <- gene_id_sus %>%
-  mapIds(
+  AnnotationDbi::mapIds(
     org.Hs.eg.db,
     keys = .,
     column = "SYMBOL",
     keytype = "ENSEMBL"
   ) %>%
-  str_which("^OR")
+  stringr::str_which("^OR")
 
 gene_id_sus <- gene_id_sus[gene_id_moresus]
 
 ## Clip results
 results_deseq2_pilot_clipped <- results_deseq2[contrasts_pilot] %>%
-  map(
+  purrr::map(
     \(.results) {
       .results <- .results[complete.cases(.results), ]
 
@@ -197,7 +200,7 @@ plots_volcano_ma <- purrr::imap(
   \(.results, .name) {
     .results <- .results[rownames(.results) %in% gene_id_sus, ]
     .labels <- rownames(.results) %>%
-      mapIds(
+      AnnotationDbi::mapIds(
         org.Hs.eg.db,
         keys = .,
         column = "SYMBOL",
@@ -205,7 +208,7 @@ plots_volcano_ma <- purrr::imap(
       )
 
     plots <- list(
-      volcano = EnhancedVolcano(
+      volcano = EnhancedVolcano::EnhancedVolcano(
         .results,
         x = "log2FoldChange",
         y = "padj",
@@ -232,7 +235,7 @@ plots_volcano_ma <- purrr::imap(
         gridlines.major = FALSE,
         gridlines.minor = FALSE
       ),
-      ma = EnhancedVolcano(
+      ma = EnhancedVolcano::EnhancedVolcano(
         .results,
         x = "log2FoldChange",
         y = "baseMean_new",
@@ -273,7 +276,7 @@ plots_volcano_ma <- purrr::imap(
 ## First plot: Dot plot + GSEA worm demonstrating suspicious gene set
 ## Second plot: Dive into suspicious gene sets,
 ## demonstrating results may be invalid
-plots_first <- wrap_plots(
+plots_first <- patchwork::wrap_plots(
   plots_fgsea_dot[[1]],
   plots_fgsea_dot[[2]],
   plots_fgsea_dot[[3]],
@@ -285,13 +288,13 @@ plots_first <- wrap_plots(
 )
 
 plots_second <- (plots_fgsea_cnet[[1]] |
-  (wrap_plots(
+  (patchwork::wrap_plots(
     plots_volcano_ma %>%
       unlist(recursive = FALSE),
     nrow = 3
   ) +
-    plot_layout(widths = c(2, 1)))) +
-  plot_layout(widths = c(2, 4))
+    patchwork::plot_layout(widths = c(2, 1)))) +
+  patchwork::plot_layout(widths = c(2, 4))
 
 
 # Save plots

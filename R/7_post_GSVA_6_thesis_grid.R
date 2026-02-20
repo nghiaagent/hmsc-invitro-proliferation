@@ -5,7 +5,11 @@ here::i_am("R/7_post_GSVA_6_thesis_grid.R")
 ########################
 
 # Import packages
+library(conflicted)
+library(cowplot)
+library(GSVA)
 library(here)
+library(patchwork)
 library(tidyverse)
 
 # Load data
@@ -22,36 +26,37 @@ plots_poi_passage <- readRDS(
 
 # Create grid
 ## Get legend, reformat
-plot_legend_passage <- get_legend(
-  plots_poi_passage[[1]] + guides(col = guide_legend(ncol = 3))
+plot_legend_passage <- cowplot::get_legend(
+  plots_poi_passage[[1]] +
+    ggplot2::guides(col = ggplot2::guide_legend(ncol = 3))
 )
 
 ## Passages figure
 plots_sel_poi_passage <- plots_poi_passage %>%
-  map(\(plot) {
+  purrr::map(\(plot) {
     plot +
-      theme(
+      ggplot2::theme(
         legend.position = "none",
-        plot.title = element_text(size = 8)
+        plot.title = ggplot2::element_text(size = 8)
       )
   })
 
-plots_sel_poi_passage_horizontal <- wrap_plots(
+plots_sel_poi_passage_horizontal <- patchwork::wrap_plots(
   plots_sel_poi_passage,
   byrow = FALSE
 ) /
   plot_legend_passage +
-  plot_layout(heights = c(20, 1))
+  patchwork::plot_layout(heights = c(20, 1))
 
-plots_sel_poi_passage_vertical <- wrap_plots(
+plots_sel_poi_passage_vertical <- patchwork::wrap_plots(
   plots_sel_poi_passage,
   byrow = TRUE
 ) /
   plot_legend_passage +
-  plot_layout(heights = c(20, 1))
+  patchwork::plot_layout(heights = c(20, 1))
 
 # Export plots
-ggsave(
+ggplot2::ggsave(
   filename = "pois_passage_horizontal.png",
   plot = plots_sel_poi_passage_horizontal,
   path = here::here(
@@ -66,7 +71,7 @@ ggsave(
   dpi = 144
 )
 
-ggsave(
+ggplot2::ggsave(
   filename = "pois_passage_vertical.png",
   plot = plots_sel_poi_passage_vertical,
   path = here::here(

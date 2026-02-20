@@ -1,14 +1,16 @@
-here::i_am("R/9_pipeline_03_plot_pre_DE.R")
+here::i_am("R/9_pipeline_08_evaluate.R")
 
 ########################
-# Run figures for pre-DE
+# Run evaluation of methods
 ########################
 
 # Run scripts of pipeline
 c(
-  "3_dge_extract_genes_ORA.R",
-  "3_plot_heatmap.R",
-  "3_plot_PCA.R"
+  "8_evaluate_batchcor.R",
+  "8_evaluate_camera.R",
+  "8_evaluate_clusterprofiler.R",
+  "8_evaluate_glm.R",
+  "8_plot_heatmap_evalbatchcor.R"
 ) %>%
   walk(
     \(x) {

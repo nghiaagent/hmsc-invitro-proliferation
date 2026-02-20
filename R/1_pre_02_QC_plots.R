@@ -41,133 +41,133 @@ coldata <- colData(quant_cDNA_deseq) %>%
 list_counts <- list(
   # DESeq2 median of ratios normalisation
   norm = quant_cDNA_deseq %>%
-    estimateSizeFactors() %>%
-    counts(normalized = TRUE),
+    DESeq2::estimateSizeFactors() %>%
+    DESeq2::counts(normalized = TRUE),
   # Unnormalised data
   nonorm = quant_cDNA_deseq %>%
-    counts(normalized = FALSE),
+    DESeq2::counts(normalized = FALSE),
   # TMM normalisation
   norm_TMM = quant_cDNA_deseq %>%
-    as.DGEList() %>%
-    normLibSizes() %>%
-    cpm(normalized.lib.sizes = FALSE),
+    DEFormats::as.DGEList() %>%
+    edgeR::normLibSizes() %>%
+    edgeR::cpm(normalized.lib.sizes = FALSE),
   # Unfiltered DESeq2 median of ratios normalisation
   nofilter_norm = quant_cDNA_deseq_nofilter %>%
-    estimateSizeFactors() %>%
-    counts(normalized = TRUE),
+    DESeq2::estimateSizeFactors() %>%
+    DESeq2::counts(normalized = TRUE),
   # Unfiltered unnormalised data
   nofilter_nonorm = quant_cDNA_deseq_nofilter %>%
-    counts(normalized = FALSE)
+    DESeq2::counts(normalized = FALSE)
 ) %>%
   # Turn list into dataframe for easier plotting
   imap(
     \(counts, name) {
       out <- counts %>%
         as.data.frame() %>%
-        rownames_to_column(var = "gene") %>%
-        pivot_longer(
+        tibble::rownames_to_column(var = "gene") %>%
+        tidyr::pivot_longer(
           cols = !gene,
           names_to = "sample_id",
           values_to = "counts"
         ) %>%
-        mutate(logcounts_offset = log10(counts + 1)) %>%
-        mutate(data_type = name) %>%
-        left_join(
+        dplyr::mutate(logcounts_offset = log10(counts + 1)) %>%
+        dplyr::mutate(data_type = name) %>%
+        dplyr::left_join(
           coldata,
-          by = join_by("sample_id" == "names")
+          by = dplyr::join_by("sample_id" == "names")
         )
 
       return(out)
     }
   ) %>%
-  rbindlist()
+  data.table::rbindlist()
 
 # Calculate total library size
 ## Use unnormalised, unfiltered data only
 df_libsize <- list_counts %>%
-  filter(data_type == "nofilter_nonorm") %>%
-  group_by(sample_id) %>%
-  summarise(libsize = sum(counts)) %>%
-  left_join(
+  dplyr::filter(data_type == "nofilter_nonorm") %>%
+  dplyr::group_by(sample_id) %>%
+  dplyr::summarise(libsize = sum(counts)) %>%
+  dplyr::left_join(
     coldata,
-    by = join_by("sample_id" == "names")
+    by = dplyr::join_by("sample_id" == "names")
   ) %>%
-  arrange(cell_line) %>%
-  arrange(
+  dplyr::arrange(cell_line) %>%
+  dplyr::arrange(
     Passage,
     Day,
     Treatment
   ) %>%
-  mutate(
+  dplyr::mutate(
     sample_id = sample_id %>%
       factor() %>%
-      fct_inorder()
+      forcats::fct_inorder()
   )
 
 # Plot libsize
 plot_libsize <- df_libsize %>%
-  ggplot(aes(
+  ggplot2::ggplot(ggplot2::aes(
     x = sample_id,
     y = libsize / 1000000,
     fill = timepoint_ID
   )) +
-  geom_col(colour = "white") +
-  theme_classic() +
-  theme(
-    axis.text.x = element_text(
+  ggplot2::geom_col(colour = "white") +
+  ggplot2::theme_classic() +
+  ggplot2::theme(
+    axis.text.x = ggplot2::element_text(
       angle = 90,
       vjust = 0.5,
       hjust = 1
     ),
-    axis.title.x = element_blank(),
-    legend.title = element_text()
+    axis.title.x = ggplot2::element_blank(),
+    legend.title = ggplot2::element_text()
   ) +
-  scale_fill_manual(values = palette_merge[1:6]) +
-  geom_hline(
+  ggplot2::scale_fill_manual(values = palette_merge[1:6]) +
+  ggplot2::geom_hline(
     yintercept = c(5, 10, 15),
     linetype = "dashed",
     color = "grey30"
   ) +
-  labs(
+  ggplot2::labs(
     y = "Library size (million)",
     fill = "Timepoint"
   )
 
 # Plot boxplots of normalised vs. unnormalised data
 plots_normalisation <- list_counts %>%
-  filter(data_type %in% c("nonorm", "norm", "norm_TMM")) %>%
-  mutate(
+  dplyr::filter(data_type %in% c("nonorm", "norm", "norm_TMM")) %>%
+  dplyr::mutate(
     sample_id = sample_id %>%
       factor(levels = levels(df_libsize$sample_id))
   ) %>%
-  ggplot(
-    aes(
+  ggplot2::ggplot(
+    ggplot2::aes(
       x = sample_id,
       y = logcounts_offset,
       colour = timepoint_ID
     )
   ) +
-  geom_boxplot() +
-  theme_classic() +
-  theme(
-    axis.text.x = element_text(
+  ggplot2::geom_boxplot() +
+  ggplot2::theme_classic() +
+  ggplot2::theme(
+    axis.text.x = ggplot2::element_text(
       angle = 90,
       vjust = 0.5,
       hjust = 1
     ),
-    axis.title.x = element_blank(),
-    legend.title = element_text(),
+    axis.title.x = ggplot2::element_blank(),
+    legend.title = ggplot2::element_text(),
     legend.position = "none"
   ) +
-  scale_colour_manual(
+  ggplot2::scale_colour_manual(
     values = palette_merge[1:6]
   ) +
-  labs(
+  ggplot2::labs(
     y = "log10(counts)"
   ) +
-  facet_wrap(
+  ggplot2::facet_wrap(
     ~data_type,
-    labeller = as_labeller(
+    labeller = ggplot2::as_labeller(
       c(
         "nonorm" = "Unnormalised data",
         "norm" = "DESeq2 normalised data",
@@ -180,43 +180,43 @@ plots_normalisation <- list_counts %>%
 
 # Plot density of genes before and after normalisation
 plots_filtering <- list_counts %>%
-  filter(data_type %in% c("nofilter_norm", "norm")) %>%
-  ggplot(
-    aes(
+  dplyr::filter(data_type %in% c("nofilter_norm", "norm")) %>%
+  ggplot2::ggplot(
+    ggplot2::aes(
       x = logcounts_offset,
       colour = timepoint_ID
     )
   ) +
-  geom_density(
+  ggplot2::geom_density(
     linewidth = 0.5,
     alpha = 0.6
   ) +
-  theme_classic() +
-  theme(
-    axis.text.x = element_text(
+  ggplot2::theme_classic() +
+  ggplot2::theme(
+    axis.text.x = ggplot2::element_text(
       angle = 90,
       vjust = 0.5,
       hjust = 1
     ),
-    legend.title = element_text(),
+    legend.title = ggplot2::element_text(),
     legend.position = "none"
   ) +
-  scale_colour_manual(
+  ggplot2::scale_colour_manual(
     values = palette_merge[1:6]
   ) +
-  geom_vline(
+  ggplot2::geom_vline(
     xintercept = log10(41),
     linetype = "dashed",
     colour = "grey30"
   ) +
-  labs(
+  ggplot2::labs(
     x = "log10(counts)",
     y = "Density"
   ) +
-  facet_wrap(
+  ggplot2::facet_wrap(
     ~data_type,
     ncol = 2,
-    labeller = as_labeller(
+    labeller = ggplot2::as_labeller(
       c(
         "nofilter_norm" = "Unfiltered data",
         "norm" = "FilterByExpr 40 counts"
@@ -227,7 +227,7 @@ plots_filtering <- list_counts %>%
 
 # Save plots
 ## Library size
-ggsave(
+ggplot2::ggsave(
   here::here(
     "output",
     "plots_QC",
@@ -240,7 +240,7 @@ ggsave(
 )
 
 ## Distribution
-ggsave(
+ggplot2::ggsave(
   here::here(
     "output",
     "plots_QC",
@@ -253,7 +253,7 @@ ggsave(
 )
 
 ## Gene filtering
-ggsave(
+ggplot2::ggsave(
   here::here(
     "output",
     "plots_QC",

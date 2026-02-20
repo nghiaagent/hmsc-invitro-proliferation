@@ -6,6 +6,7 @@ here::i_am("R/0_define_colours.R")
 
 # Import packages
 library(colorspace)
+library(conflicted)
 library(here)
 library(tidyverse)
 library(vctrs)
@@ -33,9 +34,9 @@ palette <- c(
   palette.colors()[[9]]
 )
 
-palette_merge <- vec_interleave(
-  lighten(palette, 0.2),
-  darken(palette, 0.2),
+palette_merge <- vctrs::vec_interleave(
+  colorspace::lighten(palette, 0.2),
+  colorspace::darken(palette, 0.2),
 )
 
 # Palette 2: Set of colours for heatmap
@@ -117,8 +118,8 @@ palette_pca <- list(
 palette_quadrant <- c(
   "Control only" = palette()[[4]],
   "Heparin only" = palette()[[2]],
-  "Both" = palette()[[8]] %>% lighten(0.4),
-  "ns" = palette()[[8]] %>% darken(0.4)
+  "Both" = palette()[[8]] %>% colorspace::lighten(0.4),
+  "ns" = palette()[[8]] %>% colorspace::darken(0.4)
 )
 
 # Palette 5: For WGCNA

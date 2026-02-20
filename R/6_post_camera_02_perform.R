@@ -5,10 +5,14 @@ here::i_am("R/6_post_camera_02_perform.R")
 ########################
 
 # Import packages
+library(conflicted)
 library(DESeq2)
 library(here)
 library(limma)
 library(tidyverse)
+
+# Make sure to source the prep script first
+# source(here::here("R/6_post_camera_01_prepare.R"))
 
 # Perform camera on all contrasts
 camera_all <- purrr::map(

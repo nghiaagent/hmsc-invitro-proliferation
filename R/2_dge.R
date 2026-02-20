@@ -7,6 +7,7 @@ here::i_am("R/2_dge.R")
 
 # Import packages
 library(ashr)
+library(conflicted)
 library(data.table)
 library(DESeq2)
 library(edgeR)
@@ -28,11 +29,11 @@ quant_deseq2 <- readRDS(here::here(
 # Perform batch correction
 ## Batch correction + factor
 quant_deseq2_batchcor <- quant_deseq2
-design(quant_deseq2_batchcor) <- ~ condition_ID + cell_line + run_date
-counts(quant_deseq2_batchcor) <- quant_deseq2_batchcor %$%
+DESeq2::design(quant_deseq2_batchcor) <- ~ condition_ID + cell_line + run_date
+DESeq2::counts(quant_deseq2_batchcor) <- quant_deseq2_batchcor %$%
   sva::ComBat_seq(
-    counts(.),
-    batch = colData(.)$run_date,
+    DESeq2::counts(.),
+    batch = SummarizedExperiment::colData(.)$run_date,
     covar_mod = model.matrix(~ condition_ID + cell_line, data = colData(.))
   ) %>%
   `storage.mode<-`(., "integer")
@@ -44,23 +45,23 @@ counts(quant_deseq2_batchcor) <- quant_deseq2_batchcor %$%
 ## (i.e. chance of gene differentially expressed at all)
 ## Run again with non-batch corrected data
 quant_deseq2_batchcor <- quant_deseq2_batchcor %>%
-  DESeq()
+  DESeq2::DESeq()
 
 quant_deseq2_lrt <- quant_deseq2_batchcor %>%
-  DESeq(
+  DESeq2::DESeq(
     test = "LRT",
     reduced = ~ cell_line + run_date
   )
 
 quant_deseq2 <- quant_deseq2 %>%
-  DESeq()
+  DESeq2::DESeq()
 
 # Obtain results
 ## No LFC shrinking
 results <- list_contrasts_deseq2 %>%
-  map(
+  purrr::map(
     \(x) {
-      results(
+      DESeq2::results(
         quant_deseq2_batchcor,
         contrast = x,
         filterFun = ihw,
@@ -71,11 +72,11 @@ results <- list_contrasts_deseq2 %>%
   )
 
 ## With LFC shrinking
-results_lfcshrink <- map2(
+results_lfcshrink <- purrr::map2(
   .x = list_contrasts_deseq2,
   .y = results,
   \(x, y) {
-    lfcShrink(
+    DESeq2::lfcShrink(
       quant_deseq2_batchcor,
       contrast = x,
       res = y,
@@ -118,8 +119,8 @@ saveRDS(
 )
 
 ### Export counts matrix as .csv
-fwrite(
-  counts(quant_deseq2_batchcor),
+data.table::fwrite(
+  DESeq2::counts(quant_deseq2_batchcor),
   file = here::here(
     "output",
     "data_expression",

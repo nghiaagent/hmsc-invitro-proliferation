@@ -5,6 +5,7 @@ here::i_am("R/5_post_WGCNA_5_export_Cytoscape.R")
 ########################
 
 # Import packages
+library(conflicted)
 library(here)
 library(tidyverse)
 library(WGCNA)
@@ -21,7 +22,7 @@ gcn <- readRDS(
 )
 
 # Recalculate TOM
-tom <- TOMsimilarityFromExpr(
+tom <- WGCNA::TOMsimilarityFromExpr(
   datExpr = gcn$E,
   power = 8,
   TOMType = "unsigned",
@@ -29,7 +30,7 @@ tom <- TOMsimilarityFromExpr(
 )
 
 # Export TOMs into edge and node lists for Cytoscape
-exportNetworkToCytoscape(
+WGCNA::exportNetworkToCytoscape(
   adjMat = tom,
   edgeFile = here::here(
     "output",
@@ -49,5 +50,5 @@ exportNetworkToCytoscape(
   # Lower than normal threshold to allow filtering in Cytoscape
   nodeNames = gcn$genes$symbol,
   altNodeNames = rownames(gcn$genes),
-  nodeAttr = labels2colors(gcn$net$colors)
+  nodeAttr = WGCNA::labels2colors(gcn$net$colors)
 )

@@ -11,10 +11,13 @@ here::i_am("R/4_dge_plot_01_volcano3D.R")
 ########################
 
 # Import packages
+library(conflicted)
 library(DESeq2)
 library(here)
+library(IHW)
 library(SummarizedExperiment)
 library(tidyverse)
+library(volcano3D)
 
 # Define axis specs
 plotlist <- list(
@@ -56,7 +59,7 @@ quant_deseq2_lrt <- readRDS(
   )
 )
 
-results_lrt <- results(quant_deseq2_lrt, filterFun = ihw, alpha = 0.05)
+results_lrt <- DESeq2::results(quant_deseq2_lrt, filterFun = ihw, alpha = 0.05)
 
 # Supply pvalues
 polar_pvals <- cbind(
@@ -74,7 +77,7 @@ polar_padj <- cbind(
 )
 
 ## Construct volcano3d object
-outcome <- colData(rlog_deseq2_batchcor)$condition_ID %>%
+outcome <- SummarizedExperiment::colData(rlog_deseq2_batchcor)$condition_ID %>%
   factor(
     levels = c(
       "P5D3Untreated",
@@ -88,11 +91,13 @@ outcome <- colData(rlog_deseq2_batchcor)$condition_ID %>%
     )
   )
 
-polar_manual <- polar_coords(
+polar_manual <- volcano3D::polar_coords(
   outcome = outcome,
   data = rlog_deseq2_batchcor %>%
-    assay() %>%
-    set_rownames(rowRanges(rlog_deseq2_batchcor)$gene_name) %>%
+    SummarizedExperiment::assay() %>%
+    magrittr::set_rownames(
+      SummarizedExperiment::rowRanges(rlog_deseq2_batchcor)$gene_name
+    ) %>%
     t(),
   pvals = polar_pvals,
   padj = polar_padj,
@@ -111,10 +116,10 @@ colnames(polar_manual@padj) <- c("LRT", "P7vsP5", "P13vsP5", "P13vsP7")
 ### radial - Z-scores
 ### radial - logFC
 
-volcano3d <- map(
+volcano3d <- purrr::map(
   plotlist,
   \(x) {
-    volcano3D(
+    volcano3D::volcano3D(
       polar_manual,
       type = x,
       label_size = 24,
@@ -124,10 +129,10 @@ volcano3d <- map(
   }
 )
 
-radial_plotly <- map(
+radial_plotly <- purrr::map(
   plotlist,
   \(x) {
-    radial_plotly(
+    volcano3D::radial_plotly(
       polar_manual,
       type = x,
       r_axis_ticks = breaks
@@ -135,10 +140,10 @@ radial_plotly <- map(
   }
 )
 
-radial_ggplot <- map(
+radial_ggplot <- purrr::map(
   plotlist,
   \(x) {
-    radial_ggplot(
+    volcano3D::radial_ggplot(
       polar_manual,
       type = x,
       r_axis_ticks = breaks

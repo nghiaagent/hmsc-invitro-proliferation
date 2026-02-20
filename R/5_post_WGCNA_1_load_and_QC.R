@@ -5,7 +5,9 @@ here::i_am("R/5_post_WGCNA_1_load_and_QC.R")
 ########################
 
 # Import packages
+library(conflicted)
 library(DESeq2)
+library(fastcluster)
 library(here)
 library(magrittr)
 library(SummarizedExperiment)
@@ -34,53 +36,54 @@ rlog_deseq2 <- readRDS(
   )
 )
 
-order <- order(
-  rowRanges(rlog_deseq2)$baseMean,
+order <- BiocGenerics::order(
+  SummarizedExperiment::rowRanges(rlog_deseq2)$baseMean,
   decreasing = TRUE
 )
 
 rlog_deseq2 <- rlog_deseq2[order, ]
 
 rlog_deseq2 <- rlog_deseq2[
-  rowRanges(rlog_deseq2) %>%
+  SummarizedExperiment::rowRanges(rlog_deseq2) %>%
     as.data.frame() %>%
     .$entrezid %>%
-    map(\(x) !is.na(x)[[1]]) %>%
+    purrr::map(\(x) !is.na(x)[[1]]) %>%
     unlist(),
 ]
 
-idx <- rowRanges(rlog_deseq2) %>%
+idx <- SummarizedExperiment::rowRanges(rlog_deseq2) %>%
   as.data.frame() %>%
   .$entrezid %>%
-  map(\(x) x[[1]]) %>%
+  purrr::map(\(x) x[[1]]) %>%
   unlist()
 
 rlog_deseq2 <- rlog_deseq2[!duplicated(idx), ]
 idx <- idx[!duplicated(idx)]
 
 # Rename rownames to entrezid
-rlog_deseq2_counts <- assay(rlog_deseq2)
-rlog_deseq2_rowranges <- rowRanges(rlog_deseq2) %>%
+rlog_deseq2_counts <- SummarizedExperiment::assay(rlog_deseq2)
+rlog_deseq2_rowranges <- SummarizedExperiment::rowRanges(rlog_deseq2) %>%
   as.data.frame()
-rlog_deseq2_coldata <- colData(rlog_deseq2) %>%
+rlog_deseq2_coldata <- SummarizedExperiment::colData(rlog_deseq2) %>%
   as.data.frame()
 
 rownames(rlog_deseq2_counts) <- idx
 rownames(rlog_deseq2_rowranges) <- idx
 
 # Create matrix for GCN
-gcn_rlog <- t(rlog_deseq2_counts) %>%
+gcn_rlog <- rlog_deseq2_counts %>%
+  t() %>%
   as.data.frame()
 
 # Check for low quality genes and samples
 ## Should be all OK
 ## If not, remove offending genes and samples from data
-gcn_qual <- goodSamplesGenes(gcn_rlog)
+gcn_qual <- WGCNA::goodSamplesGenes(gcn_rlog)
 
 if (!gcn_qual$allOK) {
   # Print genes that are removed
   if (sum(!gcn_qual$goodGenes) > 0) {
-    printFlush(
+    dynamicTreeCut::printFlush(
       paste(
         "Removing genes:",
         paste(
@@ -93,7 +96,7 @@ if (!gcn_qual$allOK) {
 
   # Print samples that are removed
   if (sum(!gcn_qual$goodSamples) > 0) {
-    printFlush(
+    dynamicTreeCut::printFlush(
       paste(
         "Removing samples:",
         paste(
@@ -110,7 +113,6 @@ if (!gcn_qual$allOK) {
 
 # Perform sample clustering to detect outliers
 ## One outlier detected and removed (hMSC-21558_P13_D5_10-1)
-
 ## Select metadata to be shown
 metadata_select <- c(
   "cell_line",
@@ -134,21 +136,21 @@ png(
   units = "cm"
 )
 
-plotDendroAndColors(
-  dendro = hclust(
+WGCNA::plotDendroAndColors(
+  dendro = fastcluster::hclust(
     dist(gcn_rlog),
     method = "average"
   ),
   colors <- labels2colors(
     dplyr::select(
       rlog_deseq2_coldata,
-      all_of(metadata_select)
+      dplyr::all_of(metadata_select)
     ),
     colorSeq = palette_wgcna
   ),
   groupLabels = names(dplyr::select(
     rlog_deseq2_coldata,
-    all_of(metadata_select)
+    dplyr::all_of(metadata_select)
   )),
   main = "Hierarchical clustering of samples"
 )
@@ -180,21 +182,21 @@ png(
   units = "cm"
 )
 
-plotDendroAndColors(
-  dendro = hclust(
+WGCNA::plotDendroAndColors(
+  dendro = fastcluster::hclust(
     dist(gcn_rlog),
     method = "average"
   ),
-  colors = labels2colors(
+  colors = WGCNA::labels2colors(
     dplyr::select(
       rlog_deseq2_coldata,
-      all_of(metadata_select)
+      dplyr::all_of(metadata_select)
     ),
     colorSeq = palette_wgcna
   ),
   groupLabels = names(dplyr::select(
     rlog_deseq2_coldata,
-    all_of(metadata_select)
+    dplyr::all_of(metadata_select)
   )),
   main = "Hierarchical clustering of samples"
 )
@@ -212,7 +214,7 @@ powers <- c(
   )
 )
 
-gcn_sft <- pickSoftThreshold(
+gcn_sft <- WGCNA::pickSoftThreshold(
   gcn_rlog,
   powerVector = powers,
   verbose = 5
@@ -279,7 +281,7 @@ dev.off()
 gcn <- list(
   E = gcn_rlog,
   targets = rlog_deseq2_coldata %>%
-    mutate(
+    dplyr::mutate(
       cell_line = as.numeric(cell_line),
       Passage = as.numeric(Passage),
       Day = as.numeric(Day),
@@ -287,7 +289,7 @@ gcn <- list(
       run_date = as.numeric(factor(run_date)),
       timepoint_ID = as.numeric(timepoint_ID)
     ) %>%
-    select(
+    dplyr::select(
       cell_line,
       Passage,
       Day,

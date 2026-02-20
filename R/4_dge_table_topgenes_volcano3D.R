@@ -6,6 +6,7 @@ here::i_am("R/4_dge_table_topgenes_volcano3D.R")
 ########################
 
 # Import packages
+library(conflicted)
 library(DESeq2)
 library(here)
 library(openxlsx)
@@ -29,7 +30,7 @@ results_lrt <- readRDS(
     "quant_deseq2_LRT.RDS"
   )
 ) %>%
-  results(alpha = 0.05)
+  DESeq2::results(alpha = 0.05)
 
 results_lfcshrink <- readRDS(
   file = here::here(
@@ -74,13 +75,13 @@ coef_results <- list(
 # Extract genes based on their direction of regulation
 # To find genes uniquely up/downregulated at each passage
 # And find genes progressively up/downregulated throughout passages
-geneid_volcano3d <- map(
+geneid_volcano3d <- purrr::map(
   coef_volcano3d,
   \(x) {
-    map(
+    purrr::map(
       x,
       \(coefs) {
-        significance_subset(
+        volcano3D::significance_subset(
           polar_manual,
           significance = coefs,
           output = "pvals"
@@ -93,7 +94,7 @@ geneid_volcano3d <- map(
 
 # Get list of genes up/downregulated at each passage compared to the rest
 ## Single tables
-results_volcano3d_single <- map(
+results_volcano3d_single <- purrr::map(
   coef_results,
   \(x) {
     extract_joined_results(
@@ -104,20 +105,20 @@ results_volcano3d_single <- map(
       name_2 = names(x)[[2]],
       quant_deseq2
     ) %>%
-      dplyr::select(c(1, 2, 3, 4, 5, 7)) %>%
-      dplyr::rename("adj. P-val" = padj_lrt)
+      dplyr::rename("adj. P-val" = padj_lrt) %>%
+      dplyr::select(!c("ENTREZ ID", "baseMean"))
   }
 )
 
-results_volcano3d_single <- map(
+results_volcano3d_single <- purrr::map(
   geneid_volcano3d,
   \(geneid) {
-    map2(
+    purrr::map2(
       results_volcano3d_single,
       geneid,
       \(res, id) {
-        filter(res, `ENSEMBL ID` %in% id) %>%
-          dplyr::arrange(., desc(.[[5]]))
+        dplyr::filter(res, `ENSEMBL ID` %in% id) %>%
+          dplyr::arrange(., dplyr::desc(.[[5]]))
       }
     )
   }
@@ -126,36 +127,36 @@ results_volcano3d_single <- map(
 ## Paired tables
 results_volcano3d_pairs <- list(
   p5 = rbind(
-    filter(
+    dplyr::filter(
       results_volcano3d_single[["down"]][["p5"]],
       log2FoldChange_p5_p7 > 0,
       log2FoldChange_p5_p13 > 0
     ),
-    filter(
+    dplyr::filter(
       results_volcano3d_single[["up"]][["p5"]],
       log2FoldChange_p5_p7 < 0,
       log2FoldChange_p5_p13 < 0
     )
   ),
   p7 = rbind(
-    filter(
+    dplyr::filter(
       results_volcano3d_single[["up"]][["p7"]],
       log2FoldChange_p5_p7 > 0,
       log2FoldChange_p7_p13 < 0
     ),
-    filter(
+    dplyr::filter(
       results_volcano3d_single[["down"]][["p7"]],
       log2FoldChange_p5_p7 < 0,
       log2FoldChange_p7_p13 > 0
     )
   ),
   p13 = rbind(
-    filter(
+    dplyr::filter(
       results_volcano3d_single[["up"]][["p13"]],
       log2FoldChange_p7_p13 > 0,
       log2FoldChange_p5_p13 > 0
     ),
-    filter(
+    dplyr::filter(
       results_volcano3d_single[["down"]][["p13"]],
       log2FoldChange_p7_p13 < 0,
       log2FoldChange_p5_p13 < 0
@@ -165,51 +166,51 @@ results_volcano3d_pairs <- list(
 
 results_volcano3d_pairs_top <- list(
   p5 = rbind(
-    filter(
+    dplyr::filter(
       results_volcano3d_single[["down"]][["p5"]],
       log2FoldChange_p5_p7 > 0,
       log2FoldChange_p5_p13 > 0
     ) %>%
-      slice_head(n = ntop),
-    filter(
+      dplyr::slice_head(n = ntop),
+    dplyr::filter(
       results_volcano3d_single[["up"]][["p5"]],
       log2FoldChange_p5_p7 < 0,
       log2FoldChange_p5_p13 < 0
     ) %>%
-      slice_tail(n = ntop)
+      dplyr::slice_tail(n = ntop)
   ),
   p7 = rbind(
-    filter(
+    dplyr::filter(
       results_volcano3d_single[["up"]][["p7"]],
       log2FoldChange_p5_p7 > 0,
       log2FoldChange_p7_p13 < 0
     ) %>%
-      slice_head(n = ntop),
-    filter(
+      dplyr::slice_head(n = ntop),
+    dplyr::filter(
       results_volcano3d_single[["down"]][["p7"]],
       log2FoldChange_p5_p7 < 0,
       log2FoldChange_p7_p13 > 0
     ) %>%
-      slice_tail(n = ntop)
+      dplyr::slice_tail(n = ntop)
   ),
   p13 = rbind(
-    filter(
+    dplyr::filter(
       results_volcano3d_single[["up"]][["p13"]],
       log2FoldChange_p7_p13 > 0,
       log2FoldChange_p5_p13 > 0
     ) %>%
-      slice_head(n = ntop),
-    filter(
+      dplyr::slice_head(n = ntop),
+    dplyr::filter(
       results_volcano3d_single[["down"]][["p13"]],
       log2FoldChange_p7_p13 < 0,
       log2FoldChange_p5_p13 < 0
     ) %>%
-      slice_tail(n = ntop)
+      dplyr::slice_tail(n = ntop)
   )
 )
 
 # Export data
-write.xlsx(
+openxlsx::write.xlsx(
   x = results_volcano3d_pairs,
   file = here::here(
     "output",
@@ -219,7 +220,7 @@ write.xlsx(
   asTable = TRUE
 )
 
-write.xlsx(
+openxlsx::write.xlsx(
   x = results_volcano3d_pairs_top,
   file = here::here(
     "output",

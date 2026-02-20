@@ -5,6 +5,8 @@ here::i_am("R/8_plot_heatmap_evalbatchcor.R")
 ########################
 
 # Import packages
+library(ComplexHeatmap)
+library(conflicted)
 library(DESeq2)
 library(here)
 library(SummarizedExperiment)
@@ -20,7 +22,7 @@ quant_deseq2_nobatchcor <- readRDS(
   )
 )
 
-quant_rlog_nobatchcor <- rlog(quant_deseq2_nobatchcor)
+quant_rlog_nobatchcor <- DESeq2::rlog(quant_deseq2_nobatchcor)
 
 quant_deseq2_lrt <- readRDS(
   file = here::here(
@@ -33,30 +35,30 @@ quant_deseq2_lrt <- readRDS(
 
 # Get significant genes
 genes_significant <- quant_deseq2_lrt %>%
-  results() %>%
+  DESeq2::results() %>%
   as.data.frame() %>%
-  filter(padj < 0.05) %>%
+  dplyr::filter(padj < 0.05) %>%
   rownames()
 
 quant_heatmap <- quant_rlog_nobatchcor[genes_significant, ]
 
 rlog_heatmap <- quant_heatmap %>%
-  assay() %>%
+  SummarizedExperiment::assay() %>%
   t() %>%
   scale() %>%
   t()
 
 # Set color scheme and breaks
 ## For gene expression (rlog z-scores)
-col <- inferno(n = 100)
+col <- viridis::inferno(n = 100)
 breaks <- seq(-2, 2, length.out = 100)
 
 # Create extra factors for splitting columns
-split_cell_line <- colData(quant_heatmap)$cell_line
+split_cell_line <- SummarizedExperiment::colData(quant_heatmap)$cell_line
 
-split_cell_line_passage <- str_c(
-  colData(quant_heatmap)$cell_line,
-  colData(quant_heatmap)$Passage,
+split_cell_line_passage <- stringr::str_c(
+  SummarizedExperiment::colData(quant_heatmap)$cell_line,
+  SummarizedExperiment::colData(quant_heatmap)$Passage,
   sep = "_"
 ) %>%
   factor(
@@ -70,9 +72,9 @@ split_cell_line_passage <- str_c(
     )
   )
 
-split_cell_line_day <- str_c(
-  colData(quant_heatmap)$cell_line,
-  colData(quant_heatmap)$Day,
+split_cell_line_day <- stringr::str_c(
+  SummarizedExperiment::colData(quant_heatmap)$cell_line,
+  SummarizedExperiment::colData(quant_heatmap)$Day,
   sep = "_"
 ) %>%
   factor(
@@ -85,28 +87,28 @@ split_cell_line_day <- str_c(
   )
 
 # Create vectors for ordering samples in specific cases of splits
-order <- colData(quant_heatmap) %>%
+order <- SummarizedExperiment::colData(quant_heatmap) %>%
   data.frame() %>%
-  arrange(cell_line, Passage, Day, Treatment) %>%
+  dplyr::arrange(cell_line, Passage, Day, Treatment) %>%
   rownames()
 
 # Build annotation; include only necessary metadata
 ## Dataframe of annotation data
-anno <- tibble(
-  `Cell population` = colData(quant_heatmap)$cell_line,
-  `Passage` = colData(quant_heatmap)$Passage,
-  `Day` = colData(quant_heatmap)$Day,
-  `Treatment` = colData(quant_heatmap)$Treatment %>%
-    case_match(
+anno <- tibble::tibble(
+  `Cell population` = SummarizedExperiment::colData(quant_heatmap)$cell_line,
+  `Passage` = SummarizedExperiment::colData(quant_heatmap)$Passage,
+  `Day` = SummarizedExperiment::colData(quant_heatmap)$Day,
+  `Treatment` = SummarizedExperiment::colData(quant_heatmap)$Treatment %>%
+    dplyr::case_match(
       "Untreated" ~ "Control",
       "Treated" ~ "Heparin"
     ),
-  `Batch` = colData(quant_heatmap)$run_date %>%
-    fct_recode()
+  `Batch` = SummarizedExperiment::colData(quant_heatmap)$run_date %>%
+    forcats::fct_recode()
 )
 
 ## ComplexHeatmap metadata annotation object
-anno_object <- HeatmapAnnotation(
+anno_object <- ComplexHeatmap::HeatmapAnnotation(
   df = anno,
   which = "col",
   col = palette_heatmap,
@@ -148,10 +150,10 @@ anno_object <- HeatmapAnnotation(
 )
 
 # Create heatmap object
-heatmap <- Heatmap(
+heatmap <- ComplexHeatmap::Heatmap(
   rlog_heatmap,
   name = "Gene\nZ-\nscore",
-  col = colorRamp2(breaks, col),
+  col = circlize::colorRamp2(breaks, col),
   border = FALSE,
 
   # parameters for the colour-bar that represents gradient of expression
@@ -229,28 +231,28 @@ quant_deseq2_lrt <- readRDS(
 genes_significant <- quant_deseq2_lrt %>%
   results() %>%
   as.data.frame() %>%
-  filter(padj < 0.05) %>%
+  dplyr::filter(padj < 0.05) %>%
   rownames()
 
 quant_heatmap <- quant_rlog_batchcor[genes_significant, ]
 
 rlog_heatmap <- quant_heatmap %>%
-  assay() %>%
+  SummarizedExperiment::assay() %>%
   t() %>%
   scale() %>%
   t()
 
 # Set color scheme and breaks
 ## For gene expression (rlog z-scores)
-col <- inferno(n = 100)
+col <- viridis::inferno(n = 100)
 breaks <- seq(-2, 2, length.out = 100)
 
 # Create extra factors for splitting columns
-split_cell_line <- colData(quant_heatmap)$cell_line
+split_cell_line <- SummarizedExperiment::colData(quant_heatmap)$cell_line
 
-split_cell_line_passage <- str_c(
-  colData(quant_heatmap)$cell_line,
-  colData(quant_heatmap)$Passage,
+split_cell_line_passage <- stringr::str_c(
+  SummarizedExperiment::colData(quant_heatmap)$cell_line,
+  SummarizedExperiment::colData(quant_heatmap)$Passage,
   sep = "_"
 ) %>%
   factor(
@@ -264,9 +266,9 @@ split_cell_line_passage <- str_c(
     )
   )
 
-split_cell_line_day <- str_c(
-  colData(quant_heatmap)$cell_line,
-  colData(quant_heatmap)$Day,
+split_cell_line_day <- stringr::str_c(
+  SummarizedExperiment::colData(quant_heatmap)$cell_line,
+  SummarizedExperiment::colData(quant_heatmap)$Day,
   sep = "_"
 ) %>%
   factor(
@@ -279,27 +281,27 @@ split_cell_line_day <- str_c(
   )
 
 # Create vectors for ordering samples in specific cases of splits
-order <- colData(quant_heatmap) %>%
+order <- SummarizedExperiment::colData(quant_heatmap) %>%
   data.frame() %>%
-  arrange(cell_line, Passage, Day, Treatment) %>%
+  dplyr::arrange(cell_line, Passage, Day, Treatment) %>%
   rownames()
 
 # Build annotation; include only necessary metadata
 ## Dataframe of annotation data
-anno <- tibble(
-  `Cell population` = colData(quant_heatmap)$cell_line,
-  `Passage` = colData(quant_heatmap)$Passage,
-  `Day` = colData(quant_heatmap)$Day,
-  `Treatment` = colData(quant_heatmap)$Treatment %>%
-    case_match(
+anno <- tibble::tibble(
+  `Cell population` = SummarizedExperiment::colData(quant_heatmap)$cell_line,
+  `Passage` = SummarizedExperiment::colData(quant_heatmap)$Passage,
+  `Day` = SummarizedExperiment::colData(quant_heatmap)$Day,
+  `Treatment` = SummarizedExperiment::colData(quant_heatmap)$Treatment %>%
+    dplyr::case_match(
       "Untreated" ~ "Control",
       "Treated" ~ "Heparin"
     ),
-  `Batch` = colData(quant_heatmap)$run_date
+  `Batch` = SummarizedExperiment::colData(quant_heatmap)$run_date
 )
 
 ## ComplexHeatmap metadata annotation object
-anno_object <- HeatmapAnnotation(
+anno_object <- ComplexHeatmap::HeatmapAnnotation(
   df = anno,
   which = "col",
   col = palette_heatmap,
@@ -341,10 +343,10 @@ anno_object <- HeatmapAnnotation(
 )
 
 # Create heatmap object
-heatmap <- Heatmap(
+heatmap <- ComplexHeatmap::Heatmap(
   rlog_heatmap,
   name = "Gene\nZ-\nscore",
-  col = colorRamp2(breaks, col),
+  col = circlize::colorRamp2(breaks, col),
   border = FALSE,
 
   # parameters for the colour-bar that represents gradient of expression

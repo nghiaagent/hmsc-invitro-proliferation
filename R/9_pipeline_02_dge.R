@@ -4,7 +4,7 @@ here::i_am("R/9_pipeline_02_dge.R")
 # Run DGE
 ########################
 
-# Run scripts of DESeq2 pipeline
+# Run scripts of pipeline
 c(
   "2_dge.R",
   "2_dge_nofilt.R"

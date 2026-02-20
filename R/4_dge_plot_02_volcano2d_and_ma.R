@@ -5,8 +5,10 @@ here::i_am("R/4_dge_plot_02_volcano2d_and_ma.R")
 ########################
 
 # Import packages
+library(conflicted)
 library(cowplot)
 library(DESeq2)
+library(EnhancedVolcano)
 library(here)
 library(tidyverse)
 
@@ -34,7 +36,7 @@ results_lfcshrink <- readRDS(
   )
 )
 
-label_genes <- rowRanges(quant_deseq2_batchcor)$gene_name
+label_genes <- SummarizedExperiment::rowRanges(quant_deseq2_batchcor)$gene_name
 
 # Clip data
 results_clipped <- map(
@@ -54,8 +56,8 @@ results_clipped <- map(
 plots_volcano_ma <- purrr::imap(
   results_clipped,
   \(x, idx) {
-    plot_grid(
-      EnhancedVolcano(
+    cowplot::plot_grid(
+      EnhancedVolcano::EnhancedVolcano(
         x,
         lab = label_genes,
         x = "log2FoldChange",
@@ -82,7 +84,7 @@ plots_volcano_ma <- purrr::imap(
         gridlines.major = FALSE,
         gridlines.minor = FALSE
       ),
-      EnhancedVolcano(
+      EnhancedVolcano::EnhancedVolcano(
         x,
         lab = label_genes,
         x = "log2FoldChange",

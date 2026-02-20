@@ -5,8 +5,11 @@ here::i_am("R/5_post_WGCNA_4_extract_module_genes.R")
 ########################
 
 # Import packages
+library(conflicted)
+library(data.table)
 library(here)
 library(tidyverse)
+library(WGCNA)
 
 # Load data
 ## GCN with all samples
@@ -21,10 +24,10 @@ gcn <- readRDS(
 
 ## Add module assignment to gene list
 gcn$genes$module <- gcn$net$colors %>%
-  labels2colors()
+  WGCNA::labels2colors()
 
 gcn$genes <- gcn$genes %>%
-  rownames_to_column(var = "entrezid_unique")
+  tibble::rownames_to_column(var = "entrezid_unique")
 
 ## Extract gene lists
 ## entrez for GSVA
@@ -34,10 +37,10 @@ gcn_genelists_entrez <- split(
   gcn$genes$module,
   drop = TRUE
 ) %>%
-  lapply(
-    function(x) {
-      select(x, entrezid_unique) %>%
-        as_vector() %>%
+  purrr::map(
+    \(x) {
+      dplyr::select(x, entrezid_unique) %>%
+        purrr::as_vector() %>%
         unname()
     }
   )
@@ -47,20 +50,20 @@ gcn_genelists_symbol <- split(
   gcn$genes$module,
   drop = TRUE
 ) %>%
-  lapply(
-    function(x) {
-      select(x, symbol) %>%
-        as_vector() %>%
+  purrr::map(
+    \(x) {
+      dplyr::select(x, entrezid_unique) %>%
+        purrr::as_vector() %>%
         unname()
     }
   )
 
-names(gcn_genelists_entrez) <- str_c(
+names(gcn_genelists_entrez) <- stringr::str_c(
   "WGCNA_allsamples_",
   names(gcn_genelists_entrez)
 )
 
-names(gcn_genelists_symbol) <- str_c(
+names(gcn_genelists_symbol) <- stringr::str_c(
   "WGCNA_allsamples_",
   names(gcn_genelists_symbol)
 )
@@ -108,7 +111,7 @@ write_gmt(
 )
 
 # Write gene list with GENENAME to text files for STRING
-imap(
+purrr::imap(
   list(
     "turquoise_genes" = "WGCNA_allsamples_turquoise",
     "pink_genes" = "WGCNA_allsamples_pink",
@@ -117,7 +120,7 @@ imap(
     "cyan_genes" = "WGCNA_allsamples_cyan"
   ),
   \(table, name) {
-    fwrite(
+    data.table::fwrite(
       list(gcn_genelists_symbol[[table]]),
       file = here::here(
         "output",

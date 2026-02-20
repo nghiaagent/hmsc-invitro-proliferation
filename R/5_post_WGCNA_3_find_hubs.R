@@ -13,8 +13,11 @@ here::i_am("R/5_post_WGCNA_3_find_hubs.R")
 ########################
 
 # Import packages
+library(conflicted)
 library(cowplot)
+library(data.table)
 library(here)
+library(openxlsx)
 library(tidyverse)
 library(WGCNA)
 
@@ -41,13 +44,13 @@ threshold_mm <- 0.8
 threshold_gs <- 0.4
 
 # Derive module assignment
-genes_sel <- labels2colors(gcn$net$colors) %in% modules_sel
-module_assign <- labels2colors(gcn$net$colors)
+genes_sel <- WGCNA::labels2colors(gcn$net$colors) %in% modules_sel
+module_assign <- WGCNA::labels2colors(gcn$net$colors)
 
 # Derive module eigengenes
-module_eigengenes <- moduleEigengenes(
+module_eigengenes <- WGCNA::moduleEigengenes(
   gcn$E,
-  labels2colors(gcn$net$colors)
+  WGCNA::labels2colors(gcn$net$colors)
 ) %>%
   .$eigengenes
 
@@ -63,22 +66,22 @@ module_eigengenes <- moduleEigengenes(
 ### kDiff = kWithin - kOut
 ## Calculate gene significance of each gene in chosen modules
 
-scores_connectivity <- intramodularConnectivity(
-  abs(cor(gcn$E, use = "p"))^6,
+scores_connectivity <- WGCNA::intramodularConnectivity(
+  abs(WGCNA::cor(gcn$E, use = "p"))^6,
   module_assign
 ) %>%
   cbind(as.numeric(
-    cor(
+    WGCNA::cor(
       gcn$targets$Passage,
       gcn$E,
       use = "p"
     )
   )) %>%
-  rename("gene_significance" = 5) %>%
+  dplyr::rename("gene_significance" = 5) %>%
   cbind(module_assign)
 
 ## Calculate module membership for each gene
-scores_membership <- signedKME(
+scores_membership <- WGCNA::signedKME(
   gcn$E,
   module_eigengenes,
   outputColumnName = "membership_"
@@ -91,15 +94,13 @@ scores_hub <- cbind(
 )
 
 scores_hub_sel <- scores_hub[genes_sel, ] %>%
-  mutate(
-    module_assign = factor(
-      module_assign,
-      levels = modules_sel
-    )
+  dplyr::mutate(
+    module_assign = module_assign %>%
+      factor(levels = modules_sel)
   )
 
 ## Plot GS against intramodular connectivity
-plot_scores_connectivity <- ggscatter(
+plot_scores_connectivity <- ggpubr::ggscatter(
   data = scores_hub_sel,
   x = "kWithin",
   y = "gene_significance",
@@ -109,14 +110,14 @@ plot_scores_connectivity <- ggscatter(
   alpha = 0.1,
   size = 1
 ) +
-  stat_cor() +
-  scale_color_manual(values = modules_sel) +
-  labs(
+  ggpubr::stat_cor() +
+  ggplot2::scale_color_manual(values = modules_sel) +
+  ggplot2::labs(
     x = "Intramodular connectivity",
     y = "Gene significance for passage"
   ) +
-  theme(legend.position = "none") +
-  facet_wrap(
+  ggplot2::theme(legend.position = "none") +
+  ggplot2::facet_wrap(
     ~module_assign,
     ncol = 4,
     nrow = 1,
@@ -131,7 +132,7 @@ plot_scores_connectivity <- ggscatter(
   )
 
 ## Plot GS against module membership
-plots_module_membership <- imap(
+plots_module_membership <- purrr::imap(
   list(
     "turquoise" = "membership_turquoise",
     "pink" = "membership_pink",
@@ -139,7 +140,7 @@ plots_module_membership <- imap(
     "red" = "membership_red"
   ),
   \(x, color) {
-    ggscatter(
+    ggpubr::ggscatter(
       data = scores_hub_sel,
       x = x,
       y = "gene_significance",
@@ -149,16 +150,16 @@ plots_module_membership <- imap(
       alpha = 0.1,
       size = 1
     ) +
-      geom_vline(xintercept = threshold_mm) +
-      geom_hline(yintercept = c(-1 * threshold_gs, threshold_gs)) +
-      stat_cor() +
-      labs(
-        x = str_c(
+      ggplot2::geom_vline(xintercept = threshold_mm) +
+      ggplot2::geom_hline(yintercept = c(-1 * threshold_gs, threshold_gs)) +
+      ggpubr::stat_cor() +
+      ggplot2::labs(
+        x = stringr::str_c(
           "Membership in\n",
           color,
           " module"
         ) %>%
-          str_replace_all(c(
+          stringr::str_replace_all(c(
             "turquoise" = "pro-senescence",
             "pink" = "differentiation potential",
             "blue" = "proliferative",
@@ -166,13 +167,13 @@ plots_module_membership <- imap(
           )),
         y = "Gene significance for passage"
       ) +
-      theme(legend.position = "none")
+      ggplot2::theme(legend.position = "none")
   }
 )
 
-grid <- plot_grid(
+grid <- cowplot::plot_grid(
   plot_scores_connectivity,
-  plot_grid(
+  cowplot::plot_grid(
     plotlist = plots_module_membership,
     ncol = 4,
     nrow = 1
@@ -185,60 +186,60 @@ grid <- plot_grid(
 )
 
 ## Screen based on GS and MM metrics in each module
-scores_hub_turquoise <- filter(
-  scores_hub,
-  abs(gene_significance) > threshold_gs,
-  membership_turquoise > threshold_mm,
-  module_assign == "turquoise"
-) %>%
-  select(gene_significance, membership_turquoise, kWithin) %>%
-  mutate(entrezid = rownames(.)) %>%
-  left_join(
-    rownames_to_column(gcn$genes),
+scores_hub_turquoise <- scores_hub %>%
+  dplyr::filter(
+    abs(gene_significance) > threshold_gs,
+    membership_turquoise > threshold_mm,
+    module_assign == "turquoise"
+  ) %>%
+  dplyr::select(gene_significance, membership_turquoise, kWithin) %>%
+  dplyr::mutate(entrezid = rownames(.)) %>%
+  dplyr::left_join(
+    tibble::rownames_to_column(gcn$genes),
+    by = dplyr::join_by("entrezid" == "rowname")
+  )
+
+scores_hub_pink <- scores_hub %>%
+  dplyr::filter(
+    abs(gene_significance) > threshold_gs,
+    membership_turquoise > threshold_mm,
+    module_assign == "pink"
+  ) %>%
+  dplyr::select(gene_significance, membership_pink, kWithin) %>%
+  dplyr::mutate(entrezid = rownames(.)) %>%
+  dplyr::left_join(
+    tibble::rownames_to_column(gcn$genes),
+    by = dplyr::join_by("entrezid" == "rowname")
+  )
+
+scores_hub_blue <- scores_hub %>%
+  dplyr::filter(
+    abs(gene_significance) > threshold_gs,
+    membership_turquoise > threshold_mm,
+    module_assign == "blue"
+  ) %>%
+  dplyr::select(gene_significance, membership_blue, kWithin) %>%
+  dplyr::mutate(entrezid = rownames(.)) %>%
+  dplyr::left_join(
+    tibble::rownames_to_column(gcn$genes),
     by = join_by("entrezid" == "rowname")
   )
 
-scores_hub_pink <- filter(
-  scores_hub,
-  abs(gene_significance) > threshold_gs,
-  membership_pink > threshold_mm,
-  module_assign == "pink"
-) %>%
-  select(gene_significance, membership_pink, kWithin) %>%
-  mutate(entrezid = rownames(.)) %>%
-  left_join(
-    rownames_to_column(gcn$genes),
-    by = join_by("entrezid" == "rowname")
-  )
-
-scores_hub_blue <- filter(
-  scores_hub,
-  abs(gene_significance) > threshold_gs,
-  membership_blue > threshold_mm,
-  module_assign == "blue"
-) %>%
-  select(gene_significance, membership_blue, kWithin) %>%
-  mutate(entrezid = rownames(.)) %>%
-  left_join(
-    rownames_to_column(gcn$genes),
-    by = join_by("entrezid" == "rowname")
-  )
-
-scores_hub_red <- filter(
-  scores_hub,
-  abs(gene_significance) > threshold_gs,
-  membership_red > threshold_mm,
-  module_assign == "red"
-) %>%
-  select(gene_significance, membership_red, kWithin) %>%
-  mutate(entrezid = rownames(.)) %>%
-  left_join(
-    rownames_to_column(gcn$genes),
-    by = join_by("entrezid" == "rowname")
+scores_hub_red <- scores_hub %>%
+  dplyr::filter(
+    abs(gene_significance) > threshold_gs,
+    membership_turquoise > threshold_mm,
+    module_assign == "red"
+  ) %>%
+  dplyr::select(gene_significance, membership_red, kWithin) %>%
+  dplyr::mutate(entrezid = rownames(.)) %>%
+  dplyr::left_join(
+    tibble::rownames_to_column(gcn$genes),
+    by = dplyr::join_by("entrezid" == "rowname")
   )
 
 # Export data
-write.xlsx(
+openxlsx::write.xlsx(
   list(
     "Turquoise hub candidates" = scores_hub_turquoise,
     "Red hub candidates" = scores_hub_red,
@@ -265,7 +266,7 @@ ggsave(
   height = 6.5
 )
 
-imap(
+purrr::imap(
   list(
     "Turquoise hub candidates" = scores_hub_turquoise,
     "Pink hub candidates" = scores_hub_pink,
@@ -273,7 +274,7 @@ imap(
     "Red hub candidates" = scores_hub_red
   ),
   \(table, name) {
-    fwrite(
+    data.table::fwrite(
       list(table$symbol),
       file = here::here(
         "output",

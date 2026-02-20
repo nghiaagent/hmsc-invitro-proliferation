@@ -1,14 +1,16 @@
-here::i_am("R/9_pipeline_03_plot_pre_DE.R")
+here::i_am("R/9_pipeline_05_WGCNA.R")
 
 ########################
-# Run figures for pre-DE
+# Run WGCNA
 ########################
 
 # Run scripts of pipeline
 c(
-  "3_dge_extract_genes_ORA.R",
-  "3_plot_heatmap.R",
-  "3_plot_PCA.R"
+  "5_post_WGCNA_1_load_and_QC.R",
+  "5_post_WGCNA_2_construct_net.R",
+  "5_post_WGCNA_3_find_hubs.R",
+  "5_post_WGCNA_4_extract_module_genes.R",
+  "5_post_WGCNA_5_export_Cytoscape.R"
 ) %>%
   walk(
     \(x) {

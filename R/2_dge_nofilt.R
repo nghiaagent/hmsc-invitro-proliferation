@@ -6,6 +6,7 @@ here::i_am("R/2_dge_nofilt.R")
 ########################
 
 # Import packages
+library(conflicted)
 library(DESeq2)
 library(edgeR)
 library(here)
@@ -23,9 +24,9 @@ quant_deseq2 <- readRDS(here::here(
 
 # Perform minimal filtering
 keep <- quant_deseq2 %$%
-  filterByExpr(
-    y = counts(.),
-    group = colData(.)$condition_ID,
+  edgeR::filterByExpr(
+    y = DESeq2::counts(.),
+    group = SummarizedExperiment::colData(.)$condition_ID,
     min.count = 10,
     min.total.count = 15
   )
@@ -35,24 +36,24 @@ quant_deseq2 <- quant_deseq2[keep, ]
 # Perform batch correction
 ## Batch correction + factor
 quant_deseq2_batchcor <- quant_deseq2
-design(quant_deseq2_batchcor) <- ~ condition_ID + cell_line + run_date
-counts(quant_deseq2_batchcor) <- quant_deseq2_batchcor %$%
+DESeq2::design(quant_deseq2_batchcor) <- ~ condition_ID + cell_line + run_date
+DESeq2::counts(quant_deseq2_batchcor) <- quant_deseq2_batchcor %$%
   sva::ComBat_seq(
-    counts(.),
-    batch = colData(.)$run_date,
+    DESeq2::counts(.),
+    batch = SummarizedExperiment::colData(.)$run_date,
     covar_mod = model.matrix(~ condition_ID + cell_line, data = colData(.))
   ) %>%
   `storage.mode<-`(., "integer")
 
 # Run DESeq2
 quant_deseq2_batchcor <- quant_deseq2_batchcor %>%
-  DESeq()
+  DESeq2::DESeq()
 
 # Obtain results
 results <- list_contrasts_deseq2 %>%
-  map(
+  purrr::map(
     \(contrast) {
-      results(
+      DESeq2::results(
         quant_deseq2_batchcor,
         contrast = contrast,
         alpha = 0.05

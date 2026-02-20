@@ -1,5 +1,12 @@
 here::i_am("R/0_define_contrasts.R")
 
+########################
+# Define DESeq2 contrasts
+########################
+
+# Import packages
+library(conflicted)
+
 # Define contrasts for DESeq2
 list_contrasts_deseq2 <- list(
   ## Coefs 1 - 6: Treatment at each timepoint

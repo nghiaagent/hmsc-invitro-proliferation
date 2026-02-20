@@ -6,6 +6,7 @@ here::i_am("R/3_dge_extract_genes_ORA.R")
 ########################
 
 # Import packages
+library(conflicted)
 library(data.table)
 library(DESeq2)
 library(here)
@@ -34,7 +35,7 @@ results_lfcshrink <- readRDS(
 # ENSEMBL IDs or ENTREZ IDs are to be entered into g:Profiler
 # Symbol is to be entered into STRING
 results_lfcshrink_format <- results_lfcshrink %>%
-  map(
+  purrr::map(
     \(x) {
       extract_topgenes(
         results = x,
@@ -47,20 +48,20 @@ results_lfcshrink_format <- results_lfcshrink %>%
   )
 
 results_ensembl_ids <- results_lfcshrink_format %>%
-  map(\(x) x$`ENSEMBL ID`)
+  purrr::map(\(x) x$`ENSEMBL ID`)
 
 results_entrez_ids <- results_lfcshrink_format %>%
-  map(\(x) x$`ENTREZ ID`)
+  purrr::map(\(x) x$`ENTREZ ID`)
 
 results_symbol <- results_lfcshrink_format %>%
-  map(\(x) x$Symbol)
+  purrr::map(\(x) x$Symbol)
 
 # Export data
 ## Export ENSEMBL IDs
-imap(
+purrr::imap(
   results_ensembl_ids,
   \(x, idx) {
-    fwrite(
+    data.table::fwrite(
       list(x),
       file = here::here(
         "output",
@@ -72,10 +73,10 @@ imap(
 )
 
 ## Export gene names
-imap(
+purrr::imap(
   results_symbol,
   \(x, idx) {
-    fwrite(
+    data.table::fwrite(
       list(x),
       file = here::here(
         "output",
@@ -87,10 +88,10 @@ imap(
 )
 
 ## Export ENTREZ ID
-imap(
+purrr::imap(
   results_entrez_ids,
   \(x, idx) {
-    fwrite(
+    data.table::fwrite(
       list(x),
       file = here::here(
         "output",

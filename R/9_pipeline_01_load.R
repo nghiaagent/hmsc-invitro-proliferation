@@ -1,10 +1,10 @@
 here::i_am("R/9_pipeline_01_load.R")
 
 ########################
-# Run DGE
+# Run RNA-seq loading
 ########################
 
-# Run scripts of DESeq2 pipeline
+# Run scripts of pipeline
 c(
   "1_pre_01_quant_import.R",
   "1_pre_02_QC_plots.R"

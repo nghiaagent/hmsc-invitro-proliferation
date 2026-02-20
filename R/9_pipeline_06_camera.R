@@ -1,14 +1,15 @@
-here::i_am("R/9_pipeline_03_plot_pre_DE.R")
+here::i_am("R/9_pipeline_06_camera.R")
 
 ########################
-# Run figures for pre-DE
+# Run CAMERA gene set analysis
 ########################
 
 # Run scripts of pipeline
 c(
-  "3_dge_extract_genes_ORA.R",
-  "3_plot_heatmap.R",
-  "3_plot_PCA.R"
+  "6_post_camera_01_prepare.R",
+  "6_post_camera_02_perform.R",
+  "6_post_camera_03_plot.R",
+  "6_post_camera_04_plot_thesis_grid.R"
 ) %>%
   walk(
     \(x) {
