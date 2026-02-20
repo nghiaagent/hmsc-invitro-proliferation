@@ -1,4 +1,4 @@
-here::i_am("R/9_pipeline_DGE.R")
+here::i_am("R/9_pipeline_03_plot_pre_DE.R")
 
 ########################
 # Run DGE
