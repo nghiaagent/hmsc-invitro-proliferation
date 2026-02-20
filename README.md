@@ -1,33 +1,39 @@
-# 2023-Transcriptome-hMSC
+# Genomic Profiling of Drivers of hMSC in vitro Proliferation and
+Differentiation Potential
 
-## About
 
--   Files suffixed with `.old` are superceded.
+# Introduction
 
-## How to run
+This repository contains the source code for the thesis project: Genomic
+Profiling of Drivers of hMSC *in vitro* Proliferation and
+Differentiation Potential.
 
-1.  Clone this repository
+See the thesis here: <https://eprints.qut.edu.au/262996/>
 
-    -   ⚠️ cloning via RStudio highly recommended
+# Prerequisites
 
-2.  Add required data to specified folders under `/input`
+Make sure the following are installed on your system:
 
-    -   Mandatory:
+- Quarto
+- R 4.5.1
 
-        -   Data owned by Stem Cell and Neurogenesis Group - QUT
+# Reproduciblity
 
-            -   `annotation`
+To reproduce the thesis figures:
 
-            -   `cDNA`
+- Install all prerequisites software.
+- Clone the repository; Positron is recommended for this purpose.
+- Request a copy of our dataset via
+  <minhnghia.nguyen@connect.qut.edu.au> and place it in the `input`
+  folder as instructed.
+- Run the following in an R terminal to download all packages:
 
-            -   `cDNA_ncRNA_ENSEMBL`
+``` r
+renv::restore()
+```
 
-        -   MSigDB gene sets
+- Run the following in an R terminal to perform all analyses:
 
-            -   `genesets`
-
-3.  Open `2023-Transcriptome-hMSC.Rproj` in RStudio
-
-    -   If this repo was cloned using RStudio, this project is already open.
-
-4.  Source pipeline scripts at `/scripts/9_*` to perform analysis
+``` r
+source(here::here("R/9_pipeline_09_firstrun.R"))
+```
