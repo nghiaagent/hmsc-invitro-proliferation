@@ -1,15 +1,3 @@
----
-title: "hMSC Transcriptome Report"
-author: "Mitchell Nguyen"
-date: "`r Sys.Date()`"
-output: bookdown::gitbook
-documentclass: book
-geometry: margin=2cm
-biblio-style: apalike
-link-citations: yes
-bibliography: references.bib
----
-
 # Preface
 
 ## Methods
@@ -36,12 +24,13 @@ The normalised transcriptome data was used to build a model in limma-voom [@ritc
 
 #### Model matrix specifications
 
-```{r echo=FALSE}
+```{r} 
+#| echo: False
 fit_contrasts <- readRDS(file.path(
-    "output",
-    "data_expression",
-    "post_DGE",
-    "fit_contrasts.RDS"
+  "output",
+  "data_expression",
+  "post_DGE",
+  "fit_contrasts.RDS"
 ))
 
 fit_contrasts[["design"]]
@@ -49,7 +38,8 @@ fit_contrasts[["design"]]
 
 #### Contrast matrix specifications
 
-```{r echo=FALSE}
+```r 
+#| echo: False
 fit_contrasts[["contrasts"]]
 ```
 
