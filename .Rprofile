@@ -16,13 +16,10 @@ c(
   "0_define_colours.R",
   "0_define_contrasts.R"
 ) %>%
-  purrr::walk(
-    \(x) {
-      message(paste0("Sourcing ", here::here("scripts", x)))
-      source(here::here("R", x), echo = FALSE, verbose = FALSE)
-    },
-    .progress = TRUE
-  )
+  purrr::walk(\(x) {
+    message(paste0("Sourcing ", here::here("scripts", x)))
+    source(here::here("R", x), echo = FALSE, verbose = FALSE)
+  })
 
 # Limit number of cores used due to memory issues on laptops.
 BiocParallel::register(

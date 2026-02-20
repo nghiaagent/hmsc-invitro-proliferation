@@ -1,4 +1,4 @@
-here::i_am("R/9_pipeline_DGE.R")
+here::i_am("R/9_pipeline_03_plot_pre_DE.R")
 
 ########################
 # Run DGE
@@ -16,7 +16,7 @@ c(
         "Sourcing ",
         here::here("scripts", x)
       ))
-      source(here::here("R", x), echo = TRUE, verbose = TRUE)
+      source(here::here("R", x), echo = TRUE, verbose = FALSE)
     },
     .progress = TRUE
   )
