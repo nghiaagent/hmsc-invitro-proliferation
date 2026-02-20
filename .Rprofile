@@ -23,7 +23,7 @@ c(
 
 # Limit number of cores used due to memory issues on laptops.
 BiocParallel::register(
-  SnowParam(workers = 4),
+  SnowParam(workers = 1),
   default = TRUE
 )
 
