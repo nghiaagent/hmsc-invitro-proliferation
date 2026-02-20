@@ -120,3 +120,32 @@ palette_quadrant <- c(
   "Both" = palette()[[8]] %>% lighten(0.4),
   "ns" = palette()[[8]] %>% darken(0.4)
 )
+
+# Palette 5: For WGCNA
+palette_wgcna <- c(
+  "D3" = hcl.colors(5, palette = "Purples 3")[3],
+  "D5" = hcl.colors(5, palette = "Purples 3")[1],
+  "hMSC-20176" = palette.colors()[1],
+  "hMSC-21558" = palette.colors()[9],
+  "IanAmpliseqTranscriptome550Chip1434" = palette.colors(
+    palette = "Polychrome 36"
+  )[[3]],
+  "IanAmpliseqTranscriptome550Chip2435" = palette.colors(
+    palette = "Polychrome 36"
+  )[[4]],
+  "IanAmpliseqtranscriptome550Chip3437" = palette.colors(
+    palette = "Polychrome 36"
+  )[[5]],
+  "P13" = palette_merge[[5]],
+  "P5" = palette_merge[[1]],
+  "P7" = palette_merge[[3]],
+  "R20171107152458" = palette.colors(palette = "Polychrome 36")[[6]],
+  "R20171202120807" = palette.colors(palette = "Polychrome 36")[[7]],
+  "R20171204095805" = palette.colors(palette = "Polychrome 36")[[8]],
+  "R20171204123655" = palette.colors(palette = "Polychrome 36")[[9]],
+  "R20171205085758" = palette.colors(palette = "Polychrome 36")[[10]],
+  "R20171205113620" = palette.colors(palette = "Polychrome 36")[[11]],
+  "R20180131074914" = palette.colors(palette = "Polychrome 36")[[12]],
+  "Treated" = hcl.colors(5, palette = "Reds 3")[1],
+  "Untreated" = hcl.colors(5, palette = "Reds 3")[3]
+)
