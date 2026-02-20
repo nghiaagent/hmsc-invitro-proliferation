@@ -1,7 +1,7 @@
 here::i_am("R/8_evaluate_camera.R")
 
 ########################
-# Source relevant scripts
+# Evaluate CAMERA
 ########################
 
 # Import packages
@@ -10,12 +10,14 @@ library(here)
 library(magrittr)
 library(tidyverse)
 
+# Source relevant scripts
 source(here::here(
-  "scripts",
-  "6_post_camera_function.R"
+  "R",
+  "6_post_camera_01_prepare.R"
 ))
 
 # Run camera
+## With inter-gene correlation
 camera_all_withigc <- purrr::map(
   seq_len(ncol(contrasts)),
   \(x) {
@@ -32,6 +34,7 @@ camera_all_withigc <- purrr::map(
 ) %>%
   set_names(colnames(contrasts))
 
+## Without inter-gene correlation
 camera_all_noigc <- purrr::map(
   seq_len(ncol(contrasts)),
   \(x) {
@@ -73,6 +76,7 @@ list_camera <- camera_all_withigc %$%
     return(.results)
   })
 
+## Build plots
 plots_camera <- list_camera %>%
   imap(\(.results, .name) {
     .plot <- .results %>%

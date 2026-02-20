@@ -1,17 +1,28 @@
 here::i_am("R/8_evaluate_clusterprofiler.R")
 
 ########################
-# Set variables
+# Evaluate clusterProfiler
 ########################
 
 # Import packages
+library(clusterProfiler)
 library(DESeq2)
 library(here)
+library(org.Hs.eg.db)
 library(tidyverse)
 
+# Set variables
+## Cutoff values
 alpha <- 0.05
 cutoff_logfc <- 10
 cutoff_padj <- 1e-15
+
+## Define contrasts
+contrasts_pilot <- c(
+  "P7vsP5_UT_D3",
+  "P13vsP7_UT_D3",
+  "P13vsP5_UT_D3"
+)
 
 # Load data
 results_deseq2 <- readRDS(
@@ -39,16 +50,10 @@ rowranges <- readRDS(
     entrezid
   )
 
-contrasts_pilot <- c(
-  "P7vsP5_UT_D3",
-  "P13vsP7_UT_D3",
-  "P13vsP5_UT_D3"
-)
-
 # Get desired contrasts, sort data
 results_deseq2_pilot <- results_deseq2[contrasts_pilot] %>%
-  map(\(.results) {
-    .results <- .results %>%
+  map(\(results) {
+    results <- results %>%
       as.data.frame() %>%
       rownames_to_column(var = "gene_id") %>%
       as_tibble() %>%
@@ -59,25 +64,25 @@ results_deseq2_pilot <- results_deseq2[contrasts_pilot] %>%
       )
 
     # Return data
-    return(.results)
+    return(results)
   })
 
 ## Create gene lists for ClusterProfiler
 genelists_pilot <- results_deseq2_pilot %>%
-  map(\(.results) {
-    .results <- .results %>%
+  map(\(results) {
+    results <- results %>%
       dplyr::arrange(desc(stat))
 
-    .gene_list <- .results$log2FoldChange %>%
-      set_names(.results$gene_id)
+    gene_list <- results$log2FoldChange %>%
+      set_names(results$gene_id)
 
     # Return data
-    return(.gene_list)
+    return(gene_list)
   })
 
 # Set up function for GSEA on GO gene sets
 run_fgsea <- function(gene_list) {
-  .gsea_gobp <- gseGO(
+  gsea_gobp <- gseGO(
     gene_list,
     OrgDb = org.Hs.eg.db,
     keyType = "ENSEMBL",
@@ -92,7 +97,7 @@ run_fgsea <- function(gene_list) {
     )
 
   # Return data
-  return(.gsea_gobp)
+  return(gsea_gobp)
 }
 
 # Run fgsea
@@ -143,7 +148,7 @@ plots_fgsea_worm <- results_fgsea %>%
     }
   })
 
-# Get volcano + MA plots of genes within sus sets
+# Get volcano + MA plots of genes within suspicious sets
 ## Get geneids
 gene_id_sus <- c(
   list_gmt[["GOBP"]][["GOBP_SENSORY_PERCEPTION_OF_SMELL"]]@geneIds,

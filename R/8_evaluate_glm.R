@@ -1,8 +1,7 @@
 here::i_am("R/8_evaluate_glm.R")
 
 ########################
-# Set variables
-## Cutoffs for volcano and quadrant plots
+# Evaluate GLM methods (edgeR vs limma vs DESeq2)
 ########################
 
 # Import packages
@@ -15,6 +14,8 @@ library(magrittr)
 library(SummarizedExperiment)
 library(tidyverse)
 
+# Set variables
+## Cutoffs for volcano and quadrant plots
 cutoff_logfc <- 6
 cutoff_logfc_neg <- cutoff_logfc * -1
 cutoff_padj <- 1e-15
@@ -106,8 +107,8 @@ quant_limma <- quant_edger %>%
 quant_deseq2 <- quant_deseq2 %>%
   DESeq()
 
-# Obtain results
-## No LFC shrinking
+## Obtain results
+### No LFC shrinking
 results_deseq2 <- list_contrasts_deseq2_pilot %>%
   map(\(contrast) {
     results(

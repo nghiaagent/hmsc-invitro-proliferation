@@ -2,7 +2,6 @@ here::i_am("R/8_plot_heatmap_evalbatchcor.R")
 
 ########################
 # Plot significant DEGs as a heatmap
-# Load data (rlog)
 ########################
 
 # Import packages
@@ -11,6 +10,7 @@ library(here)
 library(SummarizedExperiment)
 library(tidyverse)
 
+# Load data
 quant_deseq2_nobatchcor <- readRDS(
   file = here::here(
     "output",

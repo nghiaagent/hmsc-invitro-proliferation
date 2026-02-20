@@ -1,7 +1,7 @@
 here::i_am("R/8_evaluate_batchcor.R")
 
 ########################
-# Load data
+# Evaluate batch correction methods
 ########################
 
 # Import packages
@@ -9,8 +9,10 @@ library(DESeq2)
 library(here)
 library(magrittr)
 library(SummarizedExperiment)
+library(sva)
 library(tidyverse)
 
+# Load data
 quant_deseq2 <- readRDS(here::here(
   "output",
   "data_expression",
@@ -22,7 +24,7 @@ quant_deseq2 <- readRDS(here::here(
 quant_deseq2_batchcor <- quant_deseq2
 design(quant_deseq2_batchcor) <- ~ condition_ID + cell_line + run_date
 counts(quant_deseq2_batchcor) <- quant_deseq2_batchcor %$%
-  sva::ComBat_seq(
+  ComBat_seq(
     counts(.),
     batch = colData(.)$run_date,
     covar_mod = model.matrix(~ condition_ID + cell_line, data = colData(.))
@@ -61,26 +63,21 @@ results_pilot <- list_contrasts_deseq2[
     "P13vsP5_UT_D3"
   )
 ] %>%
-  imap(
-    \(contrast, name_contrast) {
-      imap(
-        list_quant,
-        \(quant, name_quant) {
-          quant %>%
-            results(
-              contrast = contrast,
-              filterFun = ihw,
-              alpha = 0.05
-            ) %>%
-            as.data.frame() %>%
-            rownames_to_column(var = "ensembl_id") %>%
-            mutate(method = name_quant) %>%
-            mutate(contrast = name_contrast)
-        }
-      ) %>%
-        rbindlist()
-    }
-  ) %>%
+  imap(\(contrast, name_contrast) {
+    imap(list_quant, \(quant, name_quant) {
+      quant %>%
+        results(
+          contrast = contrast,
+          filterFun = ihw,
+          alpha = 0.05
+        ) %>%
+        as.data.frame() %>%
+        rownames_to_column(var = "ensembl_id") %>%
+        mutate(method = name_quant) %>%
+        mutate(contrast = name_contrast)
+    }) %>%
+      rbindlist()
+  }) %>%
   rbindlist() %>%
   # Convert method and contrasts to named factors for easier plotting
   mutate(
