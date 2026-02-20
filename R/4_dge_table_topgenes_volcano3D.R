@@ -1,5 +1,14 @@
+here::i_am("R/4_dge_table_topgenes_volcano3D.R")
+
+########################
 # Extract genes from 3D volcano plot
 # Load data
+########################
+
+# Import packages
+library(DESeq2)
+library(here)
+library(tidyverse)
 
 quant_deseq2 <- readRDS(
   file = here::here(

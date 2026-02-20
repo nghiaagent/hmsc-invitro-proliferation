@@ -1,4 +1,15 @@
+here::i_am("R/7_post_GSVA_8_interaction.R")
+
+########################
 # Load data
+########################
+
+# Import packages
+library(DESeq2)
+library(here)
+library(limma)
+library(tidyverse)
+
 fit_gsva <- readRDS(
   here::here(
     "output",

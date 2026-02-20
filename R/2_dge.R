@@ -1,6 +1,17 @@
+here::i_am("R/2_dge.R")
+
+########################
 # Load dataset
 # Remember that experimental design is already embedded
 # in the dataset and model - only need to extract comparisons
+########################
+
+# Import packages
+library(DESeq2)
+library(here)
+library(magrittr)
+library(SummarizedExperiment)
+library(tidyverse)
 
 quant_deseq2 <- readRDS(here::here(
   "output",

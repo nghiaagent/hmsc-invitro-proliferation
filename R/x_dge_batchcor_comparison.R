@@ -1,8 +1,18 @@
+here::i_am("R/x_dge_batchcor_comparison.R")
+
+########################
 # Compare F-statistics produced by
 # Non batch corrected data, with modelled batch (fit_contrasts_1)
 # Batch corrected data, without modelling for batch (fit_contrasts_2)
 # Batch corrected data, with modelling for batch (fit_contrasts_3)
 # Run DGE script first
+########################
+
+# Import packages
+library(cowplot)
+library(here)
+library(limma)
+library(tidyverse)
 
 design_nobatch <- model.matrix(~ condition_ID + cell_line, data = table_design)
 

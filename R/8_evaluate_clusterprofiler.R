@@ -1,4 +1,14 @@
+here::i_am("R/8_evaluate_clusterprofiler.R")
+
+########################
 # Set variables
+########################
+
+# Import packages
+library(DESeq2)
+library(here)
+library(tidyverse)
+
 alpha <- 0.05
 cutoff_logfc <- 10
 cutoff_padj <- 1e-15

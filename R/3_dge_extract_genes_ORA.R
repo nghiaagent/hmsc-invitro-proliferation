@@ -1,5 +1,14 @@
+here::i_am("R/3_dge_extract_genes_ORA.R")
+
+########################
 # Extract gene names from DESeq fit for ORA using g:Profiler
 # All contrasts
+########################
+
+# Import packages
+library(DESeq2)
+library(here)
+library(tidyverse)
 
 # Load data
 quant_deseq2 <- readRDS(

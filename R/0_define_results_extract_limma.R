@@ -1,4 +1,16 @@
-## Create function to join 2 toptables from a fit object and contrasts
+here::i_am("R/0_define_results_extract_limma.R")
+
+########################
+# Define function to join 2 toptables from a fit object and contrasts
+########################
+
+# Import packages
+library(DESeq2)
+library(here)
+library(limma)
+library(tidyverse)
+
+# Define function
 extract_joined_results_limma <- function(
   fit,
   contrast_1,

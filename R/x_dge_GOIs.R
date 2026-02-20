@@ -1,4 +1,12 @@
+here::i_am("R/x_dge_GOIs.R")
+
+########################
 # Load data
+########################
+
+# Import packages
+library(here)
+library(tidyverse)
 
 source("./scripts/dge_cellpops_as_fixed.R")
 

@@ -1,4 +1,13 @@
+here::i_am("R/6_post_camera_plot.R")
+
+########################
 # Load data
+########################
+
+# Import packages
+library(DESeq2)
+library(here)
+library(tidyverse)
 
 results <- readRDS(
   file = here::here(

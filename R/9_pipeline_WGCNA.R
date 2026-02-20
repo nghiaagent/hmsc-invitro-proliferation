@@ -1,4 +1,13 @@
+here::i_am("R/9_pipeline_WGCNA.R")
+
+########################
 # Run scripts of WGCNA pipeline
+########################
+
+# Import packages
+library(here)
+library(limma)
+library(tidyverse)
 
 list_files <- c(
   "0_meta_env_prep.R",

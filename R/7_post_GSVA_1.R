@@ -1,4 +1,17 @@
+here::i_am("R/7_post_GSVA_1.R")
+
+########################
 # Load data
+########################
+
+# Import packages
+library(DESeq2)
+library(here)
+library(limma)
+library(magrittr)
+library(SummarizedExperiment)
+library(tidyverse)
+library(WGCNA)
 
 rlog_deseq2 <- readRDS(
   file = here::here(

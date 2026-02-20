@@ -1,9 +1,17 @@
+here::i_am("R/6_post_camera_plot_thesis_grid.R")
+
+########################
 # Grid of barcode plots
+########################
+
+# Import packages
+library(cowplot)
+library(here)
+library(tidyverse)
 
 ## Between passages - highlight on P+13 pathways
 ## x-axis: 5v7; 7v13; 5v13
 ## y-axis: E2F targets, G2M checkpoint, IFNa, IFNg, MYCV1, MYCV2
-
 conditions <- c(
   "P7vsP5_UT_D3",
   "P13vsP7_UT_D3",

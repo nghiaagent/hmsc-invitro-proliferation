@@ -1,5 +1,14 @@
+here::i_am("R/7_post_GSVA_7_thesis_grid.R")
+
+########################
 # Load data
 ## Plots for passages
+########################
+
+# Import packages
+library(here)
+library(tidyverse)
+
 plots_poi_passage <- readRDS(
   here::here(
     "output",

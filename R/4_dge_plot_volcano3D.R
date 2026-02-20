@@ -1,12 +1,21 @@
+here::i_am("R/4_dge_plot_volcano3D.R")
+
+########################
 # Supply p-values to the 3D volcano plot
 ## First column: ANOVA p-values
 ## Remaining columns: Comparisons
 ## 13: A vs B (P5 vs P7)
 ## 15: A vs C (P5 vs P13)
 ## 14: B vs C (P7 vs P13)
+########################
+
+# Import packages
+library(DESeq2)
+library(here)
+library(SummarizedExperiment)
+library(tidyverse)
 
 # Define axis specs
-
 plotlist <- list(
   z_score = 1,
   logFC = 2

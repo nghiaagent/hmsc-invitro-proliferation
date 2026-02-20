@@ -1,4 +1,14 @@
+here::i_am("R/4_dge_plot_quadrant.R")
+
+########################
 # Load data
+########################
+
+# Import packages
+library(DESeq2)
+library(here)
+library(tidyverse)
+
 results_lfcshrink <- readRDS(
   file = here::here(
     "output",

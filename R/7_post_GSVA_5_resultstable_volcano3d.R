@@ -1,4 +1,16 @@
+here::i_am("R/7_post_GSVA_5_resultstable_volcano3d.R")
+
+########################
 # Load data
+########################
+
+# Import packages
+library(DESeq2)
+library(here)
+library(magrittr)
+library(tidyverse)
+library(WGCNA)
+
 fit_gsva <- readRDS(
   here::here(
     "output",

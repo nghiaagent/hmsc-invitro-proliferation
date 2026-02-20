@@ -1,16 +1,26 @@
+here::i_am("R/0_env_prep.R")
+
+########################
 # Install pacman, a package manager to install and load multiple packages
+########################
+
+# Import packages
+library(DESeq2)
+library(here)
+library(SummarizedExperiment)
+library(tidyverse)
+library(tximeta)
+
 if (!requireNamespace("pacman")) {
   install.packages("pacman")
 }
 
-library(pacman)
 
 # Install Bioconductor package manager
 if (!require("BiocManager", quietly = TRUE)) {
   install.packages("BiocManager")
 }
 
-library(BiocManager)
 
 # List Bioconductor packages to load/install
 list_bioc_pkg <- c(

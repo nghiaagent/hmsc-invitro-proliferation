@@ -1,3 +1,6 @@
+here::i_am("R/5_post_WGCNA_3_find_hubs.R")
+
+########################
 # Analyse modules for highly connected genes
 ## Turquoise: Positive correlation, day + passage
 ## Anno: Cellular stress response
@@ -7,6 +10,13 @@
 ## Anno: DNA replication
 ## Red:       Negative correlation, day only
 ## Anno: Cellular metabolism
+########################
+
+# Import packages
+library(cowplot)
+library(here)
+library(tidyverse)
+library(WGCNA)
 
 # Load data
 gcn <- readRDS(

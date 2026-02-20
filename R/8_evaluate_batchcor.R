@@ -1,4 +1,16 @@
+here::i_am("R/8_evaluate_batchcor.R")
+
+########################
 # Load data
+########################
+
+# Import packages
+library(DESeq2)
+library(here)
+library(magrittr)
+library(SummarizedExperiment)
+library(tidyverse)
+
 quant_deseq2 <- readRDS(here::here(
   "output",
   "data_expression",

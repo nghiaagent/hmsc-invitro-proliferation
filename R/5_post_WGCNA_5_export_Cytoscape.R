@@ -1,4 +1,12 @@
+here::i_am("R/5_post_WGCNA_5_export_Cytoscape.R")
+
+########################
 # Load data
+########################
+
+# Import packages
+library(here)
+library(tidyverse)
 
 ## GCN with all samples
 gcn <- readRDS(

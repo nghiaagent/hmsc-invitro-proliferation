@@ -1,4 +1,13 @@
+here::i_am("R/9_pipeline_DGE.R")
+
+########################
 # Run script to load and install packages
+########################
+
+# Import packages
+library(DESeq2)
+library(here)
+library(tidyverse)
 
 source("scripts/0_meta_env_prep.R", echo = TRUE, verbose = TRUE)
 

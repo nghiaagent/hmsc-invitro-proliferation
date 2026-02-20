@@ -1,7 +1,17 @@
-## Function for extraction of top genes from a DESeqResults object
-## sorted by LFC
-## Can select top and bottom genes, or simply return all genes.
+here::i_am("R/0_define_results_extract.R")
 
+########################
+# Define function for extraction of top genes from a DESeqResults object
+# sorted by LFC
+# Can select top and bottom genes, or simply return all genes.
+########################
+
+# Import packages
+library(DESeq2)
+library(here)
+library(tidyverse)
+
+# Define function
 extract_topgenes <- function(
   results,
   dds,
@@ -13,21 +23,22 @@ extract_topgenes <- function(
   rowranges_format <- format_deseq_rowranges(dds)
 
   # Merge into one table, sort by decreasing fold change
-  results_merge <- right_join(
+  results_merge <- dplyr::right_join(
     x = rowranges_format,
     y = results_format,
-    by = join_by(gene_id == gene_id)
+    by = dplyr::join_by(gene_id == gene_id)
   ) %>%
-    drop_na() %>%
-    arrange(desc(log2FoldChange))
+    tidyr::drop_na() %>%
+    dplyr::arrange(dplyr::desc(log2FoldChange))
 
   # Remove non-significant genes
   if (signif_only == TRUE) {
-    results_merge %<>% filter(padj < 0.05)
+    results_merge <- results_merge %>%
+      dplyr::filter(padj < 0.05)
   }
 
   # Rename columns to be human readable
-  results_merge <- results_merge >%
+  results_merge <- results_merge %>%
     dplyr::rename(
       "ENSEMBL ID" = gene_id,
       "Symbol" = gene_name,
@@ -46,14 +57,16 @@ extract_topgenes <- function(
   } else {
     results_merge %$%
       rbind(
-        filter(., `LogFC` > 0) %>% slice_head(n = ntop),
-        filter(., `LogFC` < 0) %>% slice_tail(n = ntop)
+        filter(., `LogFC` > 0) %>%
+          dplyr::slice_head(n = ntop),
+        filter(., `LogFC` < 0) %>%
+          dplyr::slice_tail(n = ntop)
       ) %>%
       return()
   }
 }
 
-## Create function to join 2 DESeqResults from the list of DESeqResults
+# Define function to join 2 DESeqResults from the list of DESeqResults
 extract_joined_results <- function(
   results_1,
   results_2,
@@ -74,24 +87,24 @@ extract_joined_results <- function(
 
   # Construct suffix for merged results
   suffix <- c(name_1, name_2) %>%
-    map_chr(\(x) str_c("_", x))
+    purrr::map_chr(\(x) stringr::str_c("_", x))
 
   # Construct merged results table with inner join
-  results_merge <- inner_join(
+  results_merge <- dplyr::inner_join(
     x = results_1_format,
     y = results_2_format,
-    by = join_by(gene_id == gene_id),
+    by = dplyr::join_by(gene_id == gene_id),
     suffix = suffix
   ) %>%
-    right_join(
+    dplyr::right_join(
       x = results_lrt_format,
       y = .,
-      by = join_by(gene_id == gene_id)
+      by = dplyr::join_by(gene_id == gene_id)
     ) %>%
-    right_join(
+    dplyr::right_join(
       x = rowranges_format,
       y = .,
-      by = join_by(gene_id == gene_id)
+      by = dplyr::join_by(gene_id == gene_id)
     ) %>%
     dplyr::rename(
       "ENSEMBL ID" = gene_id,
@@ -105,7 +118,6 @@ extract_joined_results <- function(
 }
 
 ## Create function to join 3 DESeqResults from the list of DESeqResults
-
 extract_joined_results_trio <- function(
   results_1,
   results_2,
@@ -125,19 +137,19 @@ extract_joined_results_trio <- function(
   results_1_format <- format_deseq_results(results_1) %>%
     dplyr::rename_with(
       ~ str_c(.x, name_1, sep = "_"),
-      all_of(cols_to_rename)
+      dplyr::all_of(cols_to_rename)
     )
 
   results_2_format <- format_deseq_results(results_2) %>%
     dplyr::rename_with(
       ~ str_c(.x, name_2, sep = "_"),
-      all_of(cols_to_rename)
+      dplyr::all_of(cols_to_rename)
     )
 
   results_3_format <- format_deseq_results(results_3) %>%
     dplyr::rename_with(
       ~ str_c(.x, name_3, sep = "_"),
-      all_of(cols_to_rename)
+      dplyr::all_of(cols_to_rename)
     )
 
   results_lrt_format <- format_deseq_results(results_lrt) %>%
@@ -145,22 +157,22 @@ extract_joined_results_trio <- function(
     dplyr::rename(padj_lrt = padj)
 
   # Construct merged results table with inner join
-  results_merge <- inner_join(
+  results_merge <- dplyr::inner_join(
     x = results_1_format,
     y = results_2_format,
-    by = join_by(gene_id == gene_id)
+    by = dplyr::join_by(gene_id == gene_id)
   ) %>%
-    inner_join(
+    dplyr::inner_join(
       x = .,
       y = results_3_format,
       by = join_by(gene_id == gene_id)
     ) %>%
-    right_join(
+    dplyr::right_join(
       x = results_lrt_format,
       y = .,
       by = join_by(gene_id == gene_id)
     ) %>%
-    right_join(
+    dplyr::right_join(
       x = rowranges_format,
       y = .,
       by = join_by(gene_id == gene_id)

@@ -1,4 +1,15 @@
+here::i_am("R/6_post_camera_function.R")
+
+########################
 # Load data
+########################
+
+# Import packages
+library(DESeq2)
+library(here)
+library(limma)
+library(SummarizedExperiment)
+library(tidyverse)
 
 rlog_deseq2 <- readRDS(
   file = here::here(

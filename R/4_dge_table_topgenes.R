@@ -1,4 +1,15 @@
+here::i_am("R/4_dge_table_topgenes.R")
+
+########################
 # Load data
+########################
+
+# Import packages
+library(DESeq2)
+library(here)
+library(magrittr)
+library(tidyverse)
+
 quant_deseq2 <- readRDS(
   file = here::here(
     "output",

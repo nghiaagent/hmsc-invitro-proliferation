@@ -1,4 +1,14 @@
+here::i_am("R/4_dge_plot_volcano2d_and_ma.R")
+
+########################
 # Hardcode plot specs
+########################
+
+# Import packages
+library(cowplot)
+library(DESeq2)
+library(here)
+library(tidyverse)
 
 cutoff_logfc <- 3
 cutoff_padj <- 1e-15

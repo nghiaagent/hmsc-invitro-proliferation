@@ -1,3 +1,16 @@
+here::i_am("R/1_pre_QC_plots.R")
+
+########################
+# This file creates and exports QC plots for the dataset
+########################
+
+# Import packages
+library(DESeq2)
+library(edgeR)
+library(here)
+library(SummarizedExperiment)
+library(tidyverse)
+
 # Load data
 quant_cDNA_deseq <- readRDS(
   file = here::here(
@@ -16,32 +29,38 @@ quant_cDNA_deseq_nofilter <- readRDS(
   )
 )
 
+## Extract coldata
 coldata <- colData(quant_cDNA_deseq) %>%
   as.data.frame()
 
-x <- as.DGEList(quant_cDNA_deseq) %>%
-  normLibSizes() %>%
-  cpm(normalized.lib.sizes = FALSE)
-
 # Get data for plotting libsize
+## Construct a list of all possible normalisation methods
+## Then turn list into a single dataframe
 list_counts <- list(
+  # DESeq2 median of ratios normalisation
   norm = quant_cDNA_deseq %>%
     estimateSizeFactors() %>%
     counts(normalized = TRUE),
+  # Unnormalised data
   nonorm = quant_cDNA_deseq %>%
     counts(normalized = FALSE),
-  norm_TMM = as.DGEList(quant_cDNA_deseq) %>%
+  # TMM normalisation
+  norm_TMM = quant_cDNA_deseq %>%
+    as.DGEList() %>%
     normLibSizes() %>%
     cpm(normalized.lib.sizes = FALSE),
+  # Unfiltered DESeq2 median of ratios normalisation
   nofilter_norm = quant_cDNA_deseq_nofilter %>%
     estimateSizeFactors() %>%
     counts(normalized = TRUE),
+  # Unfiltered unnormalised data
   nofilter_nonorm = quant_cDNA_deseq_nofilter %>%
     counts(normalized = FALSE)
 ) %>%
+  # Turn list into dataframe for easier plotting
   imap(
     \(counts, name) {
-      counts %>%
+      out <- counts %>%
         as.data.frame() %>%
         rownames_to_column(var = "gene") %>%
         pivot_longer(
@@ -55,11 +74,14 @@ list_counts <- list(
           coldata,
           by = join_by("sample_id" == "names")
         )
+
+      return(out)
     }
   ) %>%
   rbindlist()
 
 # Calculate total library size
+## Use unnormalised, unfiltered data only
 df_libsize <- list_counts %>%
   filter(data_type == "nofilter_nonorm") %>%
   group_by(sample_id) %>%
@@ -82,16 +104,12 @@ df_libsize <- list_counts %>%
 
 # Plot libsize
 plot_libsize <- df_libsize %>%
-  ggplot(
-    aes(
-      x = sample_id,
-      y = libsize / 1000000,
-      fill = timepoint_ID
-    )
-  ) +
-  geom_col(
-    colour = "white"
-  ) +
+  ggplot(aes(
+    x = sample_id,
+    y = libsize / 1000000,
+    fill = timepoint_ID
+  )) +
+  geom_col(colour = "white") +
   theme_classic() +
   theme(
     axis.text.x = element_text(
@@ -102,15 +120,9 @@ plot_libsize <- df_libsize %>%
     axis.title.x = element_blank(),
     legend.title = element_text()
   ) +
-  scale_fill_manual(
-    values = palette_merge[1:6]
-  ) +
+  scale_fill_manual(values = palette_merge[1:6]) +
   geom_hline(
-    yintercept = c(
-      5,
-      10,
-      15
-    ),
+    yintercept = c(5, 10, 15),
     linetype = "dashed",
     color = "grey30"
   ) +

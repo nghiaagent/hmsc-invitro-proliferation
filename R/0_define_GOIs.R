@@ -1,4 +1,14 @@
+here::i_am("R/0_define_GOIs.R")
+
+########################
 # Define in-house GOIs
+########################
+
+# Import packages
+library(here)
+library(tidyverse)
+
+# Define gene names (non-HSPGs and HSPGs)
 genenames_inhouse <- c(
   "ENO2",
   "NANOG",
@@ -69,6 +79,7 @@ genenames_inhouse_hspgs <- c(
   "NDST4"
 )
 
+## Map gene names to ENTREZIDs
 geneids_inhouse <- mapIds(
   org.Hs.eg.db,
   keys = genenames_inhouse,
@@ -83,7 +94,7 @@ geneids_inhouse_hspgs <- mapIds(
   keytype = "SYMBOL"
 )
 
-# Define AD-related genes from QIAgen panel
+# Define AD-related genes from QIAgen panel (for SIP)
 genenames_rt2array <- c(
   "A2M",
   "ABCA1",
@@ -131,13 +142,13 @@ genenames_rt2array <- c(
   "GNG4"
 )
 
+## Map gene names to ENTREZIDs
 geneids_rt2array <- mapIds(
   org.Hs.eg.db,
   keys = genenames_rt2array,
   column = "ENTREZID",
   keytype = "SYMBOL"
 )
-
 
 # Load external GMTs
 msigdb_gobp <- getGmt(
@@ -215,6 +226,7 @@ names(geneids_hspgs) <- mapIds(
   keytype = "ENTREZID"
 )
 
+# Combine into one lists
 geneids_goi <- c(
   geneids_inhouse,
   geneids_hspgs,
@@ -231,7 +243,7 @@ geneids_goi_limited <- c(
 ) %>%
   unique()
 
-## Define genes related to NF-kB signalling
+# Define genes related to NF-kB signalling
 geneids_nfkb <- c(
   list_gmt[["h"]][["HALLMARK_TNFA_SIGNALING_VIA_NFKB"]]@geneIds
 ) %>%
@@ -243,6 +255,7 @@ geneids_nfkb <- c(
     keytype = "ENTREZID"
   ))
 
+# Define genes related to TGF-b signallings
 geneids_tgfb <- c(
   list_gmt[["h"]][["HALLMARK_TGF_BETA_SIGNALING"]]@geneIds
 ) %>%

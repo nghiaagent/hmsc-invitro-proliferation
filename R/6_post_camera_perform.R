@@ -1,5 +1,15 @@
+here::i_am("R/6_post_camera_perform.R")
+
+########################
 # Perform camera on all contrasts
 # Load function script beforehand
+########################
+
+# Import packages
+library(DESeq2)
+library(here)
+library(tidyverse)
+
 camera_all <- purrr::map(
   seq_len(ncol(contrasts)),
   \(x) {

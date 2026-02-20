@@ -1,4 +1,16 @@
+here::i_am("R/4_dge_plot_GOI_boxplot.R")
+
+########################
 # Load data (batch-corrected counts)
+########################
+
+# Import packages
+library(DESeq2)
+library(here)
+library(magrittr)
+library(SummarizedExperiment)
+library(tidyverse)
+
 quant_deseq2_batchcor <- readRDS(
   file = here::here(
     "output",

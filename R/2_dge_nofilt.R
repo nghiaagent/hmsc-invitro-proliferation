@@ -1,4 +1,16 @@
+here::i_am("R/2_dge_nofilt.R")
+
+########################
 # Load dataset - no filter
+########################
+
+# Import packages
+library(DESeq2)
+library(here)
+library(magrittr)
+library(SummarizedExperiment)
+library(tidyverse)
+
 quant_deseq2 <- readRDS(here::here(
   "output",
   "data_expression",

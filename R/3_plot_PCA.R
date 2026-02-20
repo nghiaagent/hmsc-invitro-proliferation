@@ -1,5 +1,17 @@
+here::i_am("R/3_plot_PCA.R")
+
+########################
 # Draw PC1+2 PCA biplots for pre and post batch correction data
 # Load data
+########################
+
+# Import packages
+library(cowplot)
+library(DESeq2)
+library(here)
+library(SummarizedExperiment)
+library(tidyverse)
+
 quant_deseq2 <- readRDS(here::here(
   "output",
   "data_expression",

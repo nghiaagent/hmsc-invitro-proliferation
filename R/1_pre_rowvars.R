@@ -1,6 +1,16 @@
+here::i_am("R/1_pre_rowvars.R")
+
+########################
 # Load dataset
 # Remember that experimental design is already embedded in the dataset and model
 # only need to extract comparisons
+########################
+
+# Import packages
+library(DESeq2)
+library(here)
+library(SummarizedExperiment)
+library(tidyverse)
 
 quant_deseq2 <- readRDS("output/data_expression/pre_DGE/quant_cDNA_deseq.RDS")
 

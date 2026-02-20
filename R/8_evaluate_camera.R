@@ -1,4 +1,15 @@
+here::i_am("R/8_evaluate_camera.R")
+
+########################
 # Source relevant scripts
+########################
+
+# Import packages
+library(DESeq2)
+library(here)
+library(magrittr)
+library(tidyverse)
+
 source(here::here(
   "scripts",
   "6_post_camera_function.R"

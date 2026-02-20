@@ -1,5 +1,13 @@
+here::i_am("R/4_dge_plot_GOI_boxplot_thesis_grid.R")
+
+########################
 # Plot GOIs in a grid for thesis using cowplot
 # Load data
+########################
+
+# Import packages
+library(here)
+library(tidyverse)
 
 ## Plots for passages
 plots_goi_passage <- readRDS(

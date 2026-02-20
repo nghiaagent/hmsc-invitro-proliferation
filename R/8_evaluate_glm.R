@@ -1,5 +1,20 @@
+here::i_am("R/8_evaluate_glm.R")
+
+########################
 # Set variables
 ## Cutoffs for volcano and quadrant plots
+########################
+
+# Import packages
+library(colorspace)
+library(DESeq2)
+library(edgeR)
+library(here)
+library(limma)
+library(magrittr)
+library(SummarizedExperiment)
+library(tidyverse)
+
 cutoff_logfc <- 6
 cutoff_logfc_neg <- cutoff_logfc * -1
 cutoff_padj <- 1e-15

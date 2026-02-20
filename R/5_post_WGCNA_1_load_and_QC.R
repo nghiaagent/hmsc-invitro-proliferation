@@ -1,7 +1,19 @@
+here::i_am("R/5_post_WGCNA_1_load_and_QC.R")
+
+########################
 # Load data
 # Transpose logCPM matrix for WGCNA
 # Convert identifiers from ENSEMBL to ENTREZ (to help with gene set testing)
 # Remove genes with duplicate ENTREZID
+########################
+
+# Import packages
+library(DESeq2)
+library(here)
+library(magrittr)
+library(SummarizedExperiment)
+library(tidyverse)
+library(WGCNA)
 
 quant_deseq2 <- readRDS(
   file = here::here(

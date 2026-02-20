@@ -1,5 +1,16 @@
+here::i_am("R/3_plot_heatmap.R")
+
+########################
 # Plot significant DEGs as a heatmap
 # Load data (rlog)
+########################
+
+# Import packages
+library(DESeq2)
+library(here)
+library(SummarizedExperiment)
+library(tidyverse)
+
 quant_rlog <- readRDS(
   file = here::here(
     "output",

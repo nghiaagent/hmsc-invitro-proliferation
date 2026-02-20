@@ -1,4 +1,13 @@
+here::i_am("R/7_post_GSVA_3_plot_thesisboxplot.R")
+
+########################
 # Load data
+########################
+
+# Import packages
+library(DESeq2)
+library(here)
+
 fit_gsva <- readRDS(
   here::here(
     "output",
