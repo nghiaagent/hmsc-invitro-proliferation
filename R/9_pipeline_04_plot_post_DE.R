@@ -1,10 +1,10 @@
 here::i_am("R/9_pipeline_04_plot_post_DE.R")
 
 ########################
-# Run DGE
+# Run plotting after DE
 ########################
 
-# Run scripts of DESeq2 pipeline
+# Run scripts of pipeline
 c(
   "4_dge_plot_01_volcano3D.R",
   "4_dge_plot_02_volcano2d_and_ma.R",
