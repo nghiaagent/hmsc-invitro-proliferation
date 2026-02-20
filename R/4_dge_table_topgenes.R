@@ -1,15 +1,17 @@
 here::i_am("R/4_dge_table_topgenes.R")
 
 ########################
-# Load data
+# Export DGE results to Excel tables
 ########################
 
 # Import packages
 library(DESeq2)
 library(here)
 library(magrittr)
+library(openxlsx)
 library(tidyverse)
 
+# Load data
 quant_deseq2 <- readRDS(
   file = here::here(
     "output",
@@ -63,7 +65,6 @@ list_sheets <- results_lfcshrink %$%
 # Extract logFC and p-vals for comparisons between passages at D3 and D5
 # Compile to list, coerce to data.frame, export to excel
 # 2 lists: Contrasts and LRT
-
 ## All contrasts (Wald test)
 write.xlsx(
   x = map(

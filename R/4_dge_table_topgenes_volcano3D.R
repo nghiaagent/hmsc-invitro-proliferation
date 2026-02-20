@@ -2,14 +2,16 @@ here::i_am("R/4_dge_table_topgenes_volcano3D.R")
 
 ########################
 # Extract genes from 3D volcano plot
-# Load data
+# To put in a table for thesis
 ########################
 
 # Import packages
 library(DESeq2)
 library(here)
+library(openxlsx)
 library(tidyverse)
 
+# Load data
 quant_deseq2 <- readRDS(
   file = here::here(
     "output",
@@ -47,11 +49,9 @@ polar_manual <- readRDS(
 )
 
 # Define table specs
-
 ntop <- 20
 
 # Define coefficients for extracting genes
-
 coef_volcano3d <- list(
   up = list(
     p5 = "5+",
@@ -74,7 +74,6 @@ coef_results <- list(
 # Extract genes based on their direction of regulation
 # To find genes uniquely up/downregulated at each passage
 # And find genes progressively up/downregulated throughout passages
-
 geneid_volcano3d <- map(
   coef_volcano3d,
   \(x) {
@@ -92,9 +91,8 @@ geneid_volcano3d <- map(
   }
 )
 
-## Get list of genes up/downregulated at each passage compared to the rest
-## Merge DESeqResults
-
+# Get list of genes up/downregulated at each passage compared to the rest
+## Single tables
 results_volcano3d_single <- map(
   coef_results,
   \(x) {
@@ -125,6 +123,7 @@ results_volcano3d_single <- map(
   }
 )
 
+## Paired tables
 results_volcano3d_pairs <- list(
   p5 = rbind(
     filter(
@@ -210,7 +209,6 @@ results_volcano3d_pairs_top <- list(
 )
 
 # Export data
-
 write.xlsx(
   x = results_volcano3d_pairs,
   file = here::here(
