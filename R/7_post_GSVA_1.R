@@ -1,7 +1,8 @@
 here::i_am("R/7_post_GSVA_1.R")
 
 ########################
-# Load data
+# Convert data to ESet
+# Then perform GSVA
 ########################
 
 # Import packages
@@ -13,6 +14,7 @@ library(SummarizedExperiment)
 library(tidyverse)
 library(WGCNA)
 
+# Load data
 rlog_deseq2 <- readRDS(
   file = here::here(
     "output",
@@ -25,7 +27,6 @@ rlog_deseq2 <- readRDS(
 # Convert to ESet, convert identifiers to ENTREZID
 # Sort dataset by decreasing expression
 # Remove genes with duplicate ENTREZ ID
-
 order <- order(
   rowRanges(rlog_deseq2)$baseMean,
   decreasing = TRUE
@@ -55,7 +56,6 @@ rlog_deseq2 <- rlog_deseq2[!duplicated(idx), ]
 idx <- idx[!duplicated(idx)]
 
 # Rename rownames to entrezid
-
 rlog_deseq2_counts <- assay(rlog_deseq2)
 rlog_deseq2_rowranges <- rowRanges(rlog_deseq2) %>%
   as.data.frame()
@@ -66,7 +66,6 @@ rownames(rlog_deseq2_counts) <- idx
 rownames(rlog_deseq2_rowranges) <- idx
 
 # Build eset object
-
 quant_eset <- ExpressionSet(
   assayData = rlog_deseq2_counts,
   phenoData = AnnotatedDataFrame(rlog_deseq2_coldata),
@@ -113,7 +112,6 @@ matrix_contrasts <- makeContrasts(
 
 # Perform GSVA
 ## Make GSVA NES object
-
 quant_gsva_db <- map(
   list_gmt[1:6],
   \(x) {
@@ -160,7 +158,6 @@ fit_gsva <- map(
 )
 
 # Save data
-
 saveRDS(
   fit_gsva,
   here::here(

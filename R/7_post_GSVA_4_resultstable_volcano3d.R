@@ -62,7 +62,6 @@ coef_toptable <- list(
 )
 
 # Define collections to consider
-
 collections_interest <- c(
   "h",
   "c2_cgp",

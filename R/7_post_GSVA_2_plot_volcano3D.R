@@ -1,7 +1,7 @@
 here::i_am("R/7_post_GSVA_2_plot_volcano3D.R")
 
 ########################
-# Load data
+# Plot volcano3D plots for GSVA
 ########################
 
 # Import packages
@@ -10,6 +10,7 @@ library(here)
 library(limma)
 library(tidyverse)
 
+# Load data
 fit_gsva <- readRDS(
   here::here(
     "output",
@@ -51,7 +52,6 @@ breaks <- seq(
 )
 
 # Derive GSVA results
-
 ## Expression matrix
 data_gsva <- map(
   quant_gsva,

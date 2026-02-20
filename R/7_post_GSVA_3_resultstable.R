@@ -71,7 +71,7 @@ conditions_interest <- c(
   "P13vsP5_T_D5" = 24
 )
 
-# Summary tables
+# Create summary tables
 results_summary <- map(
   fit_gsva,
   \(x) summary(decideTests(x))
