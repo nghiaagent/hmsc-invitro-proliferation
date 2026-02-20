@@ -5,7 +5,9 @@ here::i_am("R/0_define_GOIs.R")
 ########################
 
 # Import packages
+library(GSEABase)
 library(here)
+library(org.Hs.eg.db)
 library(tidyverse)
 
 # Define gene names (non-HSPGs and HSPGs)

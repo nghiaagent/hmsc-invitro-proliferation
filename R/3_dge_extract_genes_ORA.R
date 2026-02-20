@@ -6,6 +6,7 @@ here::i_am("R/3_dge_extract_genes_ORA.R")
 ########################
 
 # Import packages
+library(data.table)
 library(DESeq2)
 library(here)
 library(tidyverse)

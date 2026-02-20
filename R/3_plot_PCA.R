@@ -8,6 +8,8 @@ here::i_am("R/3_plot_PCA.R")
 library(cowplot)
 library(DESeq2)
 library(here)
+library(patchwork)
+library(PCAtools)
 library(SummarizedExperiment)
 library(tidyverse)
 

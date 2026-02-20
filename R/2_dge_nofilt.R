@@ -7,6 +7,7 @@ here::i_am("R/2_dge_nofilt.R")
 
 # Import packages
 library(DESeq2)
+library(edgeR)
 library(here)
 library(magrittr)
 library(SummarizedExperiment)

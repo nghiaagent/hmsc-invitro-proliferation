@@ -5,10 +5,13 @@ here::i_am("R/3_plot_heatmap.R")
 ########################
 
 # Import packages
+library(circlize)
+library(ComplexHeatmap)
 library(DESeq2)
 library(here)
 library(SummarizedExperiment)
 library(tidyverse)
+library(viridis)
 
 # Load data (rlog and LRT data)
 quant_rlog <- readRDS(

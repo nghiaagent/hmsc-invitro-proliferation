@@ -1,10 +1,12 @@
-here::i_am("R/1_pre_QC_plots.R")
+here::i_am("R/1_pre_02_QC_plots.R")
 
 ########################
 # This file creates and exports QC plots for the dataset
 ########################
 
 # Import packages
+library(data.table)
+library(DEFormats)
 library(DESeq2)
 library(edgeR)
 library(here)

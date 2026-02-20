@@ -9,6 +9,7 @@ here::i_am("R/1_pre_01_quant_import.R")
 
 # Import packages
 library(DESeq2)
+library(edgeR)
 library(here)
 library(magrittr)
 library(org.Hs.eg.db)

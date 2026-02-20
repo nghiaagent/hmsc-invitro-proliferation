@@ -6,9 +6,12 @@ here::i_am("R/2_dge.R")
 ########################
 
 # Import packages
+library(ashr)
+library(data.table)
 library(DESeq2)
+library(edgeR)
 library(here)
-library(magrittr)
+library(IHW)
 library(SummarizedExperiment)
 library(tidyverse)
 
