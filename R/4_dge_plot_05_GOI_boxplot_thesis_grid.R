@@ -1,4 +1,4 @@
-here::i_am("R/4_dge_plot_GOI_boxplot_thesis_grid.R")
+here::i_am("R/4_dge_plot_05_GOI_boxplot_thesis_grid.R")
 
 ########################
 # Plot GOIs in a grid for thesis using cowplot

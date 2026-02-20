@@ -1,4 +1,4 @@
-here::i_am("R/4_dge_plot_GOI_boxplot.R")
+here::i_am("R/4_dge_plot_04_GOI_boxplot.R")
 
 ########################
 # Create boxplots of in-house GOIs
