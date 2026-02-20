@@ -2,7 +2,6 @@ here::i_am("R/3_plot_PCA.R")
 
 ########################
 # Draw PC1+2 PCA biplots for pre and post batch correction data
-# Load data
 ########################
 
 # Import packages
@@ -12,6 +11,7 @@ library(here)
 library(SummarizedExperiment)
 library(tidyverse)
 
+# Load data
 quant_deseq2 <- readRDS(here::here(
   "output",
   "data_expression",
@@ -37,18 +37,18 @@ rlog_deseq2_batchcor <- quant_deseq2_batchcor %>%
   assay()
 
 # Mutate quant objects to anonymise batch
-# Create list of objects for plotting
+## Create list of objects for plotting
 list_rlog <- list(
   uncorrected = rlog_deseq2,
   corrected = rlog_deseq2_batchcor
 )
 
-# Get metadata table
+## Get metadata table
 quant_coldata <- colData(quant_deseq2)
 quant_coldata$run_date <- quant_coldata$run_date %>%
   fct_anon()
 
-# Define groupings for PCA plots
+## Define groupings for PCA plots
 groupings <- c(
   "run_date",
   "cell_line",
@@ -97,6 +97,7 @@ list_biplot_all <- map2(
   }
 )
 
+## List of eigencorrelation plots
 plot_correlation <- map(
   list_rlog,
   \(rlog) {
@@ -136,7 +137,7 @@ grid_biplot <- plot_grid(
     rel_heights = c(2, 1)
   )
 
-# Selected plots (For paper)
+# Create selected plots (For paper)
 ## Batch corrected, colour = timepoint, shape = cell population
 biplot_selected <- rlog_deseq2_batchcor %>%
   pca(metadata = quant_coldata) %>%
@@ -182,19 +183,4 @@ ggsave(
   width = 16,
   height = 8,
   scale = 0.5
-)
-
-# Random code: 3D PCA plot
-list_pca <- list_rlog %>%
-  map(\(x) {
-    x %>%
-      pca(metadata = quant_coldata, removeVar = 0.9)
-  })
-
-plot_ly(
-  list_pca[["corrected"]]$rotated,
-  x = ~PC1,
-  y = ~PC2,
-  z = ~PC3,
-  color = list_pca[["corrected"]]$metadata$run_date
 )

@@ -2,7 +2,6 @@ here::i_am("R/3_plot_heatmap.R")
 
 ########################
 # Plot significant DEGs as a heatmap
-# Load data (rlog)
 ########################
 
 # Import packages
@@ -11,6 +10,7 @@ library(here)
 library(SummarizedExperiment)
 library(tidyverse)
 
+# Load data (rlog and LRT data)
 quant_rlog <- readRDS(
   file = here::here(
     "output",
@@ -30,14 +30,17 @@ quant_deseq2_lrt <- readRDS(
 )
 
 # Get significant genes
+## Get list of significant genes
 genes_significant <- quant_deseq2_lrt %>%
   results() %>%
   as.data.frame() %>%
   filter(padj < 0.05) %>%
   rownames()
 
+## Filter heatmap to only significant genes
 quant_heatmap <- quant_rlog[genes_significant, ]
 
+## Get Z-scores for heatmap
 rlog_heatmap <- quant_heatmap %>%
   assay() %>%
   t() %>%
@@ -50,6 +53,10 @@ col <- inferno(n = 100)
 breaks <- seq(-2, 2, length.out = 100)
 
 # Create extra factors for splitting columns
+## The factors are:
+## Cell population only
+## Cell population + passage
+## Cell population + day
 split_cell_line <- colData(quant_heatmap)$cell_line
 
 split_cell_line_passage <- str_c(
@@ -83,7 +90,8 @@ split_cell_line_day <- str_c(
   )
 
 # Create vectors for ordering samples in specific cases of splits
-order <- colData(quant_heatmap) %>%
+order <- quant_heatmap %>%
+  colData() %>%
   data.frame() %>%
   arrange(cell_line, Passage, Day, Treatment) %>%
   rownames()

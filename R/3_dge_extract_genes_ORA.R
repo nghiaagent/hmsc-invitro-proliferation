@@ -30,38 +30,31 @@ results_lfcshrink <- readRDS(
 )
 
 # Format table object, get only gene ENSEMBL IDs, ENTREZ IDs, and symbol
-# Enter ENSEMBL IDs or ENTREZ IDs into g:Profiler
-# Enter symbol into STRING
-results_lfcshrink_format <- map(
-  results_lfcshrink,
-  \(x) {
-    extract_topgenes(
-      results = x,
-      dds = quant_deseq2,
-      ntop = Inf,
-      signif_only = TRUE
-    )
-  },
-  .progress = TRUE
-)
+# ENSEMBL IDs or ENTREZ IDs are to be entered into g:Profiler
+# Symbol is to be entered into STRING
+results_lfcshrink_format <- results_lfcshrink %>%
+  map(
+    \(x) {
+      extract_topgenes(
+        results = x,
+        dds = quant_deseq2,
+        ntop = Inf,
+        signif_only = TRUE
+      )
+    },
+    .progress = TRUE
+  )
 
-results_ensembl_ids <- map(
-  results_lfcshrink_format,
-  \(x) x$`ENSEMBL ID`
-)
+results_ensembl_ids <- results_lfcshrink_format %>%
+  map(\(x) x$`ENSEMBL ID`)
 
-results_entrez_ids <- map(
-  results_lfcshrink_format,
-  \(x) x$`ENTREZ ID`
-)
+results_entrez_ids <- results_lfcshrink_format %>%
+  map(\(x) x$`ENTREZ ID`)
 
-results_symbol <- map(
-  results_lfcshrink_format,
-  \(x) x$Symbol
-)
+results_symbol <- results_lfcshrink_format %>%
+  map(\(x) x$Symbol)
 
 # Export data
-
 ## Export ENSEMBL IDs
 imap(
   results_ensembl_ids,
@@ -93,7 +86,6 @@ imap(
 )
 
 ## Export ENTREZ ID
-
 imap(
   results_entrez_ids,
   \(x, idx) {
