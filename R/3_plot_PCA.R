@@ -5,6 +5,7 @@ here::i_am("R/3_plot_PCA.R")
 ########################
 
 # Import packages
+library(conflicted)
 library(cowplot)
 library(DESeq2)
 library(here)
@@ -22,8 +23,8 @@ quant_deseq2 <- readRDS(here::here(
 ))
 
 rlog_deseq2 <- quant_deseq2 %>%
-  rlog() %>%
-  assay()
+  DESeq2::rlog() %>%
+  SummarizedExperiment::assay()
 
 quant_deseq2_batchcor <- readRDS(
   file = here::here(
@@ -35,8 +36,8 @@ quant_deseq2_batchcor <- readRDS(
 )
 
 rlog_deseq2_batchcor <- quant_deseq2_batchcor %>%
-  rlog() %>%
-  assay()
+  DESeq2::rlog() %>%
+  SummarizedExperiment::assay()
 
 # Mutate quant objects to anonymise batch
 ## Create list of objects for plotting
@@ -46,9 +47,9 @@ list_rlog <- list(
 )
 
 ## Get metadata table
-quant_coldata <- colData(quant_deseq2)
+quant_coldata <- SummarizedExperiment::colData(quant_deseq2)
 quant_coldata$run_date <- quant_coldata$run_date %>%
-  fct_anon()
+  forcats::fct_anon()
 
 ## Define groupings for PCA plots
 groupings <- c(
@@ -60,16 +61,16 @@ groupings <- c(
 
 # Plot
 ## Get list of all PCA biplots
-list_biplot_all <- map2(
+list_biplot_all <- purrr::map2(
   groupings,
   palette_pca,
   \(grouping, palette) {
     # Get list of PCA biplots
-    list_plots <- map(
+    list_plots <- purrr::map(
       list_rlog,
       \(rlog) {
         biplot <- rlog %>%
-          pca(
+          PCAtools::pca(
             metadata = quant_coldata,
             removeVar = 0.9
           ) %>%
@@ -86,11 +87,11 @@ list_biplot_all <- map2(
 
     # Organise into pairs
     grid_plots <- list_plots[[1]] +
-      theme(legend.position = "none") +
+      ggplot2::theme(legend.position = "none") +
       list_plots[[2]] +
-      theme(legend.position = "none") +
-      get_legend(list_plots[[1]]) +
-      plot_layout(
+      ggplot2::theme(legend.position = "none") +
+      cowplot::get_legend(list_plots[[1]]) +
+      patchwork::plot_layout(
         ncol = 3,
         widths = c(2, 2, 1)
       )
@@ -100,11 +101,11 @@ list_biplot_all <- map2(
 )
 
 ## List of eigencorrelation plots
-plot_correlation <- map(
+plot_correlation <- purrr::map(
   list_rlog,
   \(rlog) {
     eigencorplot <- rlog %>%
-      pca(
+      PCAtools::pca(
         metadata = quant_coldata,
         removeVar = 0.9
       ) %>%
@@ -132,7 +133,7 @@ grid_biplot <- plot_grid(
   ncol = 2,
   labels = "AUTO"
 ) %>%
-  plot_grid(
+  cowplot::plot_grid(
     plot_correlation,
     labels = c("", "E"),
     ncol = 1,
@@ -142,7 +143,7 @@ grid_biplot <- plot_grid(
 # Create selected plots (For paper)
 ## Batch corrected, colour = timepoint, shape = cell population
 biplot_selected <- rlog_deseq2_batchcor %>%
-  pca(metadata = quant_coldata) %>%
+  PCAtools::pca(metadata = quant_coldata) %>%
   PCAtools::biplot(
     colby = "timepoint_ID",
     colkey = c(
