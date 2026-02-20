@@ -13,7 +13,7 @@ here::i_am("quarto/04-volcano3D-gsva.qmd")
 library(GSVA)
 library(here)
 library(tidyverse)
-library(Volcano3D)
+library(volcano3D)
 
 # Load data for plotting
 polar_manual_gsva <- readRDS(
