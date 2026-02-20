@@ -18,10 +18,11 @@ clip_results <- function(
   cutoff_padj = 1e-20,
   alpha = 0.05
 ) {
+  cutoff_logfc_neg <- cutoff_logfc * -1
   # Clip logFC to the threshold
   results$log2FoldChange <- dplyr::case_when(
     results$log2FoldChange >= cutoff_logfc ~ cutoff_logfc,
-    results$log2FoldChange <= (cutoff_logfc * -1) ~ (cutoff_logfc * -1),
+    results$log2FoldChange <= cutoff_logfc_neg ~ cutoff_logfc_neg,
     .default = results$log2FoldChange
   )
 
