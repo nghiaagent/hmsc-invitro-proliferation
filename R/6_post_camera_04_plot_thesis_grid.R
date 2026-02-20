@@ -1,4 +1,4 @@
-here::i_am("R/6_post_camera_plot_thesis_grid.R")
+here::i_am("R/6_post_camera_04_plot_thesis_grid.R")
 
 ########################
 # Grid of barcode plots
