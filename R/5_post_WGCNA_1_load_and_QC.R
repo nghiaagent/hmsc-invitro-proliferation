@@ -1,10 +1,7 @@
 here::i_am("R/5_post_WGCNA_1_load_and_QC.R")
 
 ########################
-# Load data
-# Transpose logCPM matrix for WGCNA
-# Convert identifiers from ENSEMBL to ENTREZ (to help with gene set testing)
-# Remove genes with duplicate ENTREZID
+# Load and QC data for WGCNA
 ########################
 
 # Import packages
@@ -15,6 +12,10 @@ library(SummarizedExperiment)
 library(tidyverse)
 library(WGCNA)
 
+# Load data
+# Transpose logCPM matrix for WGCNA
+# Convert identifiers from ENSEMBL to ENTREZ (to help with gene set testing)
+# Remove genes with duplicate ENTREZID
 quant_deseq2 <- readRDS(
   file = here::here(
     "output",
@@ -42,27 +43,22 @@ rlog_deseq2 <- rlog_deseq2[order, ]
 
 rlog_deseq2 <- rlog_deseq2[
   rowRanges(rlog_deseq2) %>%
-    as.data.frame() %$%
-    map(
-      .$entrezid,
-      \(x) !is.na(x)[[1]]
-    ) %>%
+    as.data.frame() %>%
+    .$entrezid %>%
+    map(\(x) !is.na(x)[[1]]) %>%
     unlist(),
 ]
 
 idx <- rowRanges(rlog_deseq2) %>%
-  as.data.frame() %$%
-  map(
-    .$entrezid,
-    \(x) x[[1]]
-  ) %>%
+  as.data.frame() %>%
+  .$entrezid %>%
+  map(\(x) x[[1]]) %>%
   unlist()
 
 rlog_deseq2 <- rlog_deseq2[!duplicated(idx), ]
 idx <- idx[!duplicated(idx)]
 
 # Rename rownames to entrezid
-
 rlog_deseq2_counts <- assay(rlog_deseq2)
 rlog_deseq2_rowranges <- rowRanges(rlog_deseq2) %>%
   as.data.frame()
@@ -73,14 +69,12 @@ rownames(rlog_deseq2_counts) <- idx
 rownames(rlog_deseq2_rowranges) <- idx
 
 # Create matrix for GCN
-
 gcn_rlog <- t(rlog_deseq2_counts) %>%
   as.data.frame()
 
 # Check for low quality genes and samples
 ## Should be all OK
 ## If not, remove offending genes and samples from data
-
 gcn_qual <- goodSamplesGenes(gcn_rlog)
 
 if (!gcn_qual$allOK) {
@@ -117,6 +111,7 @@ if (!gcn_qual$allOK) {
 # Perform sample clustering to detect outliers
 ## One outlier detected and removed (hMSC-21558_P13_D5_10-1)
 
+## Select metadata to be shown
 metadata_select <- c(
   "cell_line",
   "Passage",
@@ -125,6 +120,7 @@ metadata_select <- c(
   "run_date"
 )
 
+## Plot sample clustering
 png(
   here::here(
     "output",
@@ -160,7 +156,6 @@ plotDendroAndColors(
 dev.off()
 
 ## Remove detected outlier from gcn_rlog and rlog_deseq2_coldata
-
 samples_exclude <- c(
   "hMSC-21558_P13_D5_10-1"
 )
@@ -171,8 +166,7 @@ rlog_deseq2_coldata <- rlog_deseq2_coldata %>%
     !names %in% samples_exclude
   )
 
-## Hierarchical clustering after removal of outliers
-
+## Plot hierarchical clustering after removal of outliers
 png(
   here::here(
     "output",
@@ -209,7 +203,6 @@ dev.off()
 
 # Select soft thresholding power
 ## Calculate scale-free topology fit index
-
 powers <- c(
   c(1:10),
   seq(
@@ -226,7 +219,6 @@ gcn_sft <- pickSoftThreshold(
 )
 
 ## Plot scale-free topology fit index and mean connectivity
-
 png(
   here::here(
     "output",
@@ -244,7 +236,6 @@ par(mfrow = c(1, 2))
 cex1 <- 0.9
 
 ### SFT index
-
 plot(
   gcn_sft$fitIndices[, 1],
   -sign(gcn_sft$fitIndices[, 3]) * gcn_sft$fitIndices[, 2],
@@ -265,7 +256,6 @@ text(
 abline(h = 0.90, col = "red")
 
 ### Mean connectivity
-
 plot(
   gcn_sft$fitIndices[, 1],
   gcn_sft$fitIndices[, 5],
@@ -286,7 +276,6 @@ text(
 dev.off()
 
 # Construct GCN object
-
 gcn <- list(
   E = gcn_rlog,
   targets = rlog_deseq2_coldata %>%
@@ -310,7 +299,9 @@ gcn <- list(
   sft = gcn_sft
 )
 
-saveRDS(gcn,
+# Save data
+saveRDS(
+  gcn,
   file = here::here(
     "output",
     "data_WGCNA",

@@ -1,13 +1,15 @@
 here::i_am("R/5_post_WGCNA_5_export_Cytoscape.R")
 
 ########################
-# Load data
+# Export TOMs into edge and node lists for Cytoscape
 ########################
 
 # Import packages
 library(here)
 library(tidyverse)
+library(WGCNA)
 
+# Load data
 ## GCN with all samples
 gcn <- readRDS(
   file = here::here(
@@ -26,7 +28,7 @@ tom <- TOMsimilarityFromExpr(
   verbose = Inf
 )
 
-## Export TOMs into edge and node lists for Cytoscape
+# Export TOMs into edge and node lists for Cytoscape
 exportNetworkToCytoscape(
   adjMat = tom,
   edgeFile = here::here(

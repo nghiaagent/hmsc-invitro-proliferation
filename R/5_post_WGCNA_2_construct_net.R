@@ -1,7 +1,7 @@
 here::i_am("R/5_post_WGCNA_2_construct_net.R")
 
 ########################
-# Load object
+# Construct WGC network
 ########################
 
 # Import packages
@@ -9,6 +9,7 @@ library(here)
 library(tidyverse)
 library(WGCNA)
 
+# Load object
 gcn <- readRDS(
   file = here::here(
     "output",

@@ -1,13 +1,14 @@
 here::i_am("R/5_post_WGCNA_4_extract_module_genes.R")
 
 ########################
-# Load data
+# Extract module genes to be analysed further
 ########################
 
 # Import packages
 library(here)
 library(tidyverse)
 
+# Load data
 ## GCN with all samples
 gcn <- readRDS(
   file = here::here(
@@ -28,7 +29,6 @@ gcn$genes <- gcn$genes %>%
 ## Extract gene lists
 ## entrez for GSVA
 ## Symbol for String/PPI
-
 gcn_genelists_entrez <- split(
   gcn$genes,
   gcn$genes$module,
@@ -71,7 +71,6 @@ names(gcn_genelists_symbol) <- str_c(
 ### should contain a vector of gene names, and the names of the
 ### elements will used for the gene set names
 ### Output file name for .gmt file
-
 write_gmt <- function(object, fname) {
   if (class(object) != "list") {
     stop("object should be of class 'list'")
@@ -81,20 +80,12 @@ write_gmt <- function(object, fname) {
     unlink(fname)
   }
 
-  for (iElement in 1:length(object)) {
-    # nolint
+  for (i in seq_along(object)) {
     write.table(
-      t(
-        c(
-          make.names(
-            rep(
-              names(object)[iElement],
-              2
-            )
-          ),
-          object[[iElement]]
-        )
-      ),
+      t(c(
+        make.names(rep(names(object)[i], 2)),
+        object[[i]]
+      )),
       sep = "\t",
       quote = FALSE,
       file = fname,
@@ -106,7 +97,6 @@ write_gmt <- function(object, fname) {
 }
 
 # Write gene list in ENTREZID to GMT file
-
 write_gmt(
   gcn_genelists_entrez,
   here::here(
@@ -118,7 +108,6 @@ write_gmt(
 )
 
 # Write gene list with GENENAME to text files for STRING
-
 imap(
   list(
     "turquoise_genes" = "WGCNA_allsamples_turquoise",
