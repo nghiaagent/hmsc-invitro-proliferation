@@ -1,16 +1,18 @@
-here::i_am("R/7_post_GSVA_5_resultstable_volcano3d.R")
+here::i_am("R/7_post_GSVA_4_resultstable_volcano3d.R")
 
 ########################
-# Load data
+# Extract results tables for GSVA volcano3D plots
 ########################
 
 # Import packages
 library(DESeq2)
+library(GSVA)
 library(here)
 library(magrittr)
 library(tidyverse)
 library(WGCNA)
 
+# Load data
 fit_gsva <- readRDS(
   here::here(
     "output",
@@ -39,6 +41,7 @@ polar_manual_gsva <- readRDS(
 )
 
 # Define table specs
+## Number of top gene sets
 ntop <- 5
 
 # Define coefficients for extracting genes
@@ -72,81 +75,57 @@ collections_interest <- c(
 )
 
 # Extract gene set IDs relevant
-genesetid_gsva <- map(
-  polar_manual_gsva[1:6],
-  \(polar_manual) {
-    map(
-      coef_volcano3d,
-      \(x) {
-        map(
-          x,
-          \(coefs) {
-            significance_subset(
-              polar_manual,
-              significance = coefs,
-              output = "pvals"
-            ) %>%
-              rownames()
-          }
-        )
-      }
-    )
-  }
-)
+genesetid_gsva <- map(polar_manual_gsva[1:6], \(polar_manual) {
+  map(coef_volcano3d, \(x) {
+    map(x, \(coefs) {
+      significance_subset(
+        polar_manual,
+        significance = coefs,
+        output = "pvals"
+      ) %>%
+        rownames()
+    })
+  })
+})
 
-genesetid_wgcna <- map(
-  coef_volcano3d,
-  \(x) {
-    map(
-      x,
-      \(coefs) {
-        polar_manual_gsva[["WGCNA"]]@df$scaled %>%
-          filter(lab == coefs) %>%
-          rownames()
-      }
-    )
-  }
-)
+genesetid_wgcna <- map(coef_volcano3d, \(x) {
+  map(x, \(coefs) {
+    polar_manual_gsva[["WGCNA"]]@df$scaled %>%
+      filter(lab == coefs) %>%
+      rownames()
+  })
+})
 
 genesetid_gsva <- c(genesetid_gsva, list("WGCNA" = genesetid_wgcna))
 
 # Merge fit_gsva lists to get list of
 # genesets up/downregulated at each passage compared to the rest
-toptable_paired <- imap(
-  fit_gsva,
-  \(fit, name) {
-    map(
-      coef_toptable,
-      \(contrast) {
-        extract_joined_results_limma(
-          fit,
-          contrast_1 = contrast[[1]],
-          contrast_2 = contrast[[2]]
-        ) %>%
-          mutate(collection = name)
-      }
-    )
-  }
-)
+toptable_paired <- imap(fit_gsva, \(fit, name) {
+  map(coef_toptable, \(contrast) {
+    extract_joined_results_limma(
+      fit,
+      contrast_1 = contrast[[1]],
+      contrast_2 = contrast[[2]]
+    ) %>%
+      mutate(collection = name)
+  })
+})
 
 # Select for gene sets highlighted in 3D volcano plots
 toptable_ordered <- map2(
   toptable_paired,
   genesetid_gsva,
   \(toptable_collection, genesetid_collection) {
-    map(
-      genesetid_collection,
-      \(genesetid) {
-        map2(
-          toptable_collection,
-          genesetid,
-          \(top, genesetid) {
-            filter(top, geneset %in% genesetid) %>%
-              dplyr::arrange(., desc(.[[2]]))
-          }
-        )
-      }
-    )
+    map(genesetid_collection, \(genesetid) {
+      map2(
+        toptable_collection,
+        genesetid,
+        \(top, genesetid) {
+          filter(top, geneset %in% genesetid) %>%
+            dplyr::arrange(., desc(.[[2]]))
+        }
+      )
+    })
   }
 )
 
@@ -233,6 +212,7 @@ toptable_out <- toptable_ordered %$%
     )
   )
 
+## Same table but no limits to length
 toptable_out_big <- toptable_ordered %$%
   list(
     p5 = rbind(

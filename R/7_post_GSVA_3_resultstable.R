@@ -1,16 +1,18 @@
-here::i_am("R/7_post_GSVA_4_resultstable.R")
+here::i_am("R/7_post_GSVA_3_resultstable.R")
 
 ########################
-# Load data
+# Extract results tables for GSVA
 ########################
 
 # Import packages
 library(DESeq2)
+library(GSVA)
 library(here)
 library(limma)
 library(magrittr)
 library(tidyverse)
 
+# Load data
 fit_gsva <- readRDS(
   here::here(
     "output",

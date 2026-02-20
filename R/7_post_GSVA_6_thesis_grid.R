@@ -1,14 +1,15 @@
-here::i_am("R/7_post_GSVA_7_thesis_grid.R")
+here::i_am("R/7_post_GSVA_6_thesis_grid.R")
 
 ########################
-# Load data
-## Plots for passages
+# Build plot grid for thesis
 ########################
 
 # Import packages
 library(here)
 library(tidyverse)
 
+# Load data
+## Plots for passages
 plots_poi_passage <- readRDS(
   here::here(
     "output",

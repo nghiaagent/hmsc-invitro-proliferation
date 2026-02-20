@@ -1,15 +1,17 @@
-here::i_am("R/7_post_GSVA_6_POI_boxplot.R")
+here::i_am("R/7_post_GSVA_5_POI_boxplot.R")
 
 ########################
-# Load data
+# Build boxplots for pathways of interest
 ########################
 
 # Import packages
 library(DESeq2)
+library(GSVA)
 library(here)
 library(limma)
 library(tidyverse)
 
+# Load data
 fit_gsva <- readRDS(
   here::here(
     "output",

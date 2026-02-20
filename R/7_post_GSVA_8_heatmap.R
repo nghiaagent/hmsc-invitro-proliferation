@@ -1,7 +1,7 @@
 here::i_am("R/7_post_GSVA_8_heatmap.R")
 
 ########################
-# Load data
+# Build heatmap for GSVA
 ########################
 
 # Import packages
@@ -11,6 +11,7 @@ library(limma)
 library(magrittr)
 library(tidyverse)
 
+# Load data
 fit_gsva <- readRDS(
   here::here(
     "output",

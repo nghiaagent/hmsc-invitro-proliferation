@@ -7,6 +7,7 @@ here::i_am("R/7_post_GSVA_1.R")
 
 # Import packages
 library(DESeq2)
+library(GSVA)
 library(here)
 library(limma)
 library(magrittr)
