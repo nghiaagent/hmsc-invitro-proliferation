@@ -1,3 +1,5 @@
+conflicted::conflict_prefer("setdiff", "base")
+
 source("renv/activate.R")
 
 library(tidyverse)
