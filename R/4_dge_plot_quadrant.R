@@ -1,7 +1,8 @@
 here::i_am("R/4_dge_plot_quadrant.R")
 
 ########################
-# Load data
+# Plot 4-way comparison plot to determine changes in gene expression
+# between control and heparin-treated hMSCs over D3-D5
 ########################
 
 # Import packages
@@ -9,6 +10,7 @@ library(DESeq2)
 library(here)
 library(tidyverse)
 
+# Load data
 results_lfcshrink <- readRDS(
   file = here::here(
     "output",
@@ -44,6 +46,7 @@ coef_results <- list(
 )
 
 # Create merged results tables
+## Results for all genes
 list_results <- coef_results %>%
   map(\(coefs) {
     extract_joined_results(
@@ -101,6 +104,7 @@ list_results <- coef_results %>%
       )
   })
 
+## Subset to all genes, genes within NF-kB, within TGF-beta
 list_results_subset <- list_results %>%
   map(\(results) {
     results_subset <- list(
@@ -111,7 +115,8 @@ list_results_subset <- list_results %>%
   }) %>%
   unlist(recursive = FALSE)
 
-# Create list of XY plots to show effect of Heparin over D3-D5 at each passage
+# Create list of quadrant plots to
+# show effect of Heparin over D3-D5 at each passage
 list_plots <- map2(
   list_results,
   coef_results,
@@ -147,9 +152,7 @@ list_plots <- map2(
             size = 2
           ) +
           geom_text_repel(
-            aes(
-              colour = outcome_combined
-            ),
+            aes(colour = outcome_combined),
             min.segment.length = 2,
             max.overlaps = 30,
             force = 4,
@@ -180,6 +183,7 @@ list_plots <- map2(
 ) %>%
   unlist(recursive = FALSE)
 
+# Build grid of plots and legend
 grid_all <- list_plots %>%
   map(\(plot) plot + theme(legend.position = "none")) %>%
   wrap_plots(ncol = 3)

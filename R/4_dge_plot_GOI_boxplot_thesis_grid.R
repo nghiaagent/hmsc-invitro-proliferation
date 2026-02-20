@@ -2,13 +2,13 @@ here::i_am("R/4_dge_plot_GOI_boxplot_thesis_grid.R")
 
 ########################
 # Plot GOIs in a grid for thesis using cowplot
-# Load data
 ########################
 
 # Import packages
 library(here)
 library(tidyverse)
 
+# Load data
 ## Plots for passages
 plots_goi_passage <- readRDS(
   file = here::here(
@@ -19,7 +19,6 @@ plots_goi_passage <- readRDS(
 )
 
 ## Plots for treatments
-
 plots_goi_treat <- readRDS(
   file = here::here(
     "output",
@@ -29,7 +28,6 @@ plots_goi_treat <- readRDS(
 )
 
 # Define genes for plots
-
 genes_sel_hspgs <- c(
   "SDC1",
   "SDC2",
@@ -62,9 +60,7 @@ genes_sel_markers <- c(
 )
 
 # Create grid
-
 ## Get legend, reformat
-
 plot_legend_passage <- get_legend(
   plots_goi_passage[[1]] +
     guides(col = guide_legend(ncol = 3))

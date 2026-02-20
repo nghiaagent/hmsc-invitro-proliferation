@@ -1,7 +1,7 @@
 here::i_am("R/4_dge_plot_GOI_boxplot.R")
 
 ########################
-# Load data (batch-corrected counts)
+# Create boxplots of in-house GOIs
 ########################
 
 # Import packages
@@ -11,6 +11,7 @@ library(magrittr)
 library(SummarizedExperiment)
 library(tidyverse)
 
+# Load data (batch-corrected counts)
 quant_deseq2_batchcor <- readRDS(
   file = here::here(
     "output",
@@ -75,8 +76,7 @@ plot_goi_treat <- function(gene_id, gene_name) {
   # Get position to start drawing signif bars
   y_position <- log10(max(gene_counts$count) * 1.1)
 
-  # Define position of bars and numbers manually
-
+  # Define position of bars and numbers
   annotation_signif <- tibble(
     Passage = factor(
       c("P5", "P7", "P13"),
@@ -209,7 +209,7 @@ plots_goi_passage <- map2(
   set_names(genes_sel$gene_name)
 
 ## Export plots
-purrr::iwalk(
+iwalk(
   plots_goi_treat,
   \(x, idx) {
     ggsave(
@@ -231,7 +231,7 @@ purrr::iwalk(
   .progress = TRUE
 )
 
-purrr::iwalk(
+iwalk(
   plots_goi_passage,
   \(x, idx) {
     ggsave(

@@ -1,12 +1,13 @@
 here::i_am("R/4_dge_plot_volcano3D.R")
 
 ########################
+# Build 3D volcano plots for DGE
 # Supply p-values to the 3D volcano plot
-## First column: ANOVA p-values
-## Remaining columns: Comparisons
-## 13: A vs B (P5 vs P7)
-## 15: A vs C (P5 vs P13)
-## 14: B vs C (P7 vs P13)
+# First column: ANOVA p-values
+# Remaining columns: Comparisons
+# 13: A vs B (P5 vs P7)
+# 15: A vs C (P5 vs P13)
+# 14: B vs C (P7 vs P13)
 ########################
 
 # Import packages
@@ -28,7 +29,6 @@ breaks <- seq(
 )
 
 # Load data
-
 rlog_deseq2_batchcor <- readRDS(
   file = here::here(
     "output",
@@ -59,7 +59,6 @@ quant_deseq2_lrt <- readRDS(
 results_lrt <- results(quant_deseq2_lrt, filterFun = ihw, alpha = 0.05)
 
 # Supply pvalues
-
 polar_pvals <- cbind(
   results_lrt$pvalue,
   results[[13]]$pvalue,
@@ -75,7 +74,6 @@ polar_padj <- cbind(
 )
 
 ## Construct volcano3d object
-
 outcome <- colData(rlog_deseq2_batchcor)$condition_ID %>%
   factor(
     levels = c(
@@ -148,6 +146,7 @@ radial_ggplot <- map(
   }
 )
 
+# Save data
 saveRDS(
   polar_manual,
   file = here::here(

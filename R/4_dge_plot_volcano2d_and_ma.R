@@ -1,7 +1,7 @@
 here::i_am("R/4_dge_plot_volcano2d_and_ma.R")
 
 ########################
-# Hardcode plot specs
+# 2D volcano and MA plots
 ########################
 
 # Import packages
@@ -10,12 +10,12 @@ library(DESeq2)
 library(here)
 library(tidyverse)
 
+# Hardcode plot specs
 cutoff_logfc <- 3
 cutoff_padj <- 1e-15
 alpha <- 0.05
 
 # Load data
-
 quant_deseq2_batchcor <- readRDS(
   file = here::here(
     "output",
@@ -119,6 +119,7 @@ plots_volcano_ma <- purrr::imap(
   .progress = TRUE
 )
 
+# Save data
 saveRDS(
   plots_volcano_ma,
   here::here(
