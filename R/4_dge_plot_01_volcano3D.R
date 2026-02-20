@@ -15,6 +15,7 @@ library(DESeq2)
 library(here)
 library(SummarizedExperiment)
 library(tidyverse)
+library(volcano3D)
 
 # Define axis specs
 plotlist <- list(

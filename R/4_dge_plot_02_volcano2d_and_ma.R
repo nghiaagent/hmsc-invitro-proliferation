@@ -7,6 +7,7 @@ here::i_am("R/4_dge_plot_02_volcano2d_and_ma.R")
 # Import packages
 library(cowplot)
 library(DESeq2)
+library(EnhancedVolcano)
 library(here)
 library(tidyverse)
 
