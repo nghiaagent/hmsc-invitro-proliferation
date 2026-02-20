@@ -124,7 +124,6 @@ labeledHeatmap(
 dev.off()
 
 # Save data
-
 saveRDS(
     gcn,
     file = here::here(
