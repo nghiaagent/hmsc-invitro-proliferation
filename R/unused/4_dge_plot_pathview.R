@@ -1,14 +1,16 @@
 here::i_am("R/4_dge_plot_pathview.R")
 
 ########################
-# Load data
+# Build pathview maps for selected KEGG pathways
 ########################
 
 # Import packages
 library(DESeq2)
 library(here)
+library(pathview)
 library(tidyverse)
 
+# Load data
 results_lfcshrink <- readRDS(
   file = here::here(
     "output",
@@ -53,7 +55,6 @@ results_betweenpassages <- extract_joined_results_trio(
 # Swap ENSEMBL ID with ENTREZ ID
 # Remove gene with lower average expression (baseMean) if sharing ENSEMBL IDs
 # Remove genes with no Entrez ID
-
 order <- order(results_betweenpassages$baseMean, decreasing = TRUE)
 
 results_betweenpassages <- results_betweenpassages %>%
@@ -74,13 +75,11 @@ results_pathview <- results_pathview %>%
   ))
 
 # Draw pathway map
-
 ## Jump to output dir
-setwd("./output/plots_kegg_pathways")
+setwd(here::here("./output/plots_kegg_pathways"))
 
 ## Draw
 ### Set fun
-
 plot_pv <- function(gene_data, out_suffix) {
   pathview(
     gene.data = gene_data,
@@ -108,12 +107,10 @@ plot_pv <- function(gene_data, out_suffix) {
 }
 
 ### 3 pairs
-
 plot_pv(
   results_pathview,
   "P13vsP7vsP5"
 )
 
 ## Return to wd
-
-setwd("../../")
+setwd(here::here("./"))
