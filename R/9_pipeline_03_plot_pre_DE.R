@@ -16,7 +16,7 @@ c(
         "Sourcing ",
         here::here("scripts", x)
       ))
-      source(here::here("R", x), echo = TRUE, verbose = TRUE)
+      source(here::here("R", x), echo = TRUE, verbose = FALSE)
     },
     .progress = TRUE
   )
