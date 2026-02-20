@@ -5,6 +5,7 @@ here::i_am("R/0_define_results_extract_limma.R")
 ########################
 
 # Import packages
+library(conflicted)
 library(DESeq2)
 library(here)
 library(limma)
@@ -21,14 +22,14 @@ extract_joined_results_limma <- function(
   vars_to_keep <- c(contrast_1, contrast_2, "adj.P.Val")
 
   # Construct table
-  toptable_anova <- topTable(
+  toptable_anova <- limma::topTable(
     fit,
     coef = NULL,
     number = Inf,
     sort.by = "none"
   ) %>%
-    dplyr::select(all_of(vars_to_keep)) %>%
-    rownames_to_column(var = "geneset")
+    dplyr::select(dplyr::all_of(vars_to_keep)) %>%
+    tibble::rownames_to_column(var = "geneset")
 
   # Return data
   return(toptable_anova)

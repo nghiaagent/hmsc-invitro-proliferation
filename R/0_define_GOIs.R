@@ -5,6 +5,7 @@ here::i_am("R/0_define_GOIs.R")
 ########################
 
 # Import packages
+library(conflicted)
 library(GSEABase)
 library(here)
 library(org.Hs.eg.db)
@@ -82,14 +83,14 @@ genenames_inhouse_hspgs <- c(
 )
 
 ## Map gene names to ENTREZIDs
-geneids_inhouse <- mapIds(
+geneids_inhouse <- AnnotationDbi::mapIds(
   org.Hs.eg.db,
   keys = genenames_inhouse,
   column = "ENTREZID",
   keytype = "SYMBOL"
 )
 
-geneids_inhouse_hspgs <- mapIds(
+geneids_inhouse_hspgs <- AnnotationDbi::mapIds(
   org.Hs.eg.db,
   keys = genenames_inhouse_hspgs,
   column = "ENTREZID",
@@ -145,7 +146,7 @@ genenames_rt2array <- c(
 )
 
 ## Map gene names to ENTREZIDs
-geneids_rt2array <- mapIds(
+geneids_rt2array <- AnnotationDbi::mapIds(
   org.Hs.eg.db,
   keys = genenames_rt2array,
   column = "ENTREZID",
@@ -153,7 +154,7 @@ geneids_rt2array <- mapIds(
 )
 
 # Load external GMTs
-msigdb_gobp <- getGmt(
+msigdb_gobp <- GSEABase::getGmt(
   con = here::here(
     "input",
     "genesets",
@@ -162,7 +163,7 @@ msigdb_gobp <- getGmt(
   )
 )
 
-msigdb_gomf <- getGmt(
+msigdb_gomf <- GSEABase::getGmt(
   con = here::here(
     "input",
     "genesets",
@@ -171,7 +172,7 @@ msigdb_gomf <- getGmt(
   )
 )
 
-msigdb_kegg <- getGmt(
+msigdb_kegg <- GSEABase::getGmt(
   con = here::here(
     "input",
     "genesets",
@@ -189,14 +190,14 @@ list_gmt <- list(
   "GOMF" = "msigdb_v2023.2.Hs_GMTs/c5.go.mf.v2023.2.Hs.entrez.gmt",
   "WGCNA" = "gcn_sets_WGCNA.gmt"
 ) %>%
-  map(\(filename) {
+  purrr::map(\(filename) {
     here::here(
       "input",
       "genesets",
       filename
     )
   }) %>%
-  map(\(x) getGmt(con = x))
+  purrr::map(\(x) GSEABase::getGmt(con = x))
 
 ## Define genes in WNT signalling
 geneids_wnt <- c(
@@ -205,7 +206,7 @@ geneids_wnt <- c(
   msigdb_gobp[["GOBP_CANONICAL_WNT_SIGNALING_PATHWAY"]]@geneIds
 )
 
-names(geneids_wnt) <- mapIds(
+names(geneids_wnt) <- AnnotationDbi::mapIds(
   org.Hs.eg.db,
   keys = geneids_wnt,
   column = "SYMBOL",
@@ -221,7 +222,7 @@ geneids_hspgs <- c(
   msigdb_gomf[["GOMF_HEPARAN_SULFATE_PROTEOGLYCAN_BINDING"]]@geneIds
 )
 
-names(geneids_hspgs) <- mapIds(
+names(geneids_hspgs) <- AnnotationDbi::mapIds(
   org.Hs.eg.db,
   keys = geneids_hspgs,
   column = "SYMBOL",
@@ -250,7 +251,7 @@ geneids_nfkb <- c(
   list_gmt[["h"]][["HALLMARK_TNFA_SIGNALING_VIA_NFKB"]]@geneIds
 ) %>%
   unique() %>%
-  set_names(mapIds(
+  magrittr::set_names(AnnotationDbi::mapIds(
     org.Hs.eg.db,
     keys = .,
     column = "SYMBOL",
@@ -262,7 +263,7 @@ geneids_tgfb <- c(
   list_gmt[["h"]][["HALLMARK_TGF_BETA_SIGNALING"]]@geneIds
 ) %>%
   unique() %>%
-  set_names(mapIds(
+  magrittr::set_names(AnnotationDbi::mapIds(
     org.Hs.eg.db,
     keys = .,
     column = "SYMBOL",

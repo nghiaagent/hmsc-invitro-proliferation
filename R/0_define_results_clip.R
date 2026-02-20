@@ -7,6 +7,7 @@ here::i_am("R/0_define_results_clip.R")
 ########################
 
 # Import packages
+library(conflicted)
 library(DESeq2)
 library(here)
 library(tidyverse)
@@ -46,9 +47,9 @@ clip_results <- function(
   )
 
   names(results$volcano_shape) <- dplyr::case_when(
-    results$volcano_shape == -9658 ~ str_c("logFC >", cutoff_logfc),
-    results$volcano_shape == -9668 ~ str_c("logFC < -", cutoff_logfc),
-    results$volcano_shape == 17 ~ str_c("padj <", cutoff_padj),
+    results$volcano_shape == -9658 ~ stringr::str_c("logFC >", cutoff_logfc),
+    results$volcano_shape == -9668 ~ stringr::str_c("logFC < -", cutoff_logfc),
+    results$volcano_shape == 17 ~ stringr::str_c("padj <", cutoff_padj),
     results$volcano_shape == 19 ~ "Unclipped"
   )
 

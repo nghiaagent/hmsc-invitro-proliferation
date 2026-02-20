@@ -6,6 +6,7 @@ here::i_am("R/0_define_results_format.R")
 ########################
 
 # Import packages
+library(conflicted)
 library(DESeq2)
 library(here)
 library(tidyverse)
@@ -32,7 +33,7 @@ format_deseq_rowranges <- function(dds) {
   }
 
   # Format data, extract only relevant columns
-  rowranges_format <- rowRanges(dds) %>%
+  rowranges_format <- SummarizedExperiment::rowRanges(dds) %>%
     tibble::as_tibble() %>%
     dplyr::select(c(gene_id, gene_name, entrezid, description, baseMean))
 

@@ -5,6 +5,7 @@ here::i_am("R/0_bookdown_helper.R")
 ########################
 
 # Import packages
+library(conflicted)
 library(DT)
 library(here)
 library(tidyverse)
@@ -26,7 +27,7 @@ draw_camera_tbl <- function(table) {
     )
   ) %>%
     # Round p-values to 5 decimal places
-    formatRound(c(3, 4), 5)
+    DT::formatRound(c(3, 4), 5)
 
   return(out)
 }

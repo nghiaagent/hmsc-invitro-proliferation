@@ -7,6 +7,7 @@ here::i_am("R/0_define_results_extract.R")
 ########################
 
 # Import packages
+library(conflicted)
 library(DESeq2)
 library(here)
 library(tidyverse)
@@ -57,9 +58,9 @@ extract_topgenes <- function(
   } else {
     results_merge %$%
       rbind(
-        filter(., `LogFC` > 0) %>%
+        dplyr::filter(., `LogFC` > 0) %>%
           dplyr::slice_head(n = ntop),
-        filter(., `LogFC` < 0) %>%
+        dplyr::filter(., `LogFC` < 0) %>%
           dplyr::slice_tail(n = ntop)
       ) %>%
       return()
